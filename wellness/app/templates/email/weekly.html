@@ -1,7 +1,7 @@
 {% extends "email/base.html" %}
 {% block body %}
 <p>Hi {{ name }},</p>
-<p>This week's reflection is open in your journal:</p>
+<p>Here's this week's reflection prompt:</p>
 <p style="font-size:18px;font-weight:600;font-style:italic;color:#4B0F4F;margin:18px 0">{{ week.prompt }}</p>
 <p>There's no right way to answer, and no length you need to reach. A few honest lines count.</p>
 {% with href=journal_link, label="Write my reflection" %}{% include "email/_button.html" %}{% endwith %}

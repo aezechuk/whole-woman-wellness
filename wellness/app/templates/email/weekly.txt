@@ -1,6 +1,6 @@
 Hi {{ name }},
 
-This week's reflection is open in your journal:
+Here's this week's reflection prompt:
 
   {{ week.prompt }}
 
