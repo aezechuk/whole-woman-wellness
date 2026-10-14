@@ -63,7 +63,8 @@ def create_app(env: str | None = None) -> Flask:
 
     @app.context_processor
     def contact():
-        return {"contact_name": app.config["CONTACT_NAME"], "contact_email": app.config["CONTACT_EMAIL"]}
+        return {"contact_name": app.config["CONTACT_NAME"], "contact_email": app.config["CONTACT_EMAIL"],
+                "funder_name": app.config["FUNDER_NAME"]}
 
     @app.before_request
     def load_participant():

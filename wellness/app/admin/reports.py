@@ -215,7 +215,7 @@ def _race_key(race: list[str]) -> str:
 
 
 def funder_report() -> dict:
-    """Percentages in the Women's Fund format. Everyone who didn't answer counts as Unknown."""
+    """Percentages in the funder's format. Everyone who didn't answer counts as Unknown."""
     responses = list(db.session.scalars(select(DemographicResponse)))
     total = max(len(_participants()), len(responses))
     tables = []

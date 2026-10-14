@@ -2,7 +2,7 @@
 {% block title %}Share your experience{% endblock %}
 {% block content %}
 <h1 class="title">Share your experience</h1>
-<p class="muted">Testimonials are different from your private reflections: program staff can read them, and they may be shared in our report to The Women's Fund of Central Indiana, credited the way you choose.</p>
+<p class="muted">Testimonials are different from your private reflections: program staff can read them, and they may be shared in our report to {{ funder_name }}, credited the way you choose.</p>
 <a class="button" href="{{ url_for('reflect.testimonial_new') }}">Write a testimonial</a>
 
 {% for t in testimonials %}

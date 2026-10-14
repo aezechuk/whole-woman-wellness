@@ -174,3 +174,9 @@ def test_send_failure_shows_message_and_frees_the_slot(client, app, monkeypatch)
         r = client.post("/start", data={"email": "a@example.com", "join_code": JOIN_CODE})
         assert r.status_code == 503 and b"couldn" in r.data
     assert db.session.scalar(select(SignInCode)) is None  # failed sends don't count
+
+
+def test_funder_named_on_pages_and_in_emails(client):
+    assert b"Supported by the Women&#39;s Foundation of Indiana" in client.get("/start").data
+    client.post("/start", data={"email": "a@example.com", "join_code": JOIN_CODE})
+    assert "Supported by the Women's Foundation of Indiana" in mail.OUTBOX[-1].text

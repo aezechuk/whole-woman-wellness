@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% block title %}Funder report{% endblock %}
 {% block content %}
-<h1 class="title">Women's Fund final report</h1>
+<h1 class="title">Funder final report</h1>
 <p><strong>Total # of participants: {{ f.total }}</strong> <span class="muted small">({{ f.responded }} completed Count Me In; everyone else counts as Unknown)</span></p>
 <p><a href="{{ url_for('admin.export_funder') }}">Download demographics as CSV</a></p>
 <div class="report-grid">

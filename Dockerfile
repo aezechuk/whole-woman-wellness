@@ -18,5 +18,5 @@ ENV APP_ENV=prod FLASK_APP="wellness.app:create_app()"
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz',timeout=4).status==200 else 1)"
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4", "--access-logfile", "-", \
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--no-control-socket", "--workers", "2", "--threads", "4", "--access-logfile", "-", \
      "--access-logformat", "%(t)s \"%(m)s %(U)s\" %(s)s %(L)ss", "wellness.app:create_app()"]

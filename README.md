@@ -1,6 +1,6 @@
 # Whole Woman Wellness Assessment
 
-A mobile-first web app (PWA) for the **Radical Self-Care Reset**, part of the WiARTS 2026 Whole Woman Wellness Initiative, funded by The Women's Fund of Central Indiana.
+A mobile-first web app (PWA) for the **Radical Self-Care Reset**, part of the WiARTS 2026 Whole Woman Wellness Initiative, supported by the Women's Foundation of Indiana.
 
 Participants take a reflective pre/post assessment across six domains that mirror the six program sessions, see their results, keep a private reflection journal, give anonymous session feedback, and optionally share testimonials. Admins see only group-level results.
 

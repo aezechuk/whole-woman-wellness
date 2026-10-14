@@ -38,6 +38,8 @@ class Config:
     # Who participants contact with questions or deletion requests (consent screen, emails).
     CONTACT_NAME = "Arthentic Arts"
     CONTACT_EMAIL = "arthenticarts@gmail.com"
+    # Shown on screens and in emails; mid-sentence, so lowercase "the".
+    FUNDER_NAME = "the Women's Foundation of Indiana"
 
     INSTRUMENT_VERSION = "v1"
     # Final assessment opens at the Care for the Dream session (Nov 18, Eastern).
