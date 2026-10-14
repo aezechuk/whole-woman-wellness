@@ -35,6 +35,10 @@ class Config:
     ADMIN_EMAILS = [e for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
     ADMIN_SESSION_LIFETIME = timedelta(hours=8)
 
+    # Who participants contact with questions or deletion requests (consent screen, emails).
+    CONTACT_NAME = "Arthentic Arts"
+    CONTACT_EMAIL = "arthenticarts@gmail.com"
+
     INSTRUMENT_VERSION = "v1"
     # Final assessment opens at the Care for the Dream session (Nov 18, Eastern).
     FINAL_OPENS_AT = datetime(2026, 11, 18, 0, 0, tzinfo=timezone(timedelta(hours=-5)))

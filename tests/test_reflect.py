@@ -226,3 +226,12 @@ def test_emails_never_include_results(app, client):
     onboard(client)
     for m in mail.OUTBOX:
         assert "score" not in m.text.lower()
+
+
+def test_contact_shown_on_consent_and_emails(client):
+    from .conftest import sign_in
+    sign_in(client)
+    client.post("/welcome", data={"first_name": "Maya"})
+    page = client.get("/consent").get_data(as_text=True)
+    assert "Arthentic Arts" in page and "arthenticarts@gmail.com" in page
+    assert all("arthenticarts@gmail.com" in m.text for m in mail.OUTBOX)

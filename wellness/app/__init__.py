@@ -44,6 +44,10 @@ def create_app(env: str | None = None) -> Flask:
     app.register_blueprint(reflect_bp)
     app.register_blueprint(admin_bp)
 
+    @app.context_processor
+    def contact():
+        return {"contact_name": app.config["CONTACT_NAME"], "contact_email": app.config["CONTACT_EMAIL"]}
+
     @app.before_request
     def load_participant():
         g.participant = participant_for_token(request.cookies.get(app.config["AUTH_COOKIE_NAME"]))

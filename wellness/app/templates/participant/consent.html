@@ -14,7 +14,7 @@
   </ul>
   <p><strong>Your choices:</strong> taking part is voluntary. You can skip the assessment, stop at any time, download your results and reflections, or ask us to delete your data.</p>
   <p><strong>How long we keep it:</strong> your data is deleted on February 28, 2027, three months after the program ends. You'll get a reminder beforehand to download anything you'd like to keep.</p>
-  <p>Questions? Contact [contact name] at [contact email].</p>
+  <p>Questions? Contact {{ contact_name }} at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
 </div>
 <form method="post" class="stack">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

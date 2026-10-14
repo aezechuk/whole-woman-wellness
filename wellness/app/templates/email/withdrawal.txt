@@ -2,5 +2,5 @@ Hi {{ name or 'there' }},
 
 As you asked, we've deleted your account, assessment results, and reflections from the Whole Woman Wellness app. Any remaining backup copies will be fully removed within 14 days.
 
-You're always welcome back.
+You're always welcome back. If you have questions, contact {{ contact_name }} at {{ contact_email }}.
 {% include "email/footer.txt" %}
