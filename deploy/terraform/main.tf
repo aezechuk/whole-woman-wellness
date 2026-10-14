@@ -191,9 +191,17 @@ data "aws_iam_policy_document" "app" {
     }
   }
   statement {
+    # SES authorizes against every identity involved in a send: the sender's
+    # domain and, while in the sandbox, the verified recipient too. So allow
+    # this account's identities, but only when sending FROM the app's domain.
     sid       = "SendAsAppDomainOnly"
     actions   = ["ses:SendEmail", "ses:SendRawEmail"]
-    resources = [aws_sesv2_email_identity.app.arn]
+    resources = ["arn:${data.aws_partition.p.partition}:ses:${var.region}:${local.account_id}:identity/*"]
+    condition {
+      test     = "StringLike"
+      variable = "ses:FromAddress"
+      values   = ["*@${var.app_host}"]
+    }
   }
   statement {
     sid       = "WriteBackupsOnly"
