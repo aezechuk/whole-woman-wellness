@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete my data{% endblock %}
+{% block content %}
+<h1 class="title">Delete my data</h1>
+<div class="card stack prose">
+  <p>This permanently deletes your account, assessment results, reflections, and testimonials. It can't be undone.</p>
+  <p>You may want to <a href="{{ url_for('reflect.download') }}">download a copy</a> first.</p>
+  <p class="small muted">Your Count Me In answers and session feedback were anonymous and aren't linked to you, so they can't be identified or removed. Remaining backup copies are fully removed within 14 days. A testimonial already included in a submitted funder report stays in that report.</p>
+</div>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="confirm">Type DELETE to confirm</label>
+    <input id="confirm" name="confirm" type="text" autocomplete="off" autocapitalize="characters" required>
+  </div>
+  <button class="button danger" type="submit">Permanently delete my data</button>
+</form>
+<p class="center"><a href="{{ url_for('reflect.settings') }}">Cancel</a></p>
+{% endblock %}

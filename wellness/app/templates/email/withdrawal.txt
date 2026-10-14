@@ -1,0 +1,6 @@
+Hi {{ name or 'there' }},
+
+As you asked, we've deleted your account, assessment results, and reflections from the Whole Woman Wellness app. Any remaining backup copies will be fully removed within 14 days.
+
+You're always welcome back.
+{% include "email/footer.txt" %}

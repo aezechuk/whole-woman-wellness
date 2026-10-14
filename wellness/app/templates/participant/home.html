@@ -5,11 +5,19 @@
   <h1 class="display">hi, {{ participant.first_name|lower }}</h1>
 </section>
 
+{% if week %}
+<section class="card stack">
+  <p class="kicker">THIS WEEK · {{ week.name|upper }}</p>
+  <p class="h2">{{ week.prompt }}</p>
+  <a class="button" href="{{ url_for('reflect.journal_week', week_key=week.key) }}">Write my reflection</a>
+</section>
+{% endif %}
+
 <section class="card stack">
   <p class="kicker">YOUR ASSESSMENT</p>
   {% if pre and pre.completed_at %}
     <p>You completed your beginning assessment.</p>
-    <a class="button" href="{{ url_for('assessment.results') }}">View my snapshot</a>
+    <a class="button {{ 'secondary' if week else '' }}" href="{{ url_for('assessment.results') }}">View my snapshot</a>
   {% elif pre %}
     <p>You've started your beginning assessment. Pick up where you left off.</p>
     <a class="button" href="{{ url_for('assessment.begin', timepoint='pre') }}">Continue</a>
@@ -29,16 +37,17 @@
   {% endif %}
 </section>
 
-{% if not participant.count_me_in_done_at %}
-<section class="card tint stack">
-  <p class="kicker">COUNT ME IN</p>
-  <p class="small">A few anonymous questions that help our funder see who this program reaches.</p>
-  <a class="link" href="{{ url_for('assessment.count_me_in') }}">Count me in</a>
-</section>
-{% endif %}
+<nav class="menu" aria-label="More">
+  <a href="{{ url_for('reflect.journal') }}"><strong>Journal</strong><span>Private reflections</span></a>
+  <a href="{{ url_for('reflect.testimonials') }}"><strong>Share your experience</strong><span>Testimonials</span></a>
+  {% if not participant.count_me_in_done_at %}
+  <a href="{{ url_for('assessment.count_me_in') }}"><strong>Count Me In</strong><span>Anonymous</span></a>
+  {% endif %}
+  <a href="{{ url_for('reflect.settings') }}"><strong>Settings</strong><span>Emails, your data</span></a>
+</nav>
 
 <form method="post" action="{{ url_for('auth.signout') }}" class="center">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button class="link-button" type="submit">Sign out</button>
+  <button class="link-button center" type="submit">Sign out</button>
 </form>
 {% endblock %}

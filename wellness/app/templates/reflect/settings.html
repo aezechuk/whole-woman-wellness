@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1 class="title">Settings</h1>
+
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2 class="h2">Emails</h2>
+  <label class="choice"><input type="checkbox" name="weekly_emails" {% if participant.weekly_emails %}checked{% endif %}> Email me when each weekly reflection opens</label>
+  <p class="muted small">Sign-in codes and important program notices are always sent.</p>
+  <button class="button secondary" type="submit">Save</button>
+</form>
+
+<section class="card stack">
+  <h2 class="h2">Your data</h2>
+  <p class="small">Download your results, reflections, and testimonials as a text file. Everything is deleted on February 28, 2027.</p>
+  <a class="button secondary" href="{{ url_for('reflect.download') }}">Download my data</a>
+  <a class="link" href="{{ url_for('reflect.delete_account') }}">Delete my data now</a>
+</section>
+
+<p class="muted small">Signed in as {{ participant.email }}</p>
+<p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
+{% endblock %}

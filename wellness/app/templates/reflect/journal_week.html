@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import support %}
+{% block title %}{{ week.name }} reflection{% endblock %}
+{% block content %}
+<p class="pill">Week {{ week.number }} · {{ week.name }}</p>
+
+<form method="post" class="stack" data-autosave>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <section class="feature">
+    <p class="eyebrow">THIS WEEK'S PROMPT</p>
+    <label class="prompt-lg" for="prompt_0">{{ week.prompt }}</label>
+  </section>
+  <textarea id="prompt_0" name="prompt_0" rows="8" maxlength="{{ limit }}"
+            placeholder="Write freely. There's no right way to do this.">{{ texts.get(0, '') }}</textarea>
+
+  {% if week.extra_prompts %}
+  <details class="card" {% if texts|length > 1 %}open{% endif %}>
+    <summary class="h3 summary">More prompts for this week <span class="muted small">(optional)</span></summary>
+    <div class="stack">
+    {% for prompt in week.extra_prompts %}{% set i = loop.index %}
+      <div class="field">
+        <label for="prompt_{{ i }}">{{ prompt }}</label>
+        <textarea id="prompt_{{ i }}" name="prompt_{{ i }}" rows="4" maxlength="{{ limit }}" placeholder="Optional">{{ texts.get(i, '') }}</textarea>
+      </div>
+    {% endfor %}
+    </div>
+  </details>
+  {% endif %}
+
+  <p class="muted small" data-autosave-status aria-live="polite">Private to you · saves as you type</p>
+  <button class="button" type="submit">Save reflection</button>
+</form>
+
+{% if saved %}
+<section class="card tint stack">
+  {% if not feedback_done %}
+  <a class="row-link plain" href="{{ url_for('reflect.feedback', week_key=week.key) }}"><span>How was the {{ week.name }} session? <span class="muted small block">Anonymous · about a minute</span></span><span aria-hidden="true">›</span></a>
+  {% endif %}
+  <a class="row-link plain" href="{{ url_for('reflect.testimonial_new') }}"><span>Want to share what this week meant to you?</span><span aria-hidden="true">›</span></a>
+</section>
+{% elif not feedback_done %}
+<p class="center"><a href="{{ url_for('reflect.feedback', week_key=week.key) }}">Share anonymous feedback on this session</a></p>
+{% endif %}
+
+<p class="center"><a href="{{ url_for('reflect.journal') }}">All weeks</a></p>
+{{ support() }}
+<script src="{{ url_for('static', filename='js/autosave.js') }}" defer></script>
+{% endblock %}

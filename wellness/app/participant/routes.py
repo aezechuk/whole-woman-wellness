@@ -40,9 +40,13 @@ def profile():
             return render_template("participant/profile.html"), 400
         if mentee not in MENTEE_CHOICES:
             mentee = "skip"
+        new = not p.first_name
         p.first_name = first_name
         p.is_mentee = MENTEE_CHOICES[mentee]
         db.session.commit()
+        if new:
+            from ..notify import send_welcome
+            send_welcome(p)
         return redirect(url_for("participant.consent"))
     return render_template("participant/profile.html")
 
@@ -68,8 +72,9 @@ def consent():
 @bp.route("/")
 @login_required
 def home():
+    from .. import program
     from ..assessment import service
     p = g.participant
     pre, post = service.get(p, "pre"), service.get(p, "post")
     return render_template("participant/home.html", participant=p, pre=pre, post=post,
-                           final_open=service.final_is_open())
+                           final_open=service.final_is_open(), week=program.load().current_week())

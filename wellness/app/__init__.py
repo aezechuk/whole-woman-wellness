@@ -35,10 +35,12 @@ def create_app(env: str | None = None) -> Flask:
     from .auth import bp as auth_bp
     from .auth.service import participant_for_token
     from .participant import bp as participant_bp
+    from .reflect import bp as reflect_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(participant_bp)
     app.register_blueprint(assessment_bp)
+    app.register_blueprint(reflect_bp)
 
     @app.before_request
     def load_participant():
@@ -68,5 +70,28 @@ def create_app(env: str | None = None) -> Flask:
         db.session.add(Cohort(name=name, join_code_hash=hash_join_code(join_code), capacity=capacity))
         db.session.commit()
         click.echo(f"Created cohort {name!r}.")
+
+    @app.cli.command("send-due-emails")
+    def send_due_emails():
+        """Send scheduled emails that are due. Safe to run repeatedly (cron, every 15 min)."""
+        from .notify import due_emails
+        click.echo(f"Sent {due_emails()} email(s).")
+
+    @app.cli.command("purge-program-data")
+    @click.option("--confirm", is_flag=True, help="Required. Permanently deletes all participant data.")
+    def purge_program_data(confirm: bool):
+        """Delete all program data after the deletion date (Feb 28, 2027)."""
+        from . import program
+        from .models import (Assessment, AuthSession, DemographicResponse, EmailLog, FeedbackDone,
+                             JournalEntry, Participant, SessionFeedback, SignInCode, Testimonial, utcnow)
+        if utcnow() < program.load().data_deletion:
+            raise click.ClickException("The deletion date hasn't arrived yet.")
+        if not confirm:
+            raise click.ClickException("Re-run with --confirm. Export the funder report first.")
+        for model in (JournalEntry, Testimonial, FeedbackDone, EmailLog, AuthSession, Assessment,
+                      SignInCode, Participant, SessionFeedback, DemographicResponse):
+            db.session.query(model).delete()
+        db.session.commit()
+        click.echo("All program data deleted.")
 
     return app

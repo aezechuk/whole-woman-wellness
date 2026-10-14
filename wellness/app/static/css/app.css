@@ -155,3 +155,32 @@ input[type=email], input[type=text] { width: 100%; min-height: 48px; padding: 10
 fieldset > legend { float: left; width: 100%; }
 fieldset > legend + * { clear: both; }
 .trio .h3 { font-size: 14px; overflow-wrap: anywhere; hyphens: auto; }
+
+/* Journal, feedback, testimonials, settings */
+.display-sm { font-family: "Anton", Impact, sans-serif; font-weight: 400; text-transform: lowercase;
+  font-size: 32px; line-height: 1; margin: 8px 0 0; color: var(--plum); }
+.prompt-lg { display: block; font-size: 18px; font-weight: 600; line-height: 1.4; color: #fff; }
+.pill { display: inline-block; background: var(--tint); color: var(--berry); font-size: 12.5px; font-weight: 600;
+  border-radius: 999px; padding: 6px 12px; }
+.block { display: block; font-weight: 400; }
+textarea { display: block; width: 100%; padding: 14px; font: inherit; line-height: 1.55; color: var(--ink);
+  border: 1px solid var(--control); border-radius: 16px; background: #fff; resize: vertical; }
+.row-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 56px;
+  padding: 10px 16px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  text-decoration: none; color: var(--ink); font-weight: 400; }
+.row-link.plain { background: transparent; border: 0; padding: 4px 0; min-height: 48px; }
+.row-link > span:last-child { color: var(--berry); font-size: 22px; }
+.row-locked { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 56px;
+  padding: 10px 16px; background: #F4EEF2; border-radius: 14px; color: var(--muted); }
+.button.light { background: #fff; color: var(--plum); }
+.button.danger { background: #8E1F3D; }
+.summary { min-height: 44px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.quote { font-style: italic; font-size: 15.5px; }
+.actions { display: flex; align-items: center; gap: 16px; }
+.lock-note { padding: 12px 16px; }
+.menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.menu a { display: flex; flex-direction: column; justify-content: center; min-height: 72px; padding: 12px 14px;
+  background: #fff; border: 1px solid var(--line); border-radius: 16px; text-decoration: none; color: var(--ink); }
+.menu a span { font-size: 12.5px; color: var(--muted); font-weight: 400; }
+fieldset.card.field { border: 1px solid var(--line); padding: 16px; }
+.row-locked > span { white-space: nowrap; }

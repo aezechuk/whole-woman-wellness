@@ -14,8 +14,8 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 | Scoring engine | Done, with tests: `wellness/scoring/` |
 | Data model, sign-in, consent | Done, with tests |
 | Assessment, results, focus areas, then → now, Count Me In | Done, with tests |
-| Journal, session feedback, testimonials, emails | Next |
-| Admin dashboard | Planned |
+| Encrypted journal, session feedback, testimonials, emails, settings, PWA | Done, with tests |
+| Admin dashboard | Next |
 | AWS deployment | Planned |
 
 ## Scoring rules
@@ -34,3 +34,13 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 pip install -e ".[dev]"
 pytest
 ```
+
+## Operations
+
+```bash
+flask create-cohort --name "Fall 2026" --join-code WIARTS26   # once
+flask send-due-emails        # cron, every 15 minutes; idempotent
+flask purge-program-data --confirm   # after Feb 28, 2027, once the funder report is exported
+```
+
+Reflections are envelope-encrypted (AES-256-GCM data keys wrapped by AWS KMS in production). Only the app's instance role can decrypt; there is no break-glass path.

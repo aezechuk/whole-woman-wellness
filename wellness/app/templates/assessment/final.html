@@ -76,6 +76,11 @@
 <p class="muted small">There's no beginning assessment to compare against, so this shows where you are now.</p>
 {% endif %}
 
+<section class="card tint stack">
+  <p class="kicker">BEFORE YOU GO</p>
+  <a class="row-link plain" href="{{ url_for('reflect.journal_week', week_key='reclamation') }}"><span>Reflect on your six weeks <span class="muted small block">Private · in your Reclamation journal</span></span><span aria-hidden="true">›</span></a>
+  <a class="row-link plain" href="{{ url_for('reflect.testimonial_new') }}"><span>Share a few words about your experience <span class="muted small block">Optional · you choose how you're credited</span></span><span aria-hidden="true">›</span></a>
+</section>
 <p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
 {{ support() }}
 {% endblock %}

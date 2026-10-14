@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Stop weekly reflection emails?</h1>
+<p class="muted">You'll still be able to find each week's reflection in the app.</p>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="button" type="submit">Unsubscribe</button>
+</form>
+{% endblock %}

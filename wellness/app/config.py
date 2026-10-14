@@ -38,10 +38,22 @@ class Config:
 
     WTF_CSRF_TIME_LIMIT = None  # tied to the session instead of a clock
 
+    # Public base URL used in email links, e.g. https://wellness.example.org
+    PUBLIC_URL = os.environ.get("PUBLIC_URL", "http://localhost:5000")
+
+    # Reflection encryption: "kms" in production, "local" for dev/tests.
+    JOURNAL_KEY_BACKEND = os.environ.get("JOURNAL_KEY_BACKEND", "local")
+    JOURNAL_KMS_KEY_ID = os.environ.get("JOURNAL_KMS_KEY_ID")
+    JOURNAL_LOCAL_KEY = os.environ.get("JOURNAL_LOCAL_KEY")
+    REFLECTION_MAX_CHARS = 10_000
+    TESTIMONIAL_MAX_CHARS = 2_000
+    FEEDBACK_MAX_CHARS = 2_000
+
 
 class DevConfig(Config):
     SESSION_COOKIE_SECURE = False
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-not-secret")
+    JOURNAL_LOCAL_KEY = os.environ.get("JOURNAL_LOCAL_KEY", "ZGV2LW9ubHktbm90LWEtcmVhbC1rZXktMzJieXRlcyE=")
 
 
 class TestConfig(Config):
@@ -52,10 +64,12 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     RATELIMIT_ENABLED = False
     MAIL_BACKEND = "memory"
+    JOURNAL_LOCAL_KEY = "dGVzdC1vbmx5LWtleS10aGlydHktdHdvLWJ5dGVzISE="
+    PUBLIC_URL = "https://wellness.test"
 
 
 class ProdConfig(Config):
-    pass
+    JOURNAL_KEY_BACKEND = "kms"  # never the local key in production
 
 
 CONFIGS = {"dev": DevConfig, "test": TestConfig, "prod": ProdConfig}

@@ -1,0 +1,10 @@
+Hi {{ name }},
+
+Your final Whole Woman Wellness Assessment is open.
+
+It's the same 27 questions you answered at the start. When you finish, you'll see your beginning and now side by side, across all six areas.
+
+You can take it at Reclamation on November 30 or anytime on your own.
+
+Take my final assessment: {{ final_link }}
+{% include "email/footer.txt" %}

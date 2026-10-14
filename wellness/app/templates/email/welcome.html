@@ -1,0 +1,14 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>Welcome. We're so glad you're here.</p>
+<p>Over the next six weeks, this app will be your quiet companion through the Radical Self-Care Reset. It's where you'll take your Whole Woman Wellness Assessment, see your results, and write your weekly reflections.</p>
+<p><strong>Add it to your home screen</strong> so it's one tap away:</p>
+<ul>
+  <li><strong>iPhone:</strong> open the link in Safari, tap the Share button, then "Add to Home Screen."</li>
+  <li><strong>Android:</strong> open the link in Chrome and tap "Install" when it appears.</li>
+</ul>
+{% with href=app_link, label="Open the app" %}{% include "email/_button.html" %}{% endwith %}
+<p>Your first step is the assessment. It takes about six minutes, and you can take it at The Reset session on October 21 or on your own.</p>
+<p>See you soon,<br>Elle</p>
+{% endblock %}

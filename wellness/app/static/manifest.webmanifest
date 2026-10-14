@@ -1,0 +1,15 @@
+{
+  "name": "Radical Self-Care Reset",
+  "short_name": "Self-Care Reset",
+  "description": "Whole Woman Wellness: your assessment, results, and weekly reflections.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FBF5F2",
+  "theme_color": "#4B0F4F",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

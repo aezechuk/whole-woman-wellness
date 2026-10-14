@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Share your experience{% endblock %}
+{% block content %}
+{% set cur_credit = form.get('credit') or (t.credit if t else '') %}
+{% set cur_share = form.get('share') or (t.share if t else '') %}
+<h1 class="title">{{ 'Edit your testimonial' if t else 'Share a few words' }}</h1>
+<p class="muted">This is different from your private reflections. What you write here may be read by program staff and shared in our report to The Women's Fund of Central Indiana.</p>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="body">Your words</label>
+    <textarea id="body" name="body" rows="6" maxlength="2000" required>{{ form.get('body') or (t.body if t else '') }}</textarea>
+  </div>
+  <fieldset class="card field">
+    <legend>How should we credit you?</legend>
+    {% for key, label in credit %}
+    <label class="choice"><input type="radio" name="credit" value="{{ key }}" required {% if cur_credit == key %}checked{% endif %}> {{ label }}</label>
+    {% endfor %}
+    <label for="full_name" class="small">If full name: how should it appear?</label>
+    <input id="full_name" name="full_name" type="text" maxlength="160" autocomplete="name"
+           value="{{ form.get('full_name') or (t.credit_name if t and t.credit == 'full' else '') }}">
+  </fieldset>
+  <fieldset class="card field">
+    <legend>Where may we share it?</legend>
+    {% for key, label in share %}
+    <label class="choice"><input type="radio" name="share" value="{{ key }}" required {% if cur_share == key %}checked{% endif %}> {{ label }}</label>
+    {% endfor %}
+  </fieldset>
+  <p class="muted small">You can edit or withdraw it anytime before February 28, 2027.</p>
+  <button class="button" type="submit">{{ 'Save changes' if t else 'Share' }}</button>
+</form>
+<p class="center"><a href="{{ url_for('reflect.testimonials') }}">Cancel</a></p>
+{% endblock %}

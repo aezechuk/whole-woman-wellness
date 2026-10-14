@@ -1,0 +1,17 @@
+Hi {{ name }},
+
+Welcome. We're so glad you're here.
+
+Over the next six weeks, this app will be your quiet companion through the Radical Self-Care Reset. It's where you'll take your Whole Woman Wellness Assessment, see your results, and write your weekly reflections.
+
+Add it to your home screen so it's one tap away:
+- iPhone: open the link in Safari, tap the Share button, then "Add to Home Screen."
+- Android: open the link in Chrome and tap "Install" when it appears.
+
+Open the app: {{ app_link }}
+
+Your first step is the assessment. It takes about six minutes, and you can take it at The Reset session on October 21 or on your own.
+
+See you soon,
+Elle
+{% include "email/footer.txt" %}

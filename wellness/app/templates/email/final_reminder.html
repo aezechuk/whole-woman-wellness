@@ -1,0 +1,8 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>Your final Whole Woman Wellness Assessment is open.</p>
+<p>It's the same 27 questions you answered at the start. When you finish, you'll see your beginning and now side by side, across all six areas.</p>
+<p>You can take it at Reclamation on November 30 or anytime on your own.</p>
+{% with href=final_link, label="Take my final assessment" %}{% include "email/_button.html" %}{% endwith %}
+{% endblock %}

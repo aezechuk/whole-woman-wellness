@@ -1,0 +1,6 @@
+Hi {{ name }},
+
+A gentle reminder that your final assessment is still open. It takes about six minutes, and your results will show how each area has moved since October.
+
+Take my final assessment: {{ final_link }}
+{% include "email/footer.txt" %}

@@ -1,0 +1,14 @@
+Hi {{ name }},
+
+This week's reflection is open in your journal:
+
+  {{ week.prompt }}
+
+There's no right way to answer, and no length you need to reach. A few honest lines count.
+
+Write my reflection: {{ journal_link }}
+
+Your reflections are private and aren't visible to program staff.
+
+Don't want these weekly emails? Unsubscribe: {{ unsubscribe_link }}
+{% include "email/footer.txt" %}

@@ -6,6 +6,12 @@
   <meta name="theme-color" content="#4B0F4F">
   <title>{% block title %}Radical Self-Care Reset{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Self-Care Reset">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
   <main class="page">

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Thank you</h1>
+<div class="card"><p>You've already shared feedback on {{ week.name }}. Because it's anonymous, it can't be viewed or changed.</p></div>
+<p class="center"><a href="{{ url_for('reflect.journal_week', week_key=week.key) }}">Back to this week's reflection</a></p>
+{% endblock %}

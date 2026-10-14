@@ -1,0 +1,10 @@
+Hi {{ name }},
+
+As promised when you joined, all program data will be permanently deleted on February 28, 2027. That includes your assessment results and your journal reflections.
+
+If you'd like to keep them, you can download a copy now: {{ download_link }}
+
+After February 28, they can't be recovered.
+
+Thank you for being part of the Radical Self-Care Reset.
+{% include "email/footer.txt" %}

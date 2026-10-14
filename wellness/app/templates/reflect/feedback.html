@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Session feedback · {{ week.name }}{% endblock %}
+{% block content %}
+<h1 class="title">How was {{ week.name }}?</h1>
+<p class="muted">Anonymous. Your feedback helps shape the rest of the program and future cohorts. Written comments are read as you wrote them.</p>
+
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <fieldset class="card field">
+    <legend>How did you take part?</legend>
+    {% for key, label in attendance %}
+    <label class="choice"><input type="radio" name="attendance" value="{{ key }}" required> {{ label }}</label>
+    {% endfor %}
+  </fieldset>
+
+  {% for name, question in [('valuable', 'Overall, this session was valuable to me.'), ('usable', 'I can use something from this session in my week.')] %}
+  <fieldset class="card question">
+    <legend class="question-text">{{ question }}</legend>
+    <div class="scale">
+      {% for v in range(1, 6) %}
+      <label class="scale-option"><input type="radio" name="{{ name }}" value="{{ v }}">
+        <span class="scale-dot" aria-hidden="true">{{ v }}</span><span class="visually-hidden">{{ v }} of 5</span></label>
+      {% endfor %}
+    </div>
+    <div class="scale-ends" aria-hidden="true"><span>Not at all</span><span>Very much</span></div>
+  </fieldset>
+  {% endfor %}
+
+  <div class="field">
+    <label for="most_helpful">What was most helpful? <span class="muted small">(Optional)</span></label>
+    <textarea id="most_helpful" name="most_helpful" rows="3" maxlength="2000"></textarea>
+  </div>
+  <div class="field">
+    <label for="make_better">What would have made it better? <span class="muted small">(Optional)</span></label>
+    <textarea id="make_better" name="make_better" rows="3" maxlength="2000"></textarea>
+  </div>
+  <p class="muted small">If you didn't attend, just choose that and submit; the other questions are skipped.</p>
+  <button class="button" type="submit">Send anonymously</button>
+</form>
+{% endblock %}

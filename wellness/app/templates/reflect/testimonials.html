@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Share your experience{% endblock %}
+{% block content %}
+<h1 class="title">Share your experience</h1>
+<p class="muted">Testimonials are different from your private reflections: program staff can read them, and they may be shared in our report to The Women's Fund of Central Indiana, credited the way you choose.</p>
+<a class="button" href="{{ url_for('reflect.testimonial_new') }}">Write a testimonial</a>
+
+{% for t in testimonials %}
+<section class="card stack">
+  <p class="quote">“{{ t.body }}”</p>
+  <p class="muted small">— {{ t.credit_name }} · {{ share[t.share] }}</p>
+  <div class="actions">
+    <a class="link" href="{{ url_for('reflect.testimonial_edit', tid=t.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('reflect.testimonial_withdraw', tid=t.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="link-button" type="submit">Withdraw</button>
+    </form>
+  </div>
+</section>
+{% endfor %}
+<p class="muted small">You can edit or withdraw a testimonial anytime before February 28, 2027. A testimonial already included in a submitted funder report stays in that report.</p>
+<p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
+{% endblock %}

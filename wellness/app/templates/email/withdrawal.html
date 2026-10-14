@@ -1,0 +1,6 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name or 'there' }},</p>
+<p>As you asked, we've deleted your account, assessment results, and reflections from the Whole Woman Wellness app. Any remaining backup copies will be fully removed within 14 days.</p>
+<p>You're always welcome back.</p>
+{% endblock %}

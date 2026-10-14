@@ -1,0 +1,9 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>As promised when you joined, all program data will be permanently deleted on February 28, 2027. That includes your assessment results and your journal reflections.</p>
+<p>If you'd like to keep them, you can download a copy now:</p>
+{% with href=download_link, label="Download my results and reflections" %}{% include "email/_button.html" %}{% endwith %}
+<p>After February 28, they can't be recovered.</p>
+<p>Thank you for being part of the Radical Self-Care Reset.</p>
+{% endblock %}

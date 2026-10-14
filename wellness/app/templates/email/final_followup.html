@@ -1,0 +1,6 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>A gentle reminder that your final assessment is still open. It takes about six minutes, and your results will show how each area has moved since October.</p>
+{% with href=final_link, label="Take my final assessment" %}{% include "email/_button.html" %}{% endwith %}
+{% endblock %}

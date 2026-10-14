@@ -1,0 +1,67 @@
+# Program calendar: weekly reflections, session feedback, and scheduled emails.
+# Times are local to Indianapolis (America/Indiana/Indianapolis); DST is handled
+# automatically. Reflections and feedback open at the time listed.
+
+timezone: America/Indiana/Indianapolis
+
+weeks:
+  - key: reset
+    name: The Reset
+    week: 1
+    opens: "2026-10-21 19:00"
+    prompt: What feels most unsustainable or overwhelming in your life right now?
+    extra_prompts:
+      - What are you currently leaving to chance that might benefit from more intention?
+      - What is outside of your control right now, and what do you have some ability to influence?
+
+  - key: embodiment
+    name: Embodiment
+    week: 2
+    opens: "2026-10-28 19:00"
+    prompt: What has your body been asking for more of lately?
+    extra_prompts: []
+
+  - key: nourishment
+    name: Nourishment
+    week: 3
+    opens: "2026-11-04 19:00"
+    prompt: What would make nourishing yourself easier in your current season of life?
+    extra_prompts: []
+
+  - key: play
+    name: Play & Pleasure
+    week: 4
+    opens: "2026-11-11 19:00"
+    prompt: What makes you feel most alive, playful, curious, or delighted?
+    extra_prompts: []
+
+  - key: dream
+    name: Care for the Dream
+    week: 5
+    opens: "2026-11-18 19:00"
+    prompt: What is asking to be created, explored, or pursued in your life?
+    extra_prompts:
+      - What is one part of that future you could begin practicing or caring for now?
+
+  - key: reclamation
+    name: Reclamation
+    week: 6
+    opens: "2026-11-30 19:00"
+    prompt: What would taking greater ownership of the life you are building look like for you?
+    extra_prompts:
+      - What is one area of your life that you are ready to bring into greater order, visibility, or alignment?
+      - What feels meaningfully different from when you started?
+      - Where have you noticed the greatest change in your everyday life?
+      - What did you learn about yourself?
+      - What practices, rhythms, boundaries, or supports do you want to carry forward?
+      - What still needs care?
+      - What are you proud of?
+
+emails:
+  # key: when to send, and who gets it. Each participant gets each email once.
+  final_reminder:     { at: "2026-11-18 19:00", to: final_not_done }
+  final_followup:     { at: "2026-12-03 12:00", to: final_not_done }
+  deletion_reminder:  { at: "2027-02-14 12:00", to: everyone }
+  deletion_followup:  { at: "2027-02-24 12:00", to: not_downloaded }
+
+data_deletion: "2027-02-28 00:00"
