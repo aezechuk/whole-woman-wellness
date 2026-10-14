@@ -1,0 +1,14 @@
+[project]
+name = "whole-woman-wellness"
+version = "0.1.0"
+description = "Whole Woman Wellness Assessment for the Radical Self-Care Reset program"
+requires-python = ">=3.12"
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

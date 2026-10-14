@@ -1,0 +1,130 @@
+# Whole Woman Wellness Assessment — instrument v1
+#
+# This file is the single source of truth for item wording, domains, sessions,
+# scale labels and score bands. Once any participant has answered v1, treat it as
+# frozen: create v2.yaml for wording changes so pre/post stay comparable.
+
+version: v1
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Not true for me right now
+    2: Rarely true for me
+    3: Sometimes true / mixed
+    4: Mostly true for me
+    5: Consistently true for me
+
+# Score bands apply to every 0–100 score (domains, overall, connection).
+# Each band covers [min, next band's min).
+bands:
+  - min: 0
+    label: Asking for Care
+  - min: 40
+    label: Finding Your Rhythm
+  - min: 60
+    label: On Steady Ground
+  - min: 80
+    label: Flowing Freely
+
+# Order here is session order; it is also the tie-break order.
+domains:
+  - key: reset
+    name: The Reset
+    session_date: 2026-10-21
+    items:
+      - key: RESET_01
+        text: I have a realistic understanding of where my time and energy go each week.
+      - key: RESET_02
+        text: My routines and rhythms generally make my daily life easier rather than harder.
+      - key: RESET_03
+        text: I know what matters most to me in this season of my life.
+      - key: RESET_04
+        text: I can adjust my plans when life changes without feeling like the entire plan has failed.
+
+  - key: embodiment
+    name: Embodiment
+    session_date: 2026-10-28
+    items:
+      - key: EMBODY_01
+        text: I notice and respond to signals from my body such as fatigue, tension, hunger, stress, or the need for rest.
+      - key: EMBODY_02
+        text: I regularly move my body in ways that support my health and well-being.
+      - key: EMBODY_03
+        text: I allow my body adequate opportunities for rest and recovery.
+      - key: EMBODY_04
+        text: I feel present and connected to my body.
+
+  - key: nourishment
+    name: Nourishment
+    session_date: 2026-11-04
+    items:
+      - key: NOURISH_01
+        text: I eat regularly enough to support my energy throughout the day.
+      - key: NOURISH_03
+        text: I drink enough water to support how I want to feel and function.
+      - key: NOURISH_04
+        text: I have food routines or preparation strategies that make nourishing myself easier.
+      - key: NOURISH_05
+        text: My relationship with food allows for flexibility and enjoyment.
+
+  - key: play
+    name: Play & Pleasure
+    session_date: 2026-11-11
+    items:
+      - key: PLAY_01
+        text: I regularly experience moments of joy, pleasure, or delight in my life.
+      - key: PLAY_02
+        text: I make room for activities I enjoy even when they are not productive or useful.
+      - key: PLAY_03
+        text: I feel connected to interests, hobbies, creativity, curiosity, or experiences that are mine.
+      - key: PLAY_04
+        text: I can rest or enjoy myself without feeling that I must first earn it.
+
+  - key: dream
+    name: Care for the Dream
+    session_date: 2026-11-18
+    items:
+      - key: DREAM_01
+        text: I have a sense of something I want to create, experience, become, or move toward.
+      - key: DREAM_02
+        text: There is space in my current life for goals or desires that belong to me.
+      - key: DREAM_03
+        text: I take meaningful steps toward things that matter to my future.
+      - key: DREAM_04
+        text: I believe my desires and ambitions are worthy of time, attention, and care.
+
+  - key: reclamation
+    name: Reclamation
+    session_date: 2026-11-30
+    items:
+      - key: RECLAIM_01
+        text: The different parts of my life feel connected rather than competing with one another.
+      - key: RECLAIM_02
+        text: I feel comfortable allowing myself, my ideas, my work, or what matters to me to be seen.
+      - key: RECLAIM_03
+        text: I have a clear picture of my current financial situation.
+      - key: RECLAIM_05
+        text: I trust myself to build a life that reflects what matters to me.
+
+# Scored separately; shown as its own card; NOT part of the overall score.
+indices:
+  - key: connection
+    name: Connection & Belonging
+    items:
+      - key: CONNECT_01
+        text: I have people I can turn to for support when I need it.
+      - key: CONNECT_02
+        text: I feel a sense of belonging with people who understand my creative life.
+      - key: CONNECT_03
+        text: I feel comfortable asking for help.
+
+rules:
+  # A second "Flowing Most Easily" / "Asking for More Care" domain is shown
+  # only if it is within this many points of the first.
+  second_highlight_within: 5
+  # Baselines completed after this moment are flagged as late (not excluded).
+  # End of the Embodiment session day, Eastern time. Adjust once the session
+  # time is known.
+  late_baseline_after: "2026-10-29T00:00:00-04:00"
