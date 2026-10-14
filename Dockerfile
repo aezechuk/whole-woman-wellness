@@ -8,7 +8,10 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY wellness ./wellness
 COPY migrations ./migrations
-RUN pip install --no-compile . && pip uninstall -y pip setuptools wheel || true
+# Install must succeed; only the cleanup step may fail quietly.
+RUN pip install --no-compile . \
+    && (pip uninstall -y pip setuptools wheel || true) \
+    && flask --version && gunicorn --version
 
 USER app
 ENV APP_ENV=prod FLASK_APP="wellness.app:create_app()"
