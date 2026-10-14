@@ -28,6 +28,7 @@ $COMPOSE build app
 $COMPOSE up -d db
 $COMPOSE run --rm app flask db upgrade
 $COMPOSE up -d --remove-orphans
+$COMPOSE up -d --no-deps --force-recreate app   # pick up changed settings in .env
 docker image prune -f >/dev/null
 
 install -m 0644 "$APP/deploy/scripts/wellness.cron" /etc/cron.d/wellness

@@ -14,6 +14,18 @@ variable "admin_emails" {
   type        = string
 }
 
+variable "sender_email" {
+  description = "From address on every app email. Its domain is verified in SES."
+  type        = string
+  default     = "arts@arthenticarts.org"
+}
+
+variable "sender_name" {
+  description = "Display name on every app email"
+  type        = string
+  default     = "Radical Self-Care Reset"
+}
+
 variable "contact_email" {
   description = "Where participants' replies go (Reply-To on every email)"
   type        = string

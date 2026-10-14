@@ -17,6 +17,12 @@ output "dns_records_for_squarespace" {
       value = "${t}.dkim.amazonses.com"
     }],
     [{ type = "TXT", host = "_dmarc.wellness", value = "v=DMARC1; p=quarantine; adkim=r; aspf=r" }],
+    # DKIM for the sender domain (arthenticarts.org itself)
+    [for t in aws_sesv2_email_identity.sender.dkim_signing_attributes[0].tokens : {
+      type  = "CNAME"
+      host  = "${t}._domainkey"
+      value = "${t}.dkim.amazonses.com"
+    }],
   )
 }
 

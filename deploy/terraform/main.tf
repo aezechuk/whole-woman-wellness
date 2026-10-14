@@ -145,10 +145,19 @@ resource "aws_s3_bucket_policy" "backups_tls_only" {
 }
 
 # ---------------------------------------------------------------------------
-# Email: SES identity for the subdomain with Easy DKIM.
+# Email: SES identities with Easy DKIM. Mail is sent from var.sender_email
+# (arts@arthenticarts.org), so its domain must be verified too.
 # ---------------------------------------------------------------------------
+locals {
+  sender_domain = split("@", var.sender_email)[1]
+}
+
 resource "aws_sesv2_email_identity" "app" {
   email_identity = var.app_host
+}
+
+resource "aws_sesv2_email_identity" "sender" {
+  email_identity = local.sender_domain
 }
 
 # ---------------------------------------------------------------------------
@@ -193,15 +202,15 @@ data "aws_iam_policy_document" "app" {
   statement {
     # SES authorizes against every identity involved in a send: the sender's
     # domain and, while in the sandbox, the verified recipient too. So allow
-    # this account's identities, but only when sending FROM the app's domain.
+    # this account's identities, but only when sending FROM the program address.
     sid       = "SendAsAppDomainOnly"
     actions   = ["ses:SendEmail", "ses:SendRawEmail"]
     resources = ["arn:${data.aws_partition.p.partition}:ses:${var.region}:${local.account_id}:identity/*"]
     condition {
       test     = "StringLike"
       variable = "ses:FromAddress"
-      # Plain address, or with a display name: "Name <hello@host>"
-      values   = ["*@${var.app_host}", "*@${var.app_host}>"]
+      # Plain address, or with a display name: "Name <arts@...>"
+      values   = [var.sender_email, "*<${var.sender_email}>"]
     }
   }
   statement {
@@ -231,7 +240,7 @@ resource "aws_ssm_parameter" "config" {
     ADMIN_EMAILS        = var.admin_emails
     JOURNAL_KMS_KEY_ID  = aws_kms_key.journal.arn
     PUBLIC_URL          = "https://${var.app_host}"
-    MAIL_FROM           = "Radical Self-Care Reset <hello@${var.app_host}>"
+    MAIL_FROM           = "${var.sender_name} <${var.sender_email}>"
     CONTACT_EMAIL       = var.contact_email
     SITE_HOST           = var.app_host
     BACKUP_BUCKET       = aws_s3_bucket.backups.bucket
