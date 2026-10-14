@@ -21,7 +21,7 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 ## Scoring rules
 
 - Six domains, 4 items each, 1–5 scale. Domain score = `(sum − 4) / 16 × 100`.
-- Overall = equal-weight mean of the six domains. Connection & Belonging (3 items) is scored the same way but excluded from the overall.
+- Overall = equal-weight mean of the six domains, used only in admin reporting (participants see their areas, not a single number). Connection & Belonging (3 items) is scored the same way, shown with the areas, and excluded from the overall.
 - Displayed scores round half-up. Bands and highlights use the displayed score, so labels always match what's on screen.
 - Bands: 0–39 Asking for Care · 40–59 Finding Your Rhythm · 60–79 On Steady Ground · 80–100 Flowing Freely.
 - "Flowing Most Easily" / "Asking for More Care": the top/bottom domain, plus a second if within 5 points. Ties break by session order. A domain never appears on both cards; an all-equal profile shows neither.

@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% from "macros.html" import support %}
 {% block title %}{{ week.name }} reflection{% endblock %}
 {% block content %}
 <p class="pill">Week {{ week.number }} · {{ week.name }}</p>
@@ -43,6 +42,5 @@
 {% endif %}
 
 <p class="center"><a href="{{ url_for('reflect.journal') }}">All weeks</a></p>
-{{ support() }}
 <script src="{{ url_for('static', filename='js/autosave.js') }}" defer></script>
 {% endblock %}

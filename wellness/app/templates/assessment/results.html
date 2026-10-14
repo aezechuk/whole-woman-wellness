@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import bar, support %}
+{% from "macros.html" import bar %}
 {% block title %}Your Whole Woman Snapshot{% endblock %}
 {% block content %}
 <section class="feature">
@@ -8,7 +8,7 @@
 </section>
 
 <section class="card stack">
-  <h2 class="h2">Your six areas</h2>
+  <h2 class="h2">Your areas</h2>
   {% for d in s.domains %}
   <div class="score-row">
     <div class="score-head"><span class="score-name">{{ d.name }}</span><span class="score-num">{{ d.display }}</span></div>
@@ -16,7 +16,15 @@
     <div class="muted small">{{ d.band }}</div>
   </div>
   {% endfor %}
-  <div class="overall"><span>Whole Woman overall</span><strong>{{ s.overall }}</strong></div>
+  {% if s.connection %}
+  <hr class="rule">
+  <div class="score-row">
+    <div class="score-head"><span class="score-name">Connection &amp; Belonging</span><span class="score-num">{{ s.connection.display }}</span></div>
+    {{ bar(s.connection.display) }}
+    <div class="muted small">{{ s.connection.band }}</div>
+    <p class="muted small">{{ s.text.connection_description }}</p>
+  </div>
+  {% endif %}
 </section>
 
 {% if s.all_even %}
@@ -34,14 +42,6 @@
 </div>
 {% endif %}
 
-{% if s.connection %}
-<section class="card tint">
-  <div class="score-head"><h2 class="h2">Connection &amp; Belonging</h2><span class="score-num">{{ s.connection.display }}</span></div>
-  {{ bar(s.connection.display) }}
-  <p class="small">{{ s.text.connection_description }} {{ s.connection.band }}.</p>
-</section>
-{% endif %}
-
 <form id="focus" method="post" action="{{ url_for('assessment.save_focus') }}" class="card stack">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <fieldset class="field">
@@ -57,5 +57,4 @@
 </form>
 
 <p class="muted small center">Come back to these results anytime from your home screen.</p>
-{{ support() }}
 {% endblock %}

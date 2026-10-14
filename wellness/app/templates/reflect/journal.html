@@ -10,25 +10,16 @@
   <p class="prompt-lg">{{ current.prompt }}</p>
   <a class="button light" href="{{ url_for('reflect.journal_week', week_key=current.key) }}">Write my reflection</a>
 </section>
-{% else %}
-<section class="card"><p>Your first reflection opens after The Reset session on October 21.</p></section>
 {% endif %}
 
 <section class="stack">
   <h2 class="h2">All weeks</h2>
   {% for row in weeks %}
-    {% if row.open %}
     <a class="row-link" href="{{ url_for('reflect.journal_week', week_key=row.week.key) }}">
       <span><strong>Week {{ row.week.number }} · {{ row.week.name }}</strong>
-        <span class="muted small block">{{ 'Written' if row.written else 'Open' }}</span></span>
+        <span class="muted small block">{% if row.written %}Written{% elif row.upcoming %}Session {{ row.week.opens_at.strftime('%b') }} {{ row.week.opens_at.day }} · open anytime{% else %}Open{% endif %}</span></span>
       <span aria-hidden="true">›</span>
     </a>
-    {% else %}
-    <div class="row-locked">
-      <strong>Week {{ row.week.number }} · {{ row.week.name }}</strong>
-      <span class="muted small">Opens {{ row.week.opens_at.strftime('%b') }} {{ row.week.opens_at.day }}</span>
-    </div>
-    {% endif %}
   {% endfor %}
 </section>
 <p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>

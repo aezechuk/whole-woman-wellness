@@ -6,8 +6,7 @@ This reflection is educational and non-clinical. It doesn't diagnose or measure 
 
 == {{ 'BEGINNING' if tp == 'pre' else 'FINAL' }} ASSESSMENT ({{ a.completed_at.strftime('%B %d, %Y') }}) ==
 {% for d in s.domains %}{{ d.name }}: {{ d.display }} ({{ d.band }})
-{% endfor %}Whole Woman overall: {{ s.overall }}
-{% if s.connection %}Connection & Belonging: {{ s.connection.display }} ({{ s.connection.band }})
+{% endfor %}{% if s.connection %}Connection & Belonging: {{ s.connection.display }} ({{ s.connection.band }})
 {% endif %}{% if s.focus %}{% set names = dict(s.domain_choices) %}Focus areas: {% for k in s.focus %}{{ names[k] }}{{ ', ' if not loop.last }}{% endfor %}
 {% endif %}{% endfor %}
 {% if reflections %}

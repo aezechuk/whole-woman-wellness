@@ -29,9 +29,7 @@ def _open_week(week_key: str) -> program.Week:
         week = program.load().week(week_key)
     except KeyError:
         abort(404)
-    if not week.is_open():
-        abort(404)
-    return week
+    return week  # every week stays open: thoughts come before sessions and long after
 
 
 def _entries(p: Participant, week_key: str) -> dict[int, JournalEntry]:
@@ -46,7 +44,7 @@ def journal():
     p = g.participant
     prog = program.load()
     written = {e.week_key for e in p.journal_entries}
-    weeks = [{"week": w, "open": w.is_open(), "written": w.key in written} for w in prog.weeks]
+    weeks = [{"week": w, "upcoming": not w.is_open(), "written": w.key in written} for w in prog.weeks]
     current = prog.current_week()
     return render_template("reflect/journal.html", weeks=weeks, current=current)
 

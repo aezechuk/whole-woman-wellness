@@ -14,6 +14,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
+  {% if g.participant and request.endpoint not in ('participant.home', 'participant.profile', 'participant.consent') %}
+  <header class="topbar">
+    <a href="{{ url_for('participant.home') }}" class="topbar-brand"><img src="{{ url_for('static', filename='img/arthentic-logo.png') }}" alt="Arthentic home" width="467" height="84"></a>
+    <a href="{{ url_for('participant.home') }}" class="topbar-home">Home</a>
+  </header>
+  {% endif %}
   <main class="page">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}

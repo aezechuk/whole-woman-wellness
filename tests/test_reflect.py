@@ -35,10 +35,11 @@ def test_calendar_handles_daylight_saving():
     assert len(PROG.weeks) == 6
 
 
-def test_locked_week_is_404(signed_in, monkeypatch):
-    monkeypatch.setattr(program, "utcnow", lambda: datetime(2026, 10, 22, tzinfo=timezone.utc))
+def test_every_week_open_anytime(signed_in, monkeypatch):
+    monkeypatch.setattr(program, "utcnow", lambda: datetime(2026, 10, 1, tzinfo=timezone.utc))
     assert signed_in.get("/journal/reset").status_code == 200
-    assert signed_in.get("/journal/play").status_code == 404
+    assert signed_in.get("/journal/play").status_code == 200
+    assert b"open anytime" in signed_in.get("/journal").data
     assert signed_in.get("/journal/nope").status_code == 404
 
 

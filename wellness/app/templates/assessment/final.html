@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import bar, dumbbell, signed, support %}
+{% from "macros.html" import bar, dumbbell, signed %}
 {% block title %}Then and now{% endblock %}
 {% block content %}
 {% if c %}
@@ -23,7 +23,7 @@
 
 <section class="card stack">
   <div class="score-head">
-    <h2 class="h2">All six areas</h2>
+    <h2 class="h2">Your areas</h2>
     <span class="legend small"><span class="key-then"></span>Then <span class="key-now"></span>Now</span>
   </div>
   {% for d in c.domains %}
@@ -34,21 +34,20 @@
     <div class="muted small">Now: {{ d.after_band }}</div>
   </div>
   {% endfor %}
-  <div class="overall"><span>Whole Woman overall</span>
-    <span>{{ c.overall_before }} → <strong>{{ c.overall_after }}</strong> <span class="delta">{{ signed(c.overall_change) }}</span></span></div>
+  {% if c.connection %}
+  <hr class="rule">
+  <div class="score-row">
+    <div class="score-head"><span class="score-name">Connection &amp; Belonging</span>
+      <span class="muted">{{ c.connection.before }} → <strong class="ink">{{ c.connection.after }}</strong> <span class="delta">{{ signed(c.connection.change) }}</span></span></div>
+    {{ dumbbell(c.connection.before, c.connection.after) }}
+    {% if c.connection.after_band %}<div class="muted small">Now: {{ c.connection.after_band }}</div>{% endif %}
+  </div>
+  {% endif %}
 </section>
 
 {% for msg in c.decreases %}
 <section class="card dashed"><p class="small">{{ msg }}</p></section>
 {% endfor %}
-
-{% if c.connection %}
-<section class="card tint">
-  <div class="score-head"><h2 class="h2">Connection &amp; Belonging</h2>
-    <span class="muted">{{ c.connection.before }} → <strong class="ink">{{ c.connection.after }}</strong> <span class="delta">{{ signed(c.connection.change) }}</span></span></div>
-  {{ dumbbell(c.connection.before, c.connection.after) }}
-</section>
-{% endif %}
 
 <div class="trio">
   <section class="card"><p class="kicker">GREATEST CHANGE</p>
@@ -72,6 +71,14 @@
     <div class="muted small">{{ d.band }}</div>
   </div>
   {% endfor %}
+  {% if s.connection %}
+  <hr class="rule">
+  <div class="score-row">
+    <div class="score-head"><span class="score-name">Connection &amp; Belonging</span><span class="score-num">{{ s.connection.display }}</span></div>
+    {{ bar(s.connection.display) }}
+    <div class="muted small">{{ s.connection.band }}</div>
+  </div>
+  {% endif %}
 </section>
 <p class="muted small">There's no beginning assessment to compare against, so this shows where you are now.</p>
 {% endif %}
@@ -82,5 +89,4 @@
   <a class="row-link plain" href="{{ url_for('reflect.testimonial_new') }}"><span>Share a few words about your experience <span class="muted small block">Optional · you choose how you're credited</span></span><span aria-hidden="true">›</span></a>
 </section>
 <p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
-{{ support() }}
 {% endblock %}

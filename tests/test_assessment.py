@@ -182,3 +182,16 @@ def test_count_me_in_maybe_later_stores_nothing(signed_in):
     signed_in.post("/count-me-in", data={"action": "later", "gender": "female"})
     assert db.session.query(DemographicResponse).count() == 0
     assert db.session.scalar(select(Participant)).count_me_in_done_at is None
+
+
+def test_results_page_has_home_bar_no_overall_no_crisis_line(client):
+    from .conftest import onboard
+    onboard(client)
+    from wellness.app.assessment import service
+    secs = service.sections(service.instrument("v1"))
+    for n, s in enumerate(secs, 1):
+        client.post(f"/assessment/pre/{n}", data={it.key: "3" for it in s.items})
+    html = client.get("/results").data
+    assert b'class="topbar-home"' in html
+    assert b"overall" not in html.lower() and b"988" not in html
+    assert b"Connection &amp; Belonging" in html

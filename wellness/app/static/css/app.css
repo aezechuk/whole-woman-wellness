@@ -154,7 +154,9 @@ input[type=email], input[type=text] { width: 100%; min-height: 48px; padding: 10
 /* Legends sit on a fieldset's border by default; float them inside instead. */
 fieldset > legend { float: left; width: 100%; }
 fieldset > legend + * { clear: both; }
-.trio .h3 { font-size: 14px; overflow-wrap: anywhere; hyphens: auto; }
+.trio .h3 { font-size: 13px; overflow-wrap: break-word; hyphens: auto; }
+.trio .card { padding: 14px 10px; }
+.pair .card p + .h2 { margin-top: 16px; }
 
 /* Journal, feedback, testimonials, settings */
 .display-sm { font-family: "Anton", Impact, sans-serif; font-weight: 400; text-transform: lowercase;
@@ -219,3 +221,12 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .admin-page .h2 { margin-top: 12px; }
 .brand-logo { display: block; width: 168px; height: auto; margin: 4px auto 0; }
 .brand-logo + .hero { margin-top: 16px; border-radius: 24px; margin-left: 0; margin-right: 0; }
+
+/* Persistent way home on every signed-in page */
+.topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between;
+  max-width: 480px; margin: 0 auto; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top));
+  background: var(--cream); border-bottom: 1px solid var(--line); }
+.topbar-brand img { display: block; width: 104px; height: auto; }
+.topbar-home { font-weight: 600; color: var(--plum); text-decoration: none; padding: 8px 14px;
+  border: 1.5px solid var(--plum); border-radius: 999px; font-size: 14px; }
+.topbar + .page { padding-top: 12px; }
