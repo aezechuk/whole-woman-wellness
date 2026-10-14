@@ -34,7 +34,13 @@ def start():
         except service.SignInError as exc:
             flash(str(exc), "error")
             return render_template("auth/start.html", email=email), 400
-        mail.send(req.email, f"Your sign-in code: {req.code}", "signin_code", code=req.code)
+        try:
+            mail.send(req.email, f"Your sign-in code: {req.code}", "signin_code", code=req.code)
+        except Exception:
+            current_app.logger.exception("Sign-in email failed to send")
+            service.withdraw_unsent_code(req.email, "participant")
+            flash("We couldn't send your code just now. Please try again in a few minutes.", "error")
+            return render_template("auth/start.html", email=email), 503
         session["pending_email"] = req.email
         return redirect(url_for("auth.verify"))
     return render_template("auth/start.html")

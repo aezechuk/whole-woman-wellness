@@ -100,6 +100,16 @@ def issue_code(email: str, purpose: str, cohort_id=None) -> str:
     return code
 
 
+def withdraw_unsent_code(email: str, purpose: str) -> None:
+    """The email with the newest code failed to send: delete it so it can't be used
+    and doesn't count against the hourly limit."""
+    for rec in db.session.scalars(
+            select(SignInCode).where(SignInCode.email == email, SignInCode.purpose == purpose,
+                                     SignInCode.used_at.is_(None), SignInCode.superseded.is_(False))):
+        db.session.delete(rec)
+    db.session.commit()
+
+
 def check_code(email: str, code: str, purpose: str) -> SignInCode:
     """Validate the newest unused code for this email and purpose; marks it used."""
     code = "".join(ch for ch in code if ch.isdigit())

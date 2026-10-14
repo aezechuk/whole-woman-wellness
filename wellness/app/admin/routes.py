@@ -61,7 +61,13 @@ def signin():
         email = auth.normalize_email(request.form.get("email", ""))
         if email in _admins():
             code = auth.issue_code(email, "admin")
-            mail.send(email, f"Admin sign-in code: {code}", "admin_code", code=code)
+            try:
+                mail.send(email, f"Admin sign-in code: {code}", "admin_code", code=code)
+            except Exception:
+                current_app.logger.exception("Admin sign-in email failed to send")
+                auth.withdraw_unsent_code(email, "admin")
+                flash("We couldn't send your code just now. Please try again in a few minutes.", "error")
+                return render_template("admin/signin.html"), 503
         # Same response either way, so this page can't reveal who the admins are.
         session["admin_pending"] = email
         return redirect(url_for("admin.verify"))
@@ -89,8 +95,11 @@ def verify():
         db.session.commit()
         when = utcnow().astimezone(reports.program.load().tz).strftime("%b %d, %Y at %I:%M %p %Z")
         for admin in sorted(_admins()):
-            mail.send(admin, "Admin sign-in to Whole Woman Wellness", "admin_alert",
-                      who=email, when=when, agent=(request.user_agent.string or "")[:120])
+            try:
+                mail.send(admin, "Admin sign-in to Whole Woman Wellness", "admin_alert",
+                          who=email, when=when, agent=(request.user_agent.string or "")[:120])
+            except Exception:
+                current_app.logger.exception("Admin sign-in alert failed to send")
         response = make_response(redirect(url_for("admin.dashboard")))
         response.set_cookie(COOKIE, token, httponly=True, samesite="Strict", path="/admin",
                             secure=current_app.config["SESSION_COOKIE_SECURE"],

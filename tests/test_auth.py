@@ -164,3 +164,13 @@ def test_prod_refuses_to_start_without_kms(monkeypatch):
     monkeypatch.setenv("SECRET_KEY", "x")
     with pytest.raises(RuntimeError, match="KMS"):
         create_app("prod")
+
+
+def test_send_failure_shows_message_and_frees_the_slot(client, app, monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("SES down")
+    monkeypatch.setattr(mail, "send", boom)
+    for _ in range(app.config["SIGNIN_CODES_PER_EMAIL_PER_HOUR"] + 1):
+        r = client.post("/start", data={"email": "a@example.com", "join_code": JOIN_CODE})
+        assert r.status_code == 503 and b"couldn" in r.data
+    assert db.session.scalar(select(SignInCode)) is None  # failed sends don't count
