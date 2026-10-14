@@ -200,7 +200,8 @@ data "aws_iam_policy_document" "app" {
     condition {
       test     = "StringLike"
       variable = "ses:FromAddress"
-      values   = ["*@${var.app_host}"]
+      # Plain address, or with a display name: "Name <hello@host>"
+      values   = ["*@${var.app_host}", "*@${var.app_host}>"]
     }
   }
   statement {
