@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+{% block title %}Outcomes{% endblock %}
+{% macro v(x) %}{{ '—' if x is none else x }}{% endmacro %}
+{% block content %}
+<h1 class="title">Outcomes</h1>
+<div class="stat-grid">
+  <div class="stat"><span class="stat-num">{{ o.participants }}</span><span>participants</span></div>
+  <div class="stat"><span class="stat-num">{{ o.baseline }}</span><span>beginning assessments{% if o.late_baseline %} ({{ o.late_baseline }} late){% endif %}</span></div>
+  <div class="stat"><span class="stat-num">{{ o.final }}</span><span>final assessments</span></div>
+  <div class="stat"><span class="stat-num">{{ o.paired }}</span><span>with both</span></div>
+</div>
+<p class="muted small">Mentorship cohort {{ o.mentee }} · Wellness Initiative {{ o.public }} · didn't say {{ o.unspecified }}</p>
+
+<form method="get" class="filters">
+  <label for="group">Group</label>
+  <select id="group" name="group">
+    {% for key, label in groups.items() %}<option value="{{ key }}" {% if key == group %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <label class="choice"><input type="checkbox" name="exclude_late" value="1" {% if not include_late %}checked{% endif %}> Leave out late beginnings</label>
+  <button class="button secondary compact" type="submit">Update</button>
+</form>
+
+<div class="table-wrap">
+<table class="data">
+  <caption class="visually-hidden">Average scores by area</caption>
+  <thead><tr><th scope="col">Area</th><th scope="col">Beginning</th><th scope="col">Final</th><th scope="col">Change (paired)</th><th scope="col">Improved 10+</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="{{ 'divider' if r.name == 'Whole Woman overall' }}">
+    <th scope="row">{{ r.name }}</th>
+    <td>{{ v(r.pre_mean) }} <span class="n">n={{ r.pre_n }}</span></td>
+    <td>{{ v(r.post_mean) }} <span class="n">n={{ r.post_n }}</span></td>
+    <td>{% if r.change_mean is not none %}{{ '+' if r.change_mean > 0 }}{{ r.change_mean }}{% else %}—{% endif %} <span class="n">n={{ r.paired_n }}</span></td>
+    <td>{{ v(r.improved_pct) }}{{ '%' if r.improved_pct is not none }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted small">Change and "improved" use only people with both assessments. Self-reported scores; change shows what participants reported, not proof the program caused it.</p>
+<p><a href="{{ url_for('admin.export_outcomes', group=group) }}">Download as CSV</a></p>
+
+<h2 class="h2">Final assessment: practices and connection</h2>
+{% if extras.n %}
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th scope="col">Practiced at least weekly (last two weeks)</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+  <tbody>
+  {% for label, n, pct in extras.practices %}<tr><th scope="row">{{ label }}</th><td>{{ n }}</td><td>{{ pct }}%</td></tr>{% endfor %}
+  <tr class="divider"><th scope="row">At least one practice</th><td>{{ extras.any_practice }}</td><td>{{ extras.any_practice_pct }}%</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="small">n={{ extras.n }}{% if extras.other %} · Also mentioned: {{ extras.other|join('; ') }}{% endif %}</p>
+<p class="small"><strong>{{ extras.program_connection }}</strong> Average {{ v(extras.connection_mean) }} of 5; {{ v(extras.connection_agree_pct) }}% chose 4 or 5 (n={{ extras.connection_n }}).</p>
+{% else %}
+<p class="muted">No final assessments yet. These open November 18.</p>
+{% endif %}
+{% endblock %}

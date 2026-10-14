@@ -66,3 +66,19 @@ domains:
     care_session: >-
       Reclamation (Nov 30) is about gathering what you've learned and making it
       yours.
+
+# Final assessment only. Draft list; replace with the practices taught in each session.
+practices_prompt: Over the last two weeks, which of these have you practiced at least once a week?
+practices:
+  - { key: weekly_checkin, session: reset, label: A weekly planning or check-in with my time and energy }
+  - { key: simple_routine, session: reset, label: A simple routine that makes my days easier }
+  - { key: movement, session: embodiment, label: "Intentional movement, such as yoga, walking, stretching, or dance" }
+  - { key: breath_checkin, session: embodiment, label: Breathwork or a body check-in }
+  - { key: hydration, session: nourishment, label: Hydrating intentionally }
+  - { key: food_prep, session: nourishment, label: Planning or preparing food ahead }
+  - { key: joy_time, session: play, label: "Time for something I enjoy, just for me" }
+  - { key: create_freely, session: play, label: Creating without needing an outcome or audience }
+  - { key: dream_step, session: dream, label: A small step toward a goal or dream }
+  - { key: finances, session: reclamation, label: Reviewing my budget or finances }
+
+program_connection: Through this program, I feel more connected to other women creatives.

@@ -60,12 +60,32 @@ def section(timepoint: str, n: int):
         gap = service.first_incomplete_section(a)
         if gap is not None:
             return redirect(url_for("assessment.section", timepoint=timepoint, n=gap))
+        if service.needs_extras(a):
+            return redirect(url_for("assessment.extras"))
         service.complete(a)
         return redirect(_results_url(timepoint))
 
     return render_template("assessment/section.html", a=a, inst=inst, sec=sec, n=n, total=len(secs),
                            answers=service.section_answers(a, sec), missing=set(),
                            label=LABELS[timepoint])
+
+
+@bp.route("/assessment/post/practices", methods=["GET", "POST"], endpoint="extras")
+@login_required
+def extras():
+    _check_timepoint("post")
+    a = service.get(g.participant, "post")
+    if a is None or a.is_complete:
+        return redirect(url_for("assessment.begin", timepoint="post"))
+    gap = service.first_incomplete_section(a)
+    if gap is not None:
+        return redirect(url_for("assessment.section", timepoint="post", n=gap))
+    copy = service.content(a.instrument_version)
+    if request.method == "POST":
+        service.save_extras(a, request.form)
+        service.complete(a)
+        return redirect(url_for("assessment.final_results"))
+    return render_template("assessment/extras.html", copy=copy)
 
 
 @bp.get("/results")

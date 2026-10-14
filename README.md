@@ -15,8 +15,8 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 | Data model, sign-in, consent | Done, with tests |
 | Assessment, results, focus areas, then → now, Count Me In | Done, with tests |
 | Encrypted journal, session feedback, testimonials, emails, settings, PWA | Done, with tests |
-| Admin dashboard | Next |
-| AWS deployment | Planned |
+| Admin dashboard and funder report | Done, with tests |
+| AWS deployment | Next |
 
 ## Scoring rules
 

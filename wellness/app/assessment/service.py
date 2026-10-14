@@ -101,6 +101,26 @@ def complete(a: Assessment) -> None:
     db.session.commit()
 
 
+def needs_extras(a: Assessment) -> bool:
+    return a.timepoint == "post" and a.extras is None
+
+
+def save_extras(a: Assessment, form) -> None:
+    copy = content(a.instrument_version)
+    valid = {p["key"] for p in copy["practices"]}
+    practices = [k for k in form.getlist("practices") if k in valid]
+    none = form.get("none") == "on"
+    other = (form.get("other") or "").strip()[:200] or None
+    try:
+        conn = int(form.get("program_connection") or "")
+        conn = conn if 1 <= conn <= 5 else None
+    except ValueError:
+        conn = None
+    a.extras = {"practices": [] if none else practices, "none": none,
+                "other": None if none else other, "program_connection": conn}
+    db.session.commit()
+
+
 def set_focus(a: Assessment, keys: list[str]) -> bool:
     inst = instrument(a.instrument_version)
     valid = [d.key for d in inst.domains]

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}Admin{% endblock %} · Whole Woman Wellness</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="admin">
+  {% if g.admin %}
+  <header class="admin-bar">
+    <strong>Whole Woman Wellness · Admin</strong>
+    <nav class="admin-nav" aria-label="Admin">
+      <a href="{{ url_for('admin.dashboard') }}">Outcomes</a>
+      <a href="{{ url_for('admin.funder') }}">Funder report</a>
+      <a href="{{ url_for('admin.feedback') }}">Session feedback</a>
+      <a href="{{ url_for('admin.testimonials') }}">Testimonials</a>
+      <a href="{{ url_for('admin.program_settings') }}">Program</a>
+      <form method="post" action="{{ url_for('admin.signout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="link-button" type="submit">Sign out</button>
+      </form>
+    </nav>
+  </header>
+  {% endif %}
+  <main class="page admin-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<p class="flash flash-{{ category }}" role="alert">{{ message }}</p>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

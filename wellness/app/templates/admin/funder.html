@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% block title %}Funder report{% endblock %}
+{% block content %}
+<h1 class="title">Women's Fund final report</h1>
+<p><strong>Total # of participants: {{ f.total }}</strong> <span class="muted small">({{ f.responded }} completed Count Me In; everyone else counts as Unknown)</span></p>
+<p><a href="{{ url_for('admin.export_funder') }}">Download demographics as CSV</a></p>
+<div class="report-grid">
+{% for t in f.tables %}
+<div class="table-wrap">
+<table class="data">
+  <caption>{{ t.title }}</caption>
+  <thead><tr><th scope="col">Option</th><th scope="col">Count</th><th scope="col">%</th></tr></thead>
+  <tbody>
+    {% for label, n, pct in t.rows %}<tr><th scope="row">{{ label }}</th><td>{{ n }}</td><td>{{ pct }}%</td></tr>{% endfor %}
+    <tr class="divider"><th scope="row">Total</th><td>{{ f.total }}</td><td>100.0%</td></tr>
+  </tbody>
+</table>
+{% if t.approximate %}<p class="muted small">Estimated from household size and income range using the 2026 HHS poverty guidelines (Indiana uses the federal guidelines).</p>{% endif %}
+</div>
+{% endfor %}
+</div>
+<p class="muted small">Story or testimonial: see <a href="{{ url_for('admin.testimonials') }}">Testimonials</a>. Photo: collected at in-person events.</p>
+{% endblock %}

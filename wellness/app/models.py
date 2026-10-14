@@ -82,7 +82,8 @@ class SignInCode(db.Model):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(254), index=True)
     code_hash: Mapped[str] = mapped_column(String(128))
-    cohort_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cohort.id"))
+    purpose: Mapped[str] = mapped_column(String(16), default="participant")  # participant | admin
+    cohort_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("cohort.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(Integer, default=0)
@@ -105,6 +106,19 @@ class AuthSession(db.Model):
     participant: Mapped[Participant] = relationship(back_populates="auth_sessions")
 
 
+class AdminSession(db.Model):
+    """Admin sessions are separate from participant sessions and expire after 8 hours."""
+
+    __tablename__ = "admin_session"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    email: Mapped[str] = mapped_column(String(254), index=True)
+    token_hash: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class Assessment(db.Model):
     __tablename__ = "assessment"
     __table_args__ = (UniqueConstraint("participant_id", "timepoint"),)
@@ -120,6 +134,8 @@ class Assessment(db.Model):
     engine_version: Mapped[str | None] = mapped_column(String(16), nullable=True)
     is_late_baseline: Mapped[bool] = mapped_column(Boolean, default=False)
     focus_domains: Mapped[list] = mapped_column(JSON, default=list)  # pre only, up to 2
+    # Final only: practice checklist + program-connection item. None = not yet answered.
+    extras: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     participant: Mapped[Participant] = relationship(back_populates="assessments")
 

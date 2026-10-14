@@ -81,46 +81,51 @@ def request_code(email: str, join_code: str) -> CodeRequest:
         .where(SignInCode.email == email, SignInCode.created_at >= hour_ago))
     if recent >= current_app.config["SIGNIN_CODES_PER_EMAIL_PER_HOUR"]:
         raise SignInError("Too many codes requested. Please wait a little while and try again.")
+    return CodeRequest(email=email, code=issue_code(email, "participant", cohort.id))
 
-    # Only the newest code works.
+
+def issue_code(email: str, purpose: str, cohort_id=None) -> str:
+    """Create a fresh code (only the newest one works) and return it in plaintext."""
     for old in db.session.scalars(
-            select(SignInCode).where(SignInCode.email == email, SignInCode.used_at.is_(None),
-                                     SignInCode.superseded.is_(False))):
+            select(SignInCode).where(SignInCode.email == email, SignInCode.purpose == purpose,
+                                     SignInCode.used_at.is_(None), SignInCode.superseded.is_(False))):
         old.superseded = True
-
     code = f"{secrets.randbelow(1_000_000):06d}"
     db.session.add(SignInCode(
-        email=email,
-        code_hash=_keyed_hash(f"{email}:{code}", "signin"),
-        cohort_id=cohort.id,
+        email=email, purpose=purpose, cohort_id=cohort_id,
+        code_hash=_keyed_hash(f"{purpose}:{email}:{code}", "signin"),
         expires_at=utcnow() + current_app.config["SIGNIN_CODE_TTL"],
     ))
     db.session.commit()
-    return CodeRequest(email=email, code=code)
+    return code
 
 
-def verify_code(email: str, code: str) -> Participant:
-    """Check a code. Creates the participant on first sign-in."""
-    email = normalize_email(email)
+def check_code(email: str, code: str, purpose: str) -> SignInCode:
+    """Validate the newest unused code for this email and purpose; marks it used."""
     code = "".join(ch for ch in code if ch.isdigit())
     record = db.session.scalar(
         select(SignInCode)
-        .where(SignInCode.email == email, SignInCode.used_at.is_(None),
-               SignInCode.superseded.is_(False))
+        .where(SignInCode.email == email, SignInCode.purpose == purpose,
+               SignInCode.used_at.is_(None), SignInCode.superseded.is_(False))
         .order_by(SignInCode.created_at.desc()))
-
     generic = SignInError("That code didn't work. Check the most recent email, or request a new code.")
     if record is None or _aware(record.expires_at) < utcnow():
         raise generic
     if record.attempts >= current_app.config["SIGNIN_CODE_MAX_ATTEMPTS"]:
         raise SignInError("Too many tries. Please request a new code.")
-
     record.attempts += 1
-    if not hmac.compare_digest(record.code_hash, _keyed_hash(f"{email}:{code}", "signin")):
+    if not hmac.compare_digest(record.code_hash, _keyed_hash(f"{purpose}:{email}:{code}", "signin")):
         db.session.commit()
         raise generic
-
     record.used_at = utcnow()
+    db.session.commit()
+    return record
+
+
+def verify_code(email: str, code: str) -> Participant:
+    """Check a code. Creates the participant on first sign-in."""
+    email = normalize_email(email)
+    record = check_code(email, code, "participant")
     participant = db.session.scalar(select(Participant).where(Participant.email == email))
     if participant is None:
         participant = Participant(email=email, cohort_id=record.cohort_id)

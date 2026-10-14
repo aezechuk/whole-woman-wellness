@@ -31,6 +31,10 @@ class Config:
     MAIL_BACKEND = os.environ.get("MAIL_BACKEND", "console")
     MAIL_FROM = os.environ.get("MAIL_FROM", "Radical Self-Care Reset <hello@example.org>")
 
+    # Admins: an allowlist of emails, set in the environment, never editable in the app.
+    ADMIN_EMAILS = [e for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
+    ADMIN_SESSION_LIFETIME = timedelta(hours=8)
+
     INSTRUMENT_VERSION = "v1"
     # Final assessment opens at the Care for the Dream session (Nov 18, Eastern).
     FINAL_OPENS_AT = datetime(2026, 11, 18, 0, 0, tzinfo=timezone(timedelta(hours=-5)))
@@ -66,6 +70,7 @@ class TestConfig(Config):
     MAIL_BACKEND = "memory"
     JOURNAL_LOCAL_KEY = "dGVzdC1vbmx5LWtleS10aGlydHktdHdvLWJ5dGVzISE="
     PUBLIC_URL = "https://wellness.test"
+    ADMIN_EMAILS = ["elle@example.org", "staff@example.org"]
 
 
 class ProdConfig(Config):

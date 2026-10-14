@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block title %}Session feedback{% endblock %}
+{% block content %}
+<h1 class="title">Session feedback</h1>
+<p class="muted small">Anonymous. Ratings are 1–5.</p>
+{% for w in weeks %}
+<section class="card stack">
+  <h2 class="h2">Week {{ w.week.number }} · {{ w.week.name }} <span class="n">n={{ w.n }}</span></h2>
+  {% if w.n %}
+  <p class="small">Valuable: <strong>{{ w.valuable if w.valuable is not none else '—' }}</strong> <span class="n">n={{ w.valuable_n }}</span>
+   · Usable this week: <strong>{{ w.usable if w.usable is not none else '—' }}</strong> <span class="n">n={{ w.usable_n }}</span></p>
+  <p class="small muted">Live online {{ w.attendance.live }} · In person {{ w.attendance.in_person }} · Recording {{ w.attendance.recording }} · Didn't attend {{ w.attendance.none }}</p>
+  {% if w.helpful %}<h3 class="h3">Most helpful</h3><ul class="comments">{% for c in w.helpful %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+  {% if w.better %}<h3 class="h3">Would make it better</h3><ul class="comments">{% for c in w.better %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+  {% else %}<p class="muted small">No responses yet.</p>{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

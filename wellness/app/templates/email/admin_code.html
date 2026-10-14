@@ -1,0 +1,4 @@
+{% extends "email/base.html" %}
+{% block body %}<p>Your admin sign-in code is:</p>
+<p style="font-size:34px;font-weight:700;letter-spacing:6px;color:#4B0F4F;margin:12px 0 20px">{{ code }}</p>
+<p style="font-size:13px;color:#6B5670">It expires in 10 minutes. If you didn't request it, someone may be trying to sign in with your address; you can ignore this email.</p>{% endblock %}

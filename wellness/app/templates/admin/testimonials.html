@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block title %}Testimonials{% endblock %}
+{% block content %}
+<h1 class="title">Testimonials</h1>
+<p><a href="{{ url_for('admin.export_testimonials') }}">Download as CSV</a></p>
+{% for t in testimonials %}
+<section class="card stack">
+  <p class="quote">“{{ t.body }}”</p>
+  <p class="small">— <strong>{{ t.credit_name }}</strong></p>
+  <p class="muted small">{{ 'Funder report only' if t.share == 'funder' else 'Funder report and Arthentic materials' }}
+    {% if t.week_key %}· written during {{ weeks.get(t.week_key, t.week_key) }}{% endif %} · {{ t.created_at.strftime('%b %d') }}</p>
+</section>
+{% else %}
+<p class="muted">No testimonials yet.</p>
+{% endfor %}
+<p class="muted small">Use each testimonial only where its author allowed and credit it exactly as shown.</p>
+{% endblock %}

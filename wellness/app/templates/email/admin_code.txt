@@ -1,0 +1,5 @@
+Your admin sign-in code is:
+
+{{ code }}
+
+It expires in 10 minutes. If you didn't request it, someone may be trying to sign in with your address; you can ignore this email.

@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<h1 class="title">Admin sign-in</h1>
+<form method="post" class="card stack narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field"><label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required></div>
+  <button class="button" type="submit">Email me a code</button>
+</form>
+{% endblock %}

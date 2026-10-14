@@ -1,0 +1,4 @@
+{% extends "email/base.html" %}
+{% block body %}<p><strong>{{ who }}</strong> signed in to the admin area on {{ when }}.</p>
+<p style="font-size:13px;color:#6B5670">Device: {{ agent }}</p>
+<p>If this wasn't expected, remove the address from the admin allowlist right away.</p>{% endblock %}

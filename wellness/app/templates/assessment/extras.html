@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Final assessment · last step{% endblock %}
+{% block content %}
+<div class="topbar"><span class="muted small">Final · last step</span></div>
+<h1 class="title">Two last questions</h1>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <fieldset class="card field">
+    <legend>{{ copy.practices_prompt }} <span class="muted small">(Select any that apply)</span></legend>
+    {% for p in copy.practices %}
+    <label class="choice"><input type="checkbox" name="practices" value="{{ p.key }}"> {{ p.label }}</label>
+    {% endfor %}
+    <label for="other" class="small">Something else</label>
+    <input id="other" name="other" type="text" maxlength="200">
+    <label class="choice"><input type="checkbox" name="none"> None of these right now</label>
+  </fieldset>
+  <fieldset class="card question">
+    <legend class="question-text">{{ copy.program_connection }}</legend>
+    <div class="scale">
+      {% for v in range(1, 6) %}
+      <label class="scale-option"><input type="radio" name="program_connection" value="{{ v }}">
+        <span class="scale-dot" aria-hidden="true">{{ v }}</span><span class="visually-hidden">{{ v }} of 5</span></label>
+      {% endfor %}
+    </div>
+    <div class="scale-ends" aria-hidden="true"><span>Not true for me right now</span><span>Consistently true for me</span></div>
+  </fieldset>
+  <button class="button" type="submit">See then → now</button>
+</form>
+{% endblock %}

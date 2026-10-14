@@ -136,7 +136,14 @@ def test_final_comparison(signed_in, app):
     c.post("/results/focus", data={"focus": ["play"]})
     app.config["FINAL_OPENS_AT"] = datetime(2000, 1, 1, tzinfo=timezone.utc)
     r = answer_all(c, "post", per_section={4: 4, 3: 3})  # play 75, nourishment 50
+    assert r.headers["Location"].endswith("/assessment/post/practices")
+    assert c.get("/results/final").headers["Location"].endswith("/")  # not complete yet
+    r = c.post("/assessment/post/practices", data={"practices": ["movement", "bogus"],
+                                                   "other": "Journaling", "program_connection": "5"})
     assert r.headers["Location"].endswith("/results/final")
+    post = db.session.scalar(select(Assessment).where(Assessment.timepoint == "post"))
+    assert post.extras == {"practices": ["movement"], "none": False, "other": "Journaling",
+                           "program_connection": 5}
     page = c.get("/results/final").get_data(as_text=True)
     assert "then → now" in page
     assert "25 → 75" in page and "+50" in page                 # focus area

@@ -1,0 +1,4 @@
+Admin sign-in: {{ who }} signed in on {{ when }}.
+Device: {{ agent }}
+
+If this wasn't expected, sign in and remove the address from ADMIN_EMAILS, or contact Elle.

@@ -31,6 +31,7 @@ def create_app(env: str | None = None) -> Flask:
     limiter.init_app(app)
 
     from . import models  # noqa: F401  (register tables)
+    from .admin import bp as admin_bp
     from .assessment import bp as assessment_bp
     from .auth import bp as auth_bp
     from .auth.service import participant_for_token
@@ -41,6 +42,7 @@ def create_app(env: str | None = None) -> Flask:
     app.register_blueprint(participant_bp)
     app.register_blueprint(assessment_bp)
     app.register_blueprint(reflect_bp)
+    app.register_blueprint(admin_bp)
 
     @app.before_request
     def load_participant():

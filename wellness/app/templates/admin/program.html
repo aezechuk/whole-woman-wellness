@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block title %}Program{% endblock %}
+{% block content %}
+<h1 class="title">Program settings</h1>
+<form method="post" class="card stack narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field"><label for="join_code">New program code <span class="muted small">(leave blank to keep the current one)</span></label>
+    <input id="join_code" name="join_code" type="text" autocomplete="off" maxlength="32"></div>
+  <label class="choice"><input type="checkbox" name="join_open" {% if cohort.join_open %}checked{% endif %}> New sign-ups open</label>
+  <div class="field"><label for="capacity">Capacity <span class="muted small">(blank = no limit; {{ o.participants }} joined)</span></label>
+    <input id="capacity" name="capacity" type="text" inputmode="numeric" value="{{ cohort.capacity or '' }}"></div>
+  <button class="button" type="submit">Save</button>
+</form>
+<p class="muted small">Changing the code doesn't affect anyone already signed up.</p>
+{% endblock %}
