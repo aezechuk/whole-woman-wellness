@@ -33,7 +33,7 @@ resource "aws_security_group" "web" {
     ipv6_cidr_blocks = ["::/0"]
   }
   egress {
-    description      = "Outbound (AWS APIs, package updates, GitHub, Let's Encrypt)"
+    description      = "Outbound (AWS APIs, package updates, GitHub, LetsEncrypt)"
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
