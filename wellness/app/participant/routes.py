@@ -60,11 +60,16 @@ def consent():
         p.consented_at = utcnow()
         p.consent_version = current_app.config["CONSENT_VERSION"]
         db.session.commit()
-        return redirect(url_for("participant.home"))
+        # Offer Count Me In once, right after consent, with a "Maybe later".
+        return redirect(url_for("assessment.count_me_in", first=1))
     return render_template("participant/consent.html")
 
 
 @bp.route("/")
 @login_required
 def home():
-    return render_template("participant/home.html", participant=g.participant)
+    from ..assessment import service
+    p = g.participant
+    pre, post = service.get(p, "pre"), service.get(p, "post")
+    return render_template("participant/home.html", participant=p, pre=pre, post=post,
+                           final_open=service.final_is_open())

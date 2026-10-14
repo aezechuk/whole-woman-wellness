@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ label }} assessment · {{ n }} of {{ total }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <span class="muted small">{{ label }} · section {{ n }} of {{ total }}</span>
+  <span class="muted small">Saves as you go</span>
+</div>
+<progress class="progress" value="{{ n - 1 }}" max="{{ total }}">{{ n - 1 }} of {{ total }} sections done</progress>
+
+<h1 class="title">How true is each of these for you right now?</h1>
+<p class="muted">There are no right answers. Go with your first sense.</p>
+
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for item in sec.items %}
+  <fieldset class="card question{% if item.key in missing %} question-missing{% endif %}">
+    <legend class="question-text">{{ item.text }}</legend>
+    <div class="scale">
+      {% for v in range(inst.scale_min, inst.scale_max + 1) %}
+      <label class="scale-option">
+        <input type="radio" name="{{ item.key }}" value="{{ v }}" {% if answers.get(item.key) == v %}checked{% endif %}>
+        <span class="scale-dot" aria-hidden="true">{{ v }}</span>
+        <span class="visually-hidden">{{ v }}: {{ inst.scale_labels[v] }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <div class="scale-ends" aria-hidden="true">
+      <span>{{ inst.scale_labels[inst.scale_min] }}</span>
+      <span>{{ inst.scale_labels[inst.scale_max] }}</span>
+    </div>
+  </fieldset>
+  {% endfor %}
+
+  <button class="button" type="submit" name="action" value="next">
+    {% if n < total %}Next section{% else %}See my results{% endif %}
+  </button>
+  {% if n > 1 %}
+  <button class="link-button center" type="submit" name="action" value="back" formnovalidate>Back</button>
+  {% endif %}
+</form>
+<details class="hint-box">
+  <summary>What do the numbers mean?</summary>
+  <ol class="scale-key">
+    {% for v in range(inst.scale_min, inst.scale_max + 1) %}<li><strong>{{ v }}</strong> {{ inst.scale_labels[v] }}</li>{% endfor %}
+  </ol>
+</details>
+{% endblock %}

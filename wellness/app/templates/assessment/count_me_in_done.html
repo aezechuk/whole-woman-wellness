@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Count Me In{% endblock %}
+{% block content %}
+<h1 class="title">You've been counted</h1>
+<div class="card"><p>Thank you for completing Count Me In. Your answers are anonymous, so they can't be viewed or changed.</p></div>
+<p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
+{% endblock %}

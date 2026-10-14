@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class Config:
@@ -32,6 +32,8 @@ class Config:
     MAIL_FROM = os.environ.get("MAIL_FROM", "Radical Self-Care Reset <hello@example.org>")
 
     INSTRUMENT_VERSION = "v1"
+    # Final assessment opens at the Care for the Dream session (Nov 18, Eastern).
+    FINAL_OPENS_AT = datetime(2026, 11, 18, 0, 0, tzinfo=timezone(timedelta(hours=-5)))
     CONSENT_VERSION = "2026-10-v1"
 
     WTF_CSRF_TIME_LIMIT = None  # tied to the session instead of a clock

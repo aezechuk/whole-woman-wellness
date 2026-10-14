@@ -1,8 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="title">Hi, {{ participant.first_name }}</h1>
-<p>Your assessment, journal, and results will live here.</p>
-<form method="post" action="{{ url_for('auth.signout') }}">
+<section class="feature">
+  <p class="eyebrow">RADICAL SELF-CARE RESET</p>
+  <h1 class="display">hi, {{ participant.first_name|lower }}</h1>
+</section>
+
+<section class="card stack">
+  <p class="kicker">YOUR ASSESSMENT</p>
+  {% if pre and pre.completed_at %}
+    <p>You completed your beginning assessment.</p>
+    <a class="button" href="{{ url_for('assessment.results') }}">View my snapshot</a>
+  {% elif pre %}
+    <p>You've started your beginning assessment. Pick up where you left off.</p>
+    <a class="button" href="{{ url_for('assessment.begin', timepoint='pre') }}">Continue</a>
+  {% else %}
+    <p>27 short questions, about 6 minutes. A guided look at how each part of your life feels right now.</p>
+    <a class="button" href="{{ url_for('assessment.begin', timepoint='pre') }}">Begin my reflection</a>
+  {% endif %}
+
+  {% if final_open %}
+    <hr class="rule">
+    {% if post and post.completed_at %}
+      <a class="button secondary" href="{{ url_for('assessment.final_results') }}">See then → now</a>
+    {% else %}
+      <p>Your final assessment is open. See what's shifted.</p>
+      <a class="button secondary" href="{{ url_for('assessment.begin', timepoint='post') }}">{{ 'Continue' if post else 'Take my final assessment' }}</a>
+    {% endif %}
+  {% endif %}
+</section>
+
+{% if not participant.count_me_in_done_at %}
+<section class="card tint stack">
+  <p class="kicker">COUNT ME IN</p>
+  <p class="small">A few anonymous questions that help our funder see who this program reaches.</p>
+  <a class="link" href="{{ url_for('assessment.count_me_in') }}">Count me in</a>
+</section>
+{% endif %}
+
+<form method="post" action="{{ url_for('auth.signout') }}" class="center">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button class="link-button" type="submit">Sign out</button>
 </form>

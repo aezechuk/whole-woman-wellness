@@ -28,7 +28,7 @@ def test_full_onboarding_flow(client):
     assert client.get("/").headers["Location"].endswith("/consent")  # then consent
     client.post("/consent", data={"agree": "yes"})
     r = client.get("/")
-    assert r.status_code == 200 and b"Hi, Maya" in r.data
+    assert r.status_code == 200 and b"hi, maya" in r.data
     p = db.session.scalar(select(Participant))
     assert p.email == "maya@example.com" and p.is_mentee is True and p.consent_version
 

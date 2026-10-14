@@ -31,12 +31,14 @@ def create_app(env: str | None = None) -> Flask:
     limiter.init_app(app)
 
     from . import models  # noqa: F401  (register tables)
+    from .assessment import bp as assessment_bp
     from .auth import bp as auth_bp
     from .auth.service import participant_for_token
     from .participant import bp as participant_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(participant_bp)
+    app.register_blueprint(assessment_bp)
 
     @app.before_request
     def load_participant():

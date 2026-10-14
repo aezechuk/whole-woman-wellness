@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "macros.html" import bar, dumbbell, signed, support %}
+{% block title %}Then and now{% endblock %}
+{% block content %}
+{% if c %}
+<section class="feature">
+  <h1 class="display">then → now</h1>
+  {% if c.focus %}
+  <p>Six weeks ago you chose {{ 'these areas' if c.focus|length > 1 else 'this area' }} to focus on. Here's how {{ 'they' if c.focus|length > 1 else 'it' }} moved.</p>
+  <div class="pair">
+    {% for f in c.focus %}
+    <div class="glass">
+      <div class="small strong-lav">{{ f.name }}</div>
+      <div class="big">{{ f.before }} → {{ f.after }}</div>
+      <div class="small strong-lav">{{ signed(f.change) }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>Here's how each area of your life has moved since you began.</p>
+  {% endif %}
+</section>
+
+<section class="card stack">
+  <div class="score-head">
+    <h2 class="h2">All six areas</h2>
+    <span class="legend small"><span class="key-then"></span>Then <span class="key-now"></span>Now</span>
+  </div>
+  {% for d in c.domains %}
+  <div class="score-row">
+    <div class="score-head"><span class="score-name">{{ d.name }}</span>
+      <span class="muted">{{ d.before }} → <strong class="ink">{{ d.after }}</strong> <span class="delta">{{ signed(d.change) }}</span></span></div>
+    {{ dumbbell(d.before, d.after) }}
+    <div class="muted small">Now: {{ d.after_band }}</div>
+  </div>
+  {% endfor %}
+  <div class="overall"><span>Whole Woman overall</span>
+    <span>{{ c.overall_before }} → <strong>{{ c.overall_after }}</strong> <span class="delta">{{ signed(c.overall_change) }}</span></span></div>
+</section>
+
+{% for msg in c.decreases %}
+<section class="card dashed"><p class="small">{{ msg }}</p></section>
+{% endfor %}
+
+{% if c.connection %}
+<section class="card tint">
+  <div class="score-head"><h2 class="h2">Connection &amp; Belonging</h2>
+    <span class="muted">{{ c.connection.before }} → <strong class="ink">{{ c.connection.after }}</strong> <span class="delta">{{ signed(c.connection.change) }}</span></span></div>
+  {{ dumbbell(c.connection.before, c.connection.after) }}
+</section>
+{% endif %}
+
+<div class="trio">
+  <section class="card"><p class="kicker">GREATEST CHANGE</p>
+    {% if c.greatest %}<p class="h3">{{ c.greatest|join(', ') }}</p><p class="muted small">{{ signed(c.greatest_change) }}</p>
+    {% else %}<p class="small">Your areas held steady.</p>{% endif %}</section>
+  <section class="card"><p class="kicker">FLOWING MOST EASILY NOW</p>
+    {% for d in c.strong_now %}<p class="h3">{{ d.name }}</p><p class="muted small">{{ d.display }}</p>{% else %}<p class="small">All even</p>{% endfor %}</section>
+  <section class="card"><p class="kicker">STILL ASKING FOR CARE</p>
+    {% for d in c.care_now %}<p class="h3">{{ d.name }}</p><p class="muted small">{{ d.display }}</p>{% else %}<p class="small">All even</p>{% endfor %}</section>
+</div>
+{% else %}
+<section class="feature">
+  <h1 class="display">your whole woman snapshot</h1>
+  <p>{{ s.text.results_intro }}</p>
+</section>
+<section class="card stack">
+  {% for d in s.domains %}
+  <div class="score-row">
+    <div class="score-head"><span class="score-name">{{ d.name }}</span><span class="score-num">{{ d.display }}</span></div>
+    {{ bar(d.display) }}
+    <div class="muted small">{{ d.band }}</div>
+  </div>
+  {% endfor %}
+</section>
+<p class="muted small">There's no beginning assessment to compare against, so this shows where you are now.</p>
+{% endif %}
+
+<p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
+{{ support() }}
+{% endblock %}

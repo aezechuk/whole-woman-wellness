@@ -1,0 +1,68 @@
+# Participant-facing copy for instrument v1. Wording approved in the
+# "App Copy for Review" doc. Changing copy here never changes scores.
+
+results_intro: >-
+  These scores show how each area of your life feels right now. They aren't a
+  grade, and they'll shift as your seasons and circumstances do.
+
+all_even: >-
+  Your six areas feel about the same right now. There's no single standout,
+  which is its own kind of information. Notice which one you'd most like to shift.
+
+decrease: >-
+  {name} feels different than it did at the beginning. Consider what changed in
+  your life, your awareness, or your circumstances. Sometimes seeing an area more
+  clearly shifts how we rate it.
+
+focus_prompt: >-
+  Looking at your whole picture, where would you most like to feel a meaningful
+  shift over the next six weeks?
+
+connection_description: >-
+  How supported and connected you feel, including with other women creatives.
+
+domains:
+  reset:
+    session_label: The Reset (Oct 21)
+    strong: >-
+      Your time, energy, and priorities feel fairly clear right now. That clarity
+      is a foundation the rest of your life can build on.
+    care: Your weeks may be shaping you more than you're shaping them right now.
+    care_session: The Reset (Oct 21) begins by simply seeing where your time and energy go.
+  embodiment:
+    session_label: Embodiment (Oct 28)
+    strong: >-
+      You're listening to your body and giving it room to move and rest. That
+      attention is worth keeping.
+    care: Your body may be carrying more than it's getting back.
+    care_session: Embodiment (Oct 28) is a chance to notice what it's been asking for.
+  nourishment:
+    session_label: Nourishment (Nov 4)
+    strong: >-
+      Eating and hydrating are working in your favor right now. Notice which
+      routines are making that easier.
+    care: Nourishing yourself may be hard to fit into this season.
+    care_session: Nourishment (Nov 4) focuses on practical ways to make it easier.
+  play:
+    session_label: Play & Pleasure (Nov 11)
+    strong: >-
+      Joy and curiosity have a real place in your life. Protect that space; it
+      feeds everything else.
+    care: There may not be much room right now for things that are simply yours to enjoy.
+    care_session: Play & Pleasure (Nov 11) makes room for exactly that.
+  dream:
+    session_label: Care for the Dream (Nov 18)
+    strong: >-
+      Your goals and desires have room to breathe. You're giving your future real
+      attention.
+    care: What you want for your future may be waiting for time and space.
+    care_session: Care for the Dream (Nov 18) is about tending it, even in small ways.
+  reclamation:
+    session_label: Reclamation (Nov 30)
+    strong: >-
+      The parts of your life feel connected, and you're steering with intention.
+      That self-trust is worth carrying forward.
+    care: Bringing your life into alignment may feel like a lot to hold right now.
+    care_session: >-
+      Reclamation (Nov 30) is about gathering what you've learned and making it
+      yours.

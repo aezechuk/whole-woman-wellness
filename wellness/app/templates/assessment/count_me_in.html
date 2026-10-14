@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Count Me In{% endblock %}
+{% block content %}
+<h1 class="title">Count Me In <span class="muted">(Anonymous)</span></h1>
+<div class="card stack prose">
+  <p>This program is funded by The Women's Fund of Central Indiana. As part of their final report, they ask us who the program reached, shared only as group percentages.</p>
+  <p>Your answers here are anonymous. They're stored separately from your name, email, and assessment, so no one, including program staff, can connect them to you.</p>
+  <p>Every question is optional. Skip any you'd rather not answer. Once you submit, your answers can't be changed, because they aren't linked to you.</p>
+</div>
+
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <fieldset class="card field">
+    <legend>How do you describe your race or ethnicity? <span class="muted small">(Select all that apply)</span></legend>
+    {% for key, label in race %}
+    <label class="choice"><input type="checkbox" name="race" value="{{ key }}"> {{ label }}</label>
+    {% endfor %}
+  </fieldset>
+  {% for field, (question, options) in single.items() %}
+  <fieldset class="card field">
+    <legend>{{ question }}</legend>
+    {% for key, label in options %}
+    <label class="choice"><input type="radio" name="{{ field }}" value="{{ key }}"> {{ label }}</label>
+    {% endfor %}
+    <label class="choice"><input type="radio" name="{{ field }}" value="skip" checked> Prefer not to say</label>
+  </fieldset>
+  {% endfor %}
+  <button class="button" type="submit" name="action" value="submit">Submit anonymously</button>
+  <button class="link-button center" type="submit" name="action" value="later" formnovalidate>Maybe later</button>
+</form>
+{% endblock %}

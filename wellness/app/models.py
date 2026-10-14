@@ -114,3 +114,24 @@ class Assessment(db.Model):
     focus_domains: Mapped[list] = mapped_column(JSON, default=list)  # pre only, up to 2
 
     participant: Mapped[Participant] = relationship(back_populates="assessments")
+
+    @property
+    def is_complete(self) -> bool:
+        return self.completed_at is not None
+
+
+class DemographicResponse(db.Model):
+    """Count Me In answers. Deliberately has no participant id and no timestamp."""
+
+    __tablename__ = "demographic_response"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    cohort_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cohort.id"), index=True)
+    race: Mapped[list] = mapped_column(JSON, default=list)  # empty = skipped
+    gender: Mapped[str] = mapped_column(String(16))
+    transgender: Mapped[str] = mapped_column(String(16))
+    orientation: Mapped[str] = mapped_column(String(16))
+    disability: Mapped[str] = mapped_column(String(16))
+    age: Mapped[str] = mapped_column(String(16))
+    household_size: Mapped[str] = mapped_column(String(16))
+    income_band: Mapped[str] = mapped_column(String(16))
