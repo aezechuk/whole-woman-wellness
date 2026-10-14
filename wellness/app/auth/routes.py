@@ -19,7 +19,9 @@ def _set_auth_cookie(response, token: str):
 
 
 @bp.route("/start", methods=["GET", "POST"])
-@limiter.limit("20 per hour", methods=["POST"])
+# Per network address. Generous because a whole session room may share one Wi-Fi
+# address; the real protection is per email (5 codes/hour) and per code (5 tries).
+@limiter.limit("150 per hour", methods=["POST"])
 def start():
     if g.participant:
         return redirect(url_for("participant.home"))
@@ -47,7 +49,7 @@ def start():
 
 
 @bp.route("/verify", methods=["GET", "POST"])
-@limiter.limit("30 per hour", methods=["POST"])
+@limiter.limit("200 per hour", methods=["POST"])
 def verify():
     email = session.get("pending_email")
     if not email:
