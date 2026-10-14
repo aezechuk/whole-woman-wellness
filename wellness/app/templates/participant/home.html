@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="feature">
-  <p class="eyebrow">RADICAL SELF-CARE RESET</p>
+<img class="brand-logo home-logo" src="{{ url_for('static', filename='img/arthentic-logo.png') }}" alt="Arthentic" width="467" height="84">
+<section class="feature home-hero{{ ' has-photo' if hero_photo }}">
+  <p class="eyebrow">WOMEN IN ARTS · RADICAL SELF-CARE RESET</p>
   <h1 class="display">hi, {{ participant.first_name|lower }}</h1>
+  {% if week %}<p class="small">Week {{ week.number }} · {{ week.name }}</p>{% endif %}
 </section>
 
 {% if week %}
@@ -38,6 +40,7 @@
 </section>
 
 <nav class="menu" aria-label="More">
+  <a href="{{ url_for('reflect.sessions') }}"><strong>Sessions</strong><span>Overview &amp; feedback</span></a>
   <a href="{{ url_for('reflect.journal') }}"><strong>Journal</strong><span>Private reflections</span></a>
   <a href="{{ url_for('reflect.testimonials') }}"><strong>Share your experience</strong><span>Testimonials</span></a>
   {% if not participant.count_me_in_done_at %}

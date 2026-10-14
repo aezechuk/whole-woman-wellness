@@ -8,6 +8,7 @@
 </header>
 <form method="post" class="card stack">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if confirmed_email %}<input type="hidden" name="confirmed_email" value="{{ confirmed_email }}">{% endif %}
   <div class="field">
     <label for="email">Email</label>
     <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required
@@ -16,7 +17,7 @@
   <div class="field">
     <label for="join_code">Program code</label>
     <input id="join_code" name="join_code" type="text" autocomplete="off" autocapitalize="characters"
-           required maxlength="32">
+           required maxlength="32" value="{{ join_code or '' }}">
     <p class="hint">From your welcome materials or Eventbrite confirmation.</p>
   </div>
   <button class="button" type="submit">Email me a sign-in code</button>

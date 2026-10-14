@@ -60,7 +60,7 @@ def journal_week(week_key: str):
 
     if request.method == "POST":
         now = utcnow()
-        for i, _ in enumerate(week.prompts):
+        for i, _ in week.slots:
             text = (request.form.get(f"prompt_{i}") or "").strip()
             if f"prompt_{i}" not in request.form:
                 continue
@@ -91,6 +91,31 @@ def journal_week(week_key: str):
                            saved=request.args.get("saved") == "1", feedback_done=feedback_done)
 
 
+# ---- sessions ----------------------------------------------------------------------
+
+def _session_rows(p: Participant) -> list[dict]:
+    done = {f.week_key for f in p.feedback_done}
+    current = program.load().current_week()
+    return [{"week": w, "happened": w.is_open(), "current": current is not None and w.key == current.key,
+             "feedback_done": w.key in done} for w in program.load().weeks]
+
+
+@bp.get("/sessions")
+@login_required
+def sessions():
+    return render_template("reflect/sessions.html", rows=_session_rows(g.participant))
+
+
+@bp.get("/sessions/<week_key>")
+@login_required
+def session_week(week_key: str):
+    p = g.participant
+    week = _open_week(week_key)
+    return render_template("reflect/session_week.html", week=week, attendance=ATTENDANCE,
+                           happened=week.is_open(),
+                           feedback_done=any(f.week_key == week_key for f in p.feedback_done))
+
+
 # ---- session feedback ------------------------------------------------------------
 
 ATTENDANCE = [("live", "Live online"), ("in_person", "In person"),
@@ -110,6 +135,8 @@ def _rating(value: str | None) -> int | None:
 def feedback(week_key: str):
     p = g.participant
     week = _open_week(week_key)
+    if not week.is_open():  # feedback opens once the session has happened
+        return redirect(url_for("reflect.session_week", week_key=week_key))
     if any(f.week_key == week_key for f in p.feedback_done):
         return render_template("reflect/feedback_done.html", week=week)
     if request.method == "POST":
@@ -134,7 +161,7 @@ def feedback(week_key: str):
         db.session.add(FeedbackDone(participant_id=p.id, week_key=week_key))
         db.session.commit()
         flash("Thank you. Your feedback helps shape the program.", "info")
-        return redirect(url_for("reflect.journal_week", week_key=week_key))
+        return redirect(url_for("reflect.session_week", week_key=week_key))
     return render_template("reflect/feedback.html", week=week, attendance=ATTENDANCE)
 
 
@@ -249,7 +276,7 @@ def download():
     entries = {(e.week_key, e.prompt_index): e for e in p.journal_entries}
     reflections = []
     for w in prog.weeks:
-        for i, prompt in enumerate(w.prompts):
+        for i, prompt in w.slots:
             e = entries.get((w.key, i))
             if e is not None:
                 reflections.append((w, prompt, crypto.open_(e.body, _context(p, w.key, i))))

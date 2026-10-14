@@ -184,7 +184,7 @@ textarea { display: block; width: 100%; padding: 14px; font: inherit; line-heigh
 .menu a { display: flex; flex-direction: column; justify-content: center; min-height: 72px; padding: 12px 14px;
   background: #fff; border: 1px solid var(--line); border-radius: 16px; text-decoration: none; color: var(--ink); }
 .menu a span { font-size: 12.5px; color: var(--muted); font-weight: 400; }
-fieldset.card.field { border: 1px solid var(--line); padding: 16px; }
+.card.field { border: 1px solid var(--line); padding: 16px; }
 .row-locked > span { white-space: nowrap; }
 
 /* Admin */
@@ -230,3 +230,17 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .topbar-home { font-weight: 600; color: var(--plum); text-decoration: none; padding: 8px 14px;
   border: 1.5px solid var(--plum); border-radius: 999px; font-size: 14px; }
 .topbar + .page { padding-top: 12px; }
+
+/* Home: logo + hero (photo under a brand overlay, like the flyers) */
+.home-logo { width: 132px; margin: 0 auto; }
+.home-hero { min-height: 190px; display: flex; flex-direction: column; justify-content: flex-end; }
+.home-hero.has-photo {
+  background: linear-gradient(180deg, rgba(75,15,79,.30) 0%, rgba(75,15,79,.62) 55%, rgba(138,42,102,.92) 100%),
+              url("../img/home-hero.jpg") center 30% / cover no-repeat;
+  min-height: 300px; }
+.home-hero .eyebrow, .home-hero .small { text-shadow: 0 1px 2px rgba(42,18,48,.5); }
+
+/* Sessions */
+.session-row strong { display: block; margin: 2px 0; }
+.session-row.is-current { border: 1.5px solid var(--plum); }
+.embedded-form .card, .embedded-form .card.field { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 14px 0 6px; background: transparent; }

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ week.name }}{% endblock %}
+{% block content %}
+<section class="feature">
+  <p class="eyebrow">WEEK {{ week.number }} · {{ week.opens_at.strftime('%A, %B')|upper }} {{ week.opens_at.day }}</p>
+  <h1 class="display">{{ week.name|lower }}</h1>
+  <p>{{ week.overview }}</p>
+</section>
+
+<section class="card stack">
+  <p class="kicker">REFLECT</p>
+  <p class="h3">{{ week.prompt }}</p>
+  <p class="muted small">Plus {{ week.extra_prompts|length }} optional prompt{{ 's' if week.extra_prompts|length != 1 }} and space for free thoughts. Open anytime, before or after the session.</p>
+  <a class="button secondary" href="{{ url_for('reflect.journal_week', week_key=week.key) }}">Open my reflection</a>
+</section>
+
+<section class="card stack embedded-form" id="feedback">
+  <p class="kicker">SESSION FEEDBACK</p>
+  {% if not happened %}
+    <p>Feedback opens after the session on {{ week.opens_at.strftime('%B') }} {{ week.opens_at.day }}.</p>
+  {% elif feedback_done %}
+    <p>Thank you. Your feedback for this session is in.</p>
+  {% else %}
+    <p class="h3">How was {{ week.name }}?</p>
+    <p class="muted small">Anonymous, about a minute. It helps shape the rest of the program and future cohorts.</p>
+    {% include "reflect/_feedback_form.html" %}
+  {% endif %}
+</section>
+
+<p class="center"><a href="{{ url_for('reflect.sessions') }}">All sessions</a></p>
+{% endblock %}

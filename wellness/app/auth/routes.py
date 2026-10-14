@@ -5,7 +5,7 @@ from flask import (current_app, flash, g, make_response, redirect, render_templa
 
 from .. import mail
 from ..extensions import limiter
-from . import bp, service
+from . import bp, emailcheck, service
 
 
 def _set_auth_cookie(response, token: str):
@@ -26,11 +26,17 @@ def start():
     if g.participant:
         return redirect(url_for("participant.home"))
     if request.method == "POST":
-        email = request.form.get("email", "")
+        email = service.normalize_email(request.form.get("email", ""))
         join_code = request.form.get("join_code", "")
-        if "@" not in email or len(email) > 254:
-            flash("Please enter a valid email address.", "error")
-            return render_template("auth/start.html", email=email), 400
+        if not emailcheck.is_valid(email):
+            flash("That email looks incomplete. Please check it and try again.", "error")
+            return render_template("auth/start.html", email=email, join_code=join_code), 400
+        fix = emailcheck.suggestion(email)
+        if fix and request.form.get("confirmed_email") != email:
+            # Offer the fix, never apply it silently. Re-sending the original confirms it.
+            flash(f"Did you mean {fix}? We filled that in. If your address really is {email}, "
+                  "change it back and tap the button again.", "info")
+            return render_template("auth/start.html", email=fix, join_code=join_code, confirmed_email=email), 400
         try:
             req = service.request_code(email, join_code)
         except service.SignInError as exc:

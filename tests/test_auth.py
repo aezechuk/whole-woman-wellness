@@ -180,3 +180,34 @@ def test_funder_named_on_pages_and_in_emails(client):
     assert b"Supported by the Women&#39;s Foundation of Indiana" in client.get("/start").data
     client.post("/start", data={"email": "a@example.com", "join_code": JOIN_CODE})
     assert "Supported by the Women's Foundation of Indiana" in mail.OUTBOX[-1].text
+
+
+def test_email_format_check():
+    from wellness.app.auth.emailcheck import is_valid, suggestion
+    for ok in ("maya@example.com", "m.j+wiarts@sub.example.org", "a@b.co"):
+        assert is_valid(ok), ok
+    for bad in ("maya@gmail", "maya@", "@gmail.com", "maya gmail.com", "maya@@gmail.com", "maya@gmail..com",
+                "maya.@gmail.com", "maya@gmail.c0m", "maya@-gmail.com"):
+        assert not is_valid(bad), bad
+    assert suggestion("maya@gmial.com") == "maya@gmail.com"
+    assert suggestion("maya@gmail.con") == "maya@gmail.com"
+    assert suggestion("maya@arthenticarts.ogr") == "maya@arthenticarts.org"
+    assert suggestion("maya@gmail.com") is None
+
+
+def test_incomplete_email_rejected_before_sending(client):
+    r = client.post("/start", data={"email": "maya@gmail", "join_code": JOIN_CODE})
+    assert r.status_code == 400 and b"looks incomplete" in r.data and mail.OUTBOX == []
+
+
+def test_typo_suggested_then_original_can_be_confirmed(client):
+    r = client.post("/start", data={"email": "maya@gmial.com", "join_code": JOIN_CODE})
+    assert r.status_code == 400 and b"Did you mean maya@gmail.com?" in r.data
+    assert b'value="maya@gmail.com"' in r.data and mail.OUTBOX == []
+    r = client.post("/start", data={"email": "maya@gmial.com", "join_code": JOIN_CODE, "confirmed_email": "maya@gmial.com"})
+    assert r.status_code == 302 and mail.OUTBOX[-1].to == "maya@gmial.com"
+
+
+def test_admin_signin_rejects_incomplete_email(client):
+    r = client.post("/admin/signin", data={"email": "elle@example"})
+    assert r.status_code == 400 and mail.OUTBOX == []

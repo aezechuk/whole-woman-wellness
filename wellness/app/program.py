@@ -15,6 +15,10 @@ from .models import utcnow
 PATH = Path(__file__).resolve().parents[1] / "content" / "program.yaml"
 
 
+# Journal slot for each week's free-write. Fixed so adding prompts never moves it.
+FREE_WRITE = 100
+
+
 @dataclass(frozen=True)
 class Week:
     key: str
@@ -23,6 +27,7 @@ class Week:
     opens_at: datetime
     prompt: str
     extra_prompts: tuple[str, ...]
+    overview: str = ""
 
     def is_open(self, now: datetime | None = None) -> bool:
         return (now or utcnow()) >= self.opens_at
@@ -30,6 +35,11 @@ class Week:
     @property
     def prompts(self) -> tuple[str, ...]:
         return (self.prompt,) + self.extra_prompts
+
+    @property
+    def slots(self) -> list[tuple[int, str]]:
+        """Every journal field for the week: (index, label), free-write last."""
+        return list(enumerate(self.prompts)) + [(FREE_WRITE, "Free thoughts")]
 
 
 @dataclass(frozen=True)
@@ -63,7 +73,7 @@ def load() -> Program:
 
     weeks = tuple(
         Week(w["key"], w["name"], w["week"], at(w["opens"]), w["prompt"].strip(),
-             tuple(p.strip() for p in w.get("extra_prompts") or []))
+             tuple(p.strip() for p in w.get("extra_prompts") or []), (w.get("overview") or "").strip())
         for w in raw["weeks"])
     emails = {k: (at(v["at"]), v["to"]) for k, v in raw["emails"].items()}
     return Program(tz=tz, weeks=weeks, emails=emails, data_deletion=at(raw["data_deletion"]))

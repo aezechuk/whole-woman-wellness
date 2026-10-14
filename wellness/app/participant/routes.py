@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from functools import wraps
 
 from flask import current_app, flash, g, redirect, render_template, request, url_for
@@ -76,5 +78,7 @@ def home():
     from ..assessment import service
     p = g.participant
     pre, post = service.get(p, "pre"), service.get(p, "post")
+    hero_photo = (Path(current_app.static_folder) / "img" / "home-hero.jpg").exists()
     return render_template("participant/home.html", participant=p, pre=pre, post=post,
-                           final_open=service.final_is_open(), week=program.load().current_week())
+                           final_open=service.final_is_open(), week=program.load().current_week(),
+                           hero_photo=hero_photo)

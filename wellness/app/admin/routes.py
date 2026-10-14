@@ -16,6 +16,7 @@ from flask import (abort, current_app, flash, g, make_response, redirect, render
 from sqlalchemy import select
 
 from .. import mail
+from ..auth import emailcheck
 from ..auth import service as auth
 from ..extensions import db, limiter
 from ..models import AdminSession, Cohort, utcnow
@@ -59,6 +60,9 @@ def no_store(response):
 def signin():
     if request.method == "POST":
         email = auth.normalize_email(request.form.get("email", ""))
+        if not emailcheck.is_valid(email):
+            flash("That email looks incomplete. Please check it and try again.", "error")
+            return render_template("admin/signin.html"), 400
         if email in _admins():
             code = auth.issue_code(email, "admin")
             try:

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import inspect, select
+from sqlalchemy import func, inspect, select
 
 from wellness.app import crypto, mail, notify, program
 from wellness.app.extensions import db
@@ -236,3 +236,42 @@ def test_contact_shown_on_consent_and_emails(client):
     page = client.get("/consent").get_data(as_text=True)
     assert "Arthentic Arts" in page and "arthenticarts@gmail.com" in page
     assert all("arthenticarts@gmail.com" in m.text for m in mail.OUTBOX)
+
+
+# --- sessions, free thoughts ----------------------------------------------------------
+
+def test_sessions_list_and_detail(signed_in, monkeypatch):
+    monkeypatch.setattr(program, "utcnow", lambda: datetime(2026, 10, 22, tzinfo=timezone.utc))
+    html = signed_in.get("/sessions").data.decode()
+    assert all(w.name.replace("&", "&amp;") in html for w in PROG.weeks)
+    r = signed_in.get("/sessions/reset").data.decode()
+    assert "Take back your time" in r and "How was The Reset?" in r
+    r = signed_in.get("/sessions/play").data.decode()
+    assert "Feedback opens after the session" in r
+
+
+def test_feedback_closed_before_session(signed_in, monkeypatch):
+    monkeypatch.setattr(program, "utcnow", lambda: datetime(2026, 10, 22, tzinfo=timezone.utc))
+    r = signed_in.post("/feedback/play", data={"attendance": "live", "valuable": "5"})
+    assert r.status_code == 302 and r.headers["Location"].endswith("/sessions/play")
+    assert db.session.scalar(select(func.count()).select_from(SessionFeedback)) == 0
+
+
+def test_feedback_from_session_page_returns_there(signed_in, open_all):
+    r = signed_in.post("/feedback/reset", data={"attendance": "live", "valuable": "5", "usable": "4"})
+    assert r.headers["Location"].endswith("/sessions/reset")
+    assert b"Your feedback for this session is in" in signed_in.get("/sessions/reset").data
+
+
+def test_every_week_has_overview_and_optional_prompts():
+    for w in PROG.weeks:
+        assert w.overview and len(w.extra_prompts) >= 2
+
+
+def test_free_thoughts_saved_and_downloaded(signed_in, open_all):
+    signed_in.post("/journal/embodiment", data={"prompt_100": "Just a stray thought."})
+    e = db.session.scalar(select(JournalEntry))
+    assert e.prompt_index == program.FREE_WRITE and "stray" not in str(e.body)
+    assert b"Just a stray thought." in signed_in.get("/journal/embodiment").data
+    body = signed_in.get("/settings/download").data.decode()
+    assert "Free thoughts" in body and "Just a stray thought." in body

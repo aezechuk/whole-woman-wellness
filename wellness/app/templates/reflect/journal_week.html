@@ -13,7 +13,7 @@
             placeholder="Write freely. There's no right way to do this.">{{ texts.get(0, '') }}</textarea>
 
   {% if week.extra_prompts %}
-  <details class="card" {% if texts|length > 1 %}open{% endif %}>
+  <details class="card" {% for i in texts if 0 < i < 100 %}{% if loop.first %}open{% endif %}{% endfor %}>
     <summary class="h3 summary">More prompts for this week <span class="muted small">(optional)</span></summary>
     <div class="stack">
     {% for prompt in week.extra_prompts %}{% set i = loop.index %}
@@ -26,19 +26,25 @@
   </details>
   {% endif %}
 
+  <div class="card field">
+    <label class="h3" for="prompt_100">Free thoughts</label>
+    <p class="muted small">Anything else on your mind this week, before or after the session. No prompt, no rules.</p>
+    <textarea id="prompt_100" name="prompt_100" rows="5" maxlength="{{ limit }}" placeholder="Optional">{{ texts.get(100, '') }}</textarea>
+  </div>
+
   <p class="muted small" data-autosave-status aria-live="polite">Private to you · saves as you type</p>
   <button class="button" type="submit">Save reflection</button>
 </form>
 
 {% if saved %}
 <section class="card tint stack">
-  {% if not feedback_done %}
-  <a class="row-link plain" href="{{ url_for('reflect.feedback', week_key=week.key) }}"><span>How was the {{ week.name }} session? <span class="muted small block">Anonymous · about a minute</span></span><span aria-hidden="true">›</span></a>
+  {% if not feedback_done and week.is_open() %}
+  <a class="row-link plain" href="{{ url_for('reflect.session_week', week_key=week.key) }}#feedback"><span>How was the {{ week.name }} session? <span class="muted small block">Anonymous · about a minute</span></span><span aria-hidden="true">›</span></a>
   {% endif %}
   <a class="row-link plain" href="{{ url_for('reflect.testimonial_new') }}"><span>Want to share what this week meant to you?</span><span aria-hidden="true">›</span></a>
 </section>
-{% elif not feedback_done %}
-<p class="center"><a href="{{ url_for('reflect.feedback', week_key=week.key) }}">Share anonymous feedback on this session</a></p>
+{% elif not feedback_done and week.is_open() %}
+<p class="center"><a href="{{ url_for('reflect.session_week', week_key=week.key) }}#feedback">Share anonymous feedback on this session</a></p>
 {% endif %}
 
 <p class="center"><a href="{{ url_for('reflect.journal') }}">All weeks</a></p>

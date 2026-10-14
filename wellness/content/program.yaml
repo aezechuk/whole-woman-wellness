@@ -1,11 +1,17 @@
 # Program calendar: weekly reflections, session feedback, and scheduled emails.
 # Times are local to Indianapolis (America/Indiana/Indianapolis); DST is handled
-# automatically. Reflections and feedback open at the time listed.
+# automatically. "opens" is the session time: the weekly email goes out and session
+# feedback opens then. Reflections are open anytime.
+#
+# Reflections are saved by prompt position. Once people have written, only ADD
+# prompts to the end of a list; never reorder or remove.
 
 timezone: America/Indiana/Indianapolis
 
 weeks:
   - key: reset
+    overview: >-
+      Take back your time and get a clear handle on your routines. Notice where your energy actually goes, name what matters most in this season, and build rhythms that make daily life easier instead of harder.
     name: The Reset
     week: 1
     opens: "2026-10-21 19:00"
@@ -15,35 +21,52 @@ weeks:
       - What is outside of your control right now, and what do you have some ability to influence?
 
   - key: embodiment
+    overview: >-
+      Come home to your body. Learn to notice what it's telling you, like fatigue, tension, hunger, or the need for rest, and find ways to move and recover that feel supportive, not punishing.
     name: Embodiment
     week: 2
     opens: "2026-10-28 19:00"
     prompt: What has your body been asking for more of lately?
-    extra_prompts: []
+    extra_prompts:
+      - Where in your body do you tend to hold stress, and what helps it soften?
+      - How does your body let you know it needs rest, and how often do you listen?
 
   - key: nourishment
+    overview: >-
+      Make feeding yourself easier. Build simple, realistic food and hydration routines that fuel your energy, with room for flexibility and enjoyment instead of rules and guilt.
     name: Nourishment
     week: 3
     opens: "2026-11-04 19:00"
     prompt: What would make nourishing yourself easier in your current season of life?
-    extra_prompts: []
+    extra_prompts:
+      - Beyond food, what truly fills you up?
+      - What is one small, realistic way you could care for your body's needs this week?
 
   - key: play
+    overview: >-
+      Reclaim joy that's simply yours. Make room for curiosity, creativity, and delight, and practice enjoying yourself without first having to earn it.
     name: Play & Pleasure
     week: 4
     opens: "2026-11-11 19:00"
     prompt: What makes you feel most alive, playful, curious, or delighted?
-    extra_prompts: []
+    extra_prompts:
+      - When did you last lose track of time doing something just for you?
+      - What did play look like for you as a child, and what part of that do you miss?
 
   - key: dream
+    overview: >-
+      Give your desires and ambitions the attention they deserve. Get clear on what you want to create or move toward, make space for it in your real life, and take meaningful steps forward.
     name: Care for the Dream
     week: 5
     opens: "2026-11-18 19:00"
     prompt: What is asking to be created, explored, or pursued in your life?
     extra_prompts:
       - What is one part of that future you could begin practicing or caring for now?
+      - What has been getting in the way of your creative life, and what support would help?
 
   - key: reclamation
+    overview: >-
+      Bring it all together and own the life you're building. Connect the pieces of your life, let your work and yourself be seen, get clear on your finances, and trust yourself to lead what comes next.
     name: Reclamation
     week: 6
     opens: "2026-11-30 19:00"

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sessions{% endblock %}
+{% block content %}
+<h1 class="display-sm">your six sessions</h1>
+<p class="muted">What each week is about. Tap a session to read more, open its reflection, or share feedback after it happens.</p>
+
+<section class="stack">
+  {% for row in rows %}{% set w = row.week %}
+  <a class="row-link session-row{{ ' is-current' if row.current }}" href="{{ url_for('reflect.session_week', week_key=w.key) }}">
+    <span>
+      <span class="muted small block">Week {{ w.number }} · {{ w.opens_at.strftime('%a, %b') }} {{ w.opens_at.day }}{% if row.current %} · This week{% endif %}</span>
+      <strong>{{ w.name }}</strong>
+      <span class="small block">{{ w.overview.split('.')[0] }}.</span>
+      {% if row.happened %}<span class="muted small block">{{ 'Feedback sent · thank you' if row.feedback_done else 'Share feedback' }}</span>{% endif %}
+    </span>
+    <span aria-hidden="true">›</span>
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}
