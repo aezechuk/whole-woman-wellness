@@ -12,8 +12,8 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 | --- | --- |
 | Instrument v1 (27 items) | Done: `wellness/instrument/v1.yaml` |
 | Scoring engine | Done, with tests: `wellness/scoring/` |
-| Data model, sign-in | Next |
-| Participant screens | Planned |
+| Data model, sign-in, consent | Done, with tests |
+| Assessment + results screens | Next |
 | Admin dashboard | Planned |
 | AWS deployment | Planned |
 

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Enter your code · Radical Self-Care Reset{% endblock %}
+{% block content %}
+<h1 class="title">Check your email</h1>
+<p>We sent a 6-digit code to <strong>{{ email }}</strong>. It expires in 10 minutes.</p>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="code">Sign-in code</label>
+    <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+           pattern="[0-9 ]*" maxlength="7" required class="code-input">
+  </div>
+  <button class="button" type="submit">Continue</button>
+</form>
+<p class="hint"><a href="{{ url_for('auth.start') }}">Use a different email or get a new code</a></p>
+{% endblock %}

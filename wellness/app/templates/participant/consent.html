@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Before you begin · Radical Self-Care Reset{% endblock %}
+{% block content %}
+<h1 class="title">Before you begin</h1>
+<div class="card stack prose">
+  <p>This assessment is a guided reflection, not a test. It's educational and non-clinical, and it doesn't diagnose or measure any health condition.</p>
+  <p><strong>What we collect:</strong> your name and email, your answers to 27 questions, the focus areas you choose, and any reflections you write in your journal.</p>
+  <p><strong>Who sees what:</strong></p>
+  <ul>
+    <li>Your scores and results are visible only to you.</li>
+    <li>Your journal reflections are encrypted and not visible to program staff.</li>
+    <li>Program reports, including to our funder, The Women's Fund of Central Indiana, share only group summaries. Your name and individual answers are never included.</li>
+    <li>If you choose to share a testimonial, program staff can read it, and it may appear in our funder report, credited the way you choose.</li>
+  </ul>
+  <p><strong>Your choices:</strong> taking part is voluntary. You can skip the assessment, stop at any time, download your results and reflections, or ask us to delete your data.</p>
+  <p><strong>How long we keep it:</strong> your data is deleted on February 28, 2027, three months after the program ends. You'll get a reminder beforehand to download anything you'd like to keep.</p>
+  <p>Questions? Contact [contact name] at [contact email].</p>
+</div>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="choice"><input type="checkbox" name="agree" value="yes" required> I understand and want to continue</label>
+  <button class="button" type="submit">Continue</button>
+</form>
+{% endblock %}

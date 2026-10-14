@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Welcome · Radical Self-Care Reset{% endblock %}
+{% block content %}
+<h1 class="title">Welcome</h1>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="first_name">What should we call you?</label>
+    <input id="first_name" name="first_name" type="text" autocomplete="given-name" required maxlength="80">
+  </div>
+  <fieldset class="field">
+    <legend>Are you part of the WiARTS mentorship cohort?</legend>
+    <label class="choice"><input type="radio" name="mentee" value="yes"> Yes</label>
+    <label class="choice"><input type="radio" name="mentee" value="no"> No</label>
+    <label class="choice"><input type="radio" name="mentee" value="skip" checked> Prefer not to say</label>
+  </fieldset>
+  <button class="button" type="submit">Continue</button>
+</form>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Radical Self-Care Reset{% endblock %}
+{% block content %}
+<header class="hero">
+  <p class="eyebrow">WOMEN IN ARTS · WHOLE WOMAN WELLNESS INITIATIVE</p>
+  <h1 class="display">radical self-care reset</h1>
+</header>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required
+           value="{{ email or '' }}" maxlength="254">
+  </div>
+  <div class="field">
+    <label for="join_code">Program code</label>
+    <input id="join_code" name="join_code" type="text" autocomplete="off" autocapitalize="characters"
+           required maxlength="32">
+    <p class="hint">From your welcome materials or Eventbrite confirmation.</p>
+  </div>
+  <button class="button" type="submit">Email me a sign-in code</button>
+</form>
+{% endblock %}

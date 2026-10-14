@@ -1,0 +1,31 @@
+/* Placeholder styles for sign-in screens; full brand pass comes with the assessment UI. */
+:root {
+  --plum: #4B0F4F; --berry: #8A2A66; --rose: #C2487A; --lavender: #F3D9F7;
+  --cream: #FBF5F2; --ink: #2A1230; --muted: #6B5670; --line: #EBDDE6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--ink);
+  font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.5; }
+.page { max-width: 480px; margin: 0 auto; padding: 20px 16px 32px; }
+.hero { background: linear-gradient(160deg, var(--plum), var(--berry) 55%, var(--rose));
+  color: #fff; border-radius: 0 0 28px 28px; margin: -20px -16px 24px; padding: 40px 24px 32px; }
+.eyebrow { color: var(--lavender); font-size: 11px; font-weight: 600; letter-spacing: .12em; margin: 0 0 8px; }
+.display { font-family: "Anton", Impact, sans-serif; font-weight: 400; font-size: 48px; line-height: 1; margin: 0; text-transform: lowercase; }
+.title { font-size: 24px; margin: 8px 0 12px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+.stack > * + * { margin-top: 16px; }
+.field { border: 0; padding: 0; margin: 0; }
+label, legend { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+input[type=email], input[type=text] { width: 100%; min-height: 48px; padding: 10px 14px; font: inherit;
+  border: 1px solid #D9C3D6; border-radius: 12px; background: #fff; color: var(--ink); }
+.code-input { font-size: 24px; letter-spacing: 6px; text-align: center; }
+.choice { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 500; }
+.button { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px;
+  border: 0; border-radius: 999px; background: var(--plum); color: #fff; font: inherit; font-weight: 600; }
+.link-button { background: none; border: 0; color: var(--berry); font: inherit; font-weight: 600; min-height: 44px; padding: 0; }
+a { color: var(--berry); }
+.hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.flash { border-radius: 12px; padding: 12px 14px; background: #FDECEF; color: #7A1B3A; font-size: 14px; }
+.prose ul { padding-left: 20px; }
+.footer { max-width: 480px; margin: 0 auto; padding: 0 16px 28px; font-size: 12px; color: var(--muted); }
+:focus-visible { outline: 3px solid var(--rose); outline-offset: 2px; }

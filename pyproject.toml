@@ -5,6 +5,14 @@ description = "Whole Woman Wellness Assessment for the Radical Self-Care Reset p
 requires-python = ">=3.12"
 dependencies = [
     "PyYAML>=6.0",
+    "Flask>=3.1",
+    "Flask-SQLAlchemy>=3.1",
+    "Flask-Migrate>=4.0",
+    "Flask-WTF>=1.2",
+    "Flask-Limiter>=3.8",
+    "psycopg[binary]>=3.2",
+    "boto3>=1.35",
+    "gunicorn>=23",
 ]
 
 [project.optional-dependencies]

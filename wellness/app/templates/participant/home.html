@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Hi, {{ participant.first_name }}</h1>
+<p>Your assessment, journal, and results will live here.</p>
+<form method="post" action="{{ url_for('auth.signout') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="link-button" type="submit">Sign out</button>
+</form>
+{% endblock %}

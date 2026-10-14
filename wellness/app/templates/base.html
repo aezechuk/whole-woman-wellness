@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4B0F4F">
+  <title>{% block title %}Radical Self-Care Reset{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="flash flash-{{ category }}" role="alert">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    {% block footer %}
+    <p>This reflection is educational and non-clinical. It doesn't diagnose or measure any health condition.</p>
+    <p><em>Program support funded by The Women's Fund of Central Indiana</em></p>
+    {% endblock %}
+  </footer>
+</body>
+</html>

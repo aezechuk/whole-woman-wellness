@@ -1,0 +1,12 @@
+Your sign-in code is:
+
+{{ code }}
+
+Enter it in the app to continue. It expires in 10 minutes.
+
+If you didn't ask for this code, you can ignore this email. No one can sign in without it.
+
+--
+Radical Self-Care Reset · Whole Woman Wellness Initiative
+Women in Arts (WiARTS) · Arthentic
+Program support funded by The Women's Fund of Central Indiana
