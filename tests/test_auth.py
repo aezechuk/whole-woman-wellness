@@ -152,3 +152,15 @@ def test_signed_in_pages_not_cached(client):
 def test_unauthenticated_redirects(client):
     for path in ("/", "/welcome", "/consent"):
         assert client.get(path).headers["Location"].endswith("/start")
+
+
+def test_healthz(client):
+    assert client.get("/healthz").get_json() == {"ok": True}
+
+
+def test_prod_refuses_to_start_without_kms(monkeypatch):
+    import pytest
+    from wellness.app import create_app
+    monkeypatch.setenv("SECRET_KEY", "x")
+    with pytest.raises(RuntimeError, match="KMS"):
+        create_app("prod")

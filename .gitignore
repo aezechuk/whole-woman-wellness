@@ -6,3 +6,7 @@ __pycache__/
 *.env
 instance/
 *.db
+deploy/terraform/.terraform/
+deploy/terraform/*.tfstate*
+deploy/terraform/terraform.tfvars
+deploy/terraform/.terraform.lock.hcl

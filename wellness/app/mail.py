@@ -49,6 +49,7 @@ def _send_ses(msg: Message) -> None:
     client.send_email(
         FromEmailAddress=current_app.config["MAIL_FROM"],
         Destination={"ToAddresses": [msg.to]},
+        ReplyToAddresses=[current_app.config["CONTACT_EMAIL"]],
         Content={"Simple": {
             "Subject": {"Data": msg.subject, "Charset": "UTF-8"},
             "Body": {

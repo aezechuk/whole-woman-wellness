@@ -67,7 +67,8 @@ class DevConfig(Config):
 class TestConfig(Config):
     TESTING = True
     SECRET_KEY = "test-secret"
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    # Set TEST_DATABASE_URL to run the suite against PostgreSQL (as in production).
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URL", "sqlite://")
     SESSION_COOKIE_SECURE = False
     WTF_CSRF_ENABLED = False
     RATELIMIT_ENABLED = False
@@ -79,6 +80,8 @@ class TestConfig(Config):
 
 class ProdConfig(Config):
     JOURNAL_KEY_BACKEND = "kms"  # never the local key in production
+    MAIL_BACKEND = "ses"
+    PREFERRED_URL_SCHEME = "https"
 
 
 CONFIGS = {"dev": DevConfig, "test": TestConfig, "prod": ProdConfig}

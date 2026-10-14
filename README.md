@@ -16,7 +16,7 @@ This is a reflective, educational tool. It does not diagnose or measure any heal
 | Assessment, results, focus areas, then → now, Count Me In | Done, with tests |
 | Encrypted journal, session feedback, testimonials, emails, settings, PWA | Done, with tests |
 | Admin dashboard and funder report | Done, with tests |
-| AWS deployment | Next |
+| AWS deployment (Terraform, Docker, Caddy) | Ready to run: see `deploy/DEPLOY.md` |
 
 ## Scoring rules
 

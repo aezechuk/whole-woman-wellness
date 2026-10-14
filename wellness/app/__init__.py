@@ -22,8 +22,18 @@ def create_app(env: str | None = None) -> Flask:
     env = env or os.environ.get("APP_ENV", "dev")
     app = Flask(__name__)
     app.config.from_object(CONFIGS[env])
+    app.config["SECRET_KEY"] = app.config.get("SECRET_KEY") or os.environ.get("SECRET_KEY")
     if not app.config.get("SECRET_KEY"):
         raise RuntimeError("SECRET_KEY must be set")
+
+    if env == "prod":
+        # Caddy terminates TLS and forwards one hop; trust exactly that hop.
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        if app.config["JOURNAL_KEY_BACKEND"] != "kms" or not app.config["JOURNAL_KMS_KEY_ID"]:
+            raise RuntimeError("Production requires JOURNAL_KMS_KEY_ID (KMS encryption for reflections)")
+        if not app.config["ADMIN_EMAILS"]:
+            raise RuntimeError("Production requires ADMIN_EMAILS")
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -43,6 +53,13 @@ def create_app(env: str | None = None) -> Flask:
     app.register_blueprint(assessment_bp)
     app.register_blueprint(reflect_bp)
     app.register_blueprint(admin_bp)
+
+    @app.get("/healthz")
+    @limiter.exempt
+    def healthz():
+        from sqlalchemy import text
+        db.session.execute(text("SELECT 1"))
+        return {"ok": True}
 
     @app.context_processor
     def contact():

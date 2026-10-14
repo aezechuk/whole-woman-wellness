@@ -1,0 +1,7 @@
+# Installed to /etc/cron.d/wellness by deploy.sh
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+# Scheduled emails (idempotent; each person gets each email once)
+*/15 * * * * root cd /opt/wellness/app/deploy && docker compose --env-file /opt/wellness/.env exec -T app flask send-due-emails >> /var/log/wellness-cron.log 2>&1
+# Nightly backup at 08:00 UTC (3 or 4 AM Eastern)
+0 8 * * * root bash /opt/wellness/app/deploy/scripts/backup.sh >> /var/log/wellness-backup.log 2>&1
