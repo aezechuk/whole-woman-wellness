@@ -340,13 +340,20 @@ resource "aws_cloudtrail" "main" {
   depends_on                    = [aws_s3_bucket_policy.trail]
 }
 
+# GuardDuty and Security Hub are off by default: the AWS project-based account
+# experience blocks them (service control policy) until advanced features are
+# enabled. Turn on with enable_security_services = true in terraform.tfvars.
 resource "aws_guardduty_detector" "main" {
+  count  = var.enable_security_services ? 1 : 0
   enable = true
 }
 
-resource "aws_securityhub_account" "main" {}
+resource "aws_securityhub_account" "main" {
+  count = var.enable_security_services ? 1 : 0
+}
 
 resource "aws_securityhub_standards_subscription" "cis" {
+  count         = var.enable_security_services ? 1 : 0
   standards_arn = "arn:${data.aws_partition.p.partition}:securityhub:${var.region}::standards/cis-aws-foundations-benchmark/v/3.0.0"
   depends_on    = [aws_securityhub_account.main]
 }

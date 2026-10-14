@@ -40,3 +40,9 @@ variable "repo_url" {
   type        = string
   default     = "https://github.com/aezechuk/whole-woman-wellness.git"
 }
+
+variable "enable_security_services" {
+  description = "Enable GuardDuty and Security Hub (CIS). Needs advanced features on project-based AWS accounts."
+  type        = bool
+  default     = false
+}

@@ -12,7 +12,7 @@ What gets built (all in `terraform/`):
 | Email | SES identity for `wellness.arthenticarts.org` with DKIM; the app can send only as that domain |
 | Secrets | SSM Parameter Store (SecureString); never in code, Terraform state, or GitHub |
 | Backups | Nightly `pg_dump` to a private, encrypted, write-only S3 bucket; auto-deleted after 14 days |
-| Monitoring | CloudTrail (all regions, log validation), GuardDuty, Security Hub with CIS benchmark, $50/month budget alert, email alerts for GuardDuty findings and journal-key misuse |
+| Monitoring | CloudTrail (all regions, log validation), GuardDuty and Security Hub with CIS benchmark (optional: `enable_security_services = true`, needs advanced features on project-based accounts), $50/month budget alert, email alerts for GuardDuty findings and journal-key misuse |
 | Updates | Security patches applied automatically every day |
 
 ## 0. Before you start
