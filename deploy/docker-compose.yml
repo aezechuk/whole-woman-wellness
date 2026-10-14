@@ -21,7 +21,7 @@ services:
     environment:
       APP_ENV: prod
       DATABASE_URL: postgresql+psycopg://wellness:${POSTGRES_PASSWORD}@db:5432/wellness
-      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_REGION: us-east-2
     depends_on:
       db: { condition: service_healthy }
     read_only: true

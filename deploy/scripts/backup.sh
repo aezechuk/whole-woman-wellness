@@ -7,5 +7,5 @@ STAMP=$(date -u +%Y-%m-%dT%H%MZ)
 cd /opt/wellness/app/deploy
 docker compose --env-file "$ENV_FILE" exec -T db pg_dump -U wellness -d wellness --no-owner \
   | gzip -9 \
-  | aws s3 cp - "s3://${BUCKET}/db/${STAMP}.sql.gz" --region us-east-1 --only-show-errors
+  | aws s3 cp - "s3://${BUCKET}/db/${STAMP}.sql.gz" --region us-east-2 --only-show-errors
 echo "backup ok ${STAMP}"

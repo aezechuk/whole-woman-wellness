@@ -22,9 +22,9 @@ systemctl enable --now dnf-automatic.timer
 install -d -m 0700 /opt/wellness
 
 # Deploy now if the secrets exist; otherwise run deploy.sh later via Session Manager.
-if aws ssm get-parameter --region us-east-1 --name /wellness/GITHUB_TOKEN >/dev/null 2>&1; then
-  TOKEN=$(aws ssm get-parameter --region us-east-1 --name /wellness/GITHUB_TOKEN --with-decryption --query Parameter.Value --output text)
-  REPO=$(aws ssm get-parameter --region us-east-1 --name /wellness/REPO_URL --query Parameter.Value --output text)
+if aws ssm get-parameter --region us-east-2 --name /wellness/GITHUB_TOKEN >/dev/null 2>&1; then
+  TOKEN=$(aws ssm get-parameter --region us-east-2 --name /wellness/GITHUB_TOKEN --with-decryption --query Parameter.Value --output text)
+  REPO=$(aws ssm get-parameter --region us-east-2 --name /wellness/REPO_URL --query Parameter.Value --output text)
   git clone "https://x-access-token:${TOKEN}@${REPO#https://}" /opt/wellness/app
   git -C /opt/wellness/app remote set-url origin "$REPO"
   bash /opt/wellness/app/deploy/scripts/deploy.sh

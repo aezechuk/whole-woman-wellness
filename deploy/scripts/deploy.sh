@@ -2,7 +2,7 @@
 # Pull the latest code, refresh secrets from Parameter Store, rebuild, migrate.
 # Safe to re-run. Run as root on the server (Session Manager: sudo bash deploy.sh).
 set -euo pipefail
-REGION=us-east-1
+REGION=us-east-2
 APP=/opt/wellness/app
 ENV_FILE=/opt/wellness/.env
 cd "$APP"

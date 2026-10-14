@@ -1,6 +1,6 @@
 # Deploying Whole Woman Wellness to AWS
 
-Target: **https://wellness.arthenticarts.org** · Region: **us-east-1** · About an hour end to end.
+Target: **https://wellness.arthenticarts.org** · Region: **us-east-2** · About an hour end to end.
 
 What gets built (all in `terraform/`):
 
@@ -17,9 +17,12 @@ What gets built (all in `terraform/`):
 
 ## 0. Before you start
 
-- Signed in to the **Arthentic AWS account** with your IAM Identity Center admin user (not root).
-- On your computer: **AWS CLI v2** and **Terraform ≥ 1.6** (or use AWS CloudShell and install Terraform there).
-- `aws sso login` (or paste the Identity Center short-term credentials) so `aws sts get-caller-identity` shows the Arthentic account.
+This account uses AWS's newer project-based sign-up (projects, team members, monthly spend limits).
+
+- **Owner:** arthenticarts@gmail.com (protect it with Google 2-Step Verification). **Day-to-day:** a team member login (Team → Invite new team member).
+- **Spend limit:** set it to at least **$75/month**. If a project hits its limit, AWS *pauses the project and stops its resources*, which would take the app offline mid-program.
+- Work in **AWS CloudShell** (the `>_` icon), which is already signed in. Install Terraform there (step 3).
+- If Terraform reports that a service isn't supported for this project, turn on the project's **advanced features** (no cost, no downtime) and re-run `terraform apply`.
 
 ## 1. Create a read-only GitHub token (2 min)
 

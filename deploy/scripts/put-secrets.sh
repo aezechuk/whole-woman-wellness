@@ -3,7 +3,7 @@
 # Generates the app's secrets and stores them as SecureString parameters.
 # Existing values are never overwritten (rotating the DB password would lock out the app).
 set -euo pipefail
-REGION=us-east-1
+REGION=us-east-2
 
 put_if_missing() {
   local name=$1 value=$2
