@@ -217,3 +217,5 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .report-grid table.data td:last-child, .report-grid table.data th:last-child { width: 72px; text-align: right; }
 .report-grid table.data td:nth-child(2) { width: 56px; }
 .admin-page .h2 { margin-top: 12px; }
+.brand-logo { display: block; width: 168px; height: auto; margin: 4px auto 0; }
+.brand-logo + .hero { margin-top: 16px; border-radius: 24px; margin-left: 0; margin-right: 0; }
