@@ -137,4 +137,5 @@ def count_me_in():
         flash("Thank you. You've been counted.", "info")
         return redirect(url_for("participant.home"))
     return render_template("assessment/count_me_in.html", race=countmein.RACE,
-                           single=countmein.SINGLE, first=request.args.get("first") == "1")
+                           single=countmein.SINGLE, states=countmein.STATES,
+                           state_question=countmein.STATE_QUESTION, first=request.args.get("first") == "1")

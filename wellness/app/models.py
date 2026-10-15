@@ -232,3 +232,4 @@ class DemographicResponse(db.Model):
     age: Mapped[str] = mapped_column(String(16))
     household_size: Mapped[str] = mapped_column(String(16))
     income_band: Mapped[str] = mapped_column(String(16))
+    state: Mapped[str] = mapped_column(String(16), default="skip", server_default="skip")

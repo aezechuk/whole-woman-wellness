@@ -234,6 +234,15 @@ def funder_report() -> dict:
         pct = _percentages(counts, total)
         tables.append({"title": title, "rows": [(label, counts[k], pct[k]) for k, label in options],
                        "approximate": field == "income"})
+    # Location: only the states people actually chose, most common first, then Unknown.
+    from ..countmein import STATES
+    names = dict(STATES)
+    loc = Counter(r.state for r in responses if r.state in names)
+    loc_counts = {k: n for k, n in sorted(loc.items(), key=lambda kv: (-kv[1], names[kv[0]]))}
+    loc_counts["unknown"] = total - sum(loc_counts.values())
+    pct = _percentages(loc_counts, total)
+    tables.append({"title": "Location (State)", "approximate": False,
+                   "rows": [(names.get(k, "Unknown or decline to state"), n, pct[k]) for k, n in loc_counts.items()]})
     return {"total": total, "responded": len(responses), "tables": tables}
 
 

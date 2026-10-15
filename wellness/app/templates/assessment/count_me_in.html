@@ -25,6 +25,13 @@
     <label class="choice"><input type="radio" name="{{ field }}" value="skip" checked> Prefer not to say</label>
   </fieldset>
   {% endfor %}
+  <div class="card field">
+    <label for="state">{{ state_question }}</label>
+    <select id="state" name="state">
+      <option value="skip" selected>Prefer not to say</option>
+      {% for key, label in states %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+    </select>
+  </div>
   <button class="button" type="submit" name="action" value="submit">Submit anonymously</button>
   <button class="link-button center" type="submit" name="action" value="later" formnovalidate>Maybe later</button>
 </form>

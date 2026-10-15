@@ -108,8 +108,8 @@ def test_funder_report_counts_non_respondents_as_unknown(app):
     onboard(b, "b@example.com", "Bea")
     onboard(c, "c@example.com", "Cy")
     a.post("/count-me-in", data={"race": ["black", "white"], "gender": "female", "age": "25_54",
-                                 "household_size": "1", "income_band": "lt_15k"})
-    b.post("/count-me-in", data={"race": ["hispanic"], "gender": "female"})
+                                 "household_size": "1", "income_band": "lt_15k", "state": "IN"})
+    b.post("/count-me-in", data={"race": ["hispanic"], "gender": "female", "state": "nowhere"})
     f = reports.funder_report()
     assert f["total"] == 3 and f["responded"] == 2
     tables = {t["title"]: {label: (n, pct) for label, n, pct in t["rows"]} for t in f["tables"]}
@@ -120,6 +120,7 @@ def test_funder_report_counts_non_respondents_as_unknown(app):
     assert tables["Income Level"]["At or below Federal Poverty Level"][0] == 1
     assert tables["Income Level"]["Unknown or decline to state"][0] == 2
     assert tables["Age"]["Youth (11-17)"] == (0, 0.0)
+    assert tables["Location (State)"] == {"Indiana": (1, 33.3), "Unknown or decline to state": (2, 66.7)}
     for t in f["tables"]:
         assert round(sum(p for _, _, p in t["rows"]), 1) == 100.0
 

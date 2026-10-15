@@ -234,9 +234,10 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 /* Home: logo + hero (photo under a brand overlay, like the flyers) */
 .home-logo { width: 132px; margin: 0 auto; }
 .home-hero { min-height: 190px; display: flex; flex-direction: column; justify-content: flex-end; }
+/* The photo is already brand-tinted; just deepen the bottom so the text reads. */
 .home-hero.has-photo {
-  background: linear-gradient(180deg, rgba(75,15,79,.30) 0%, rgba(75,15,79,.62) 55%, rgba(138,42,102,.92) 100%),
-              url("../img/home-hero.jpg") center 30% / cover no-repeat;
+  background: linear-gradient(180deg, rgba(75,15,79,0) 35%, rgba(75,15,79,.55) 70%, rgba(75,15,79,.85) 100%),
+              url("../img/home-hero.jpg") 15% 0% / cover no-repeat;
   min-height: 300px; }
 .home-hero .eyebrow, .home-hero .small { text-shadow: 0 1px 2px rgba(42,18,48,.5); }
 
@@ -244,3 +245,4 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .session-row strong { display: block; margin: 2px 0; }
 .session-row.is-current { border: 1.5px solid var(--plum); }
 .embedded-form .card, .embedded-form .card.field { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 14px 0 6px; background: transparent; }
+.field select { width: 100%; }
