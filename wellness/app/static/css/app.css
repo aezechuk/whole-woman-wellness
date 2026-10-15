@@ -235,7 +235,7 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .home-logo { width: 132px; margin: 0 auto; }
 .home-hero { min-height: 190px; display: flex; flex-direction: column; justify-content: flex-end; }
 /* The photo is already brand-tinted; just deepen the bottom so the text reads. */
-.home-hero.has-photo {
+.home-hero.has-photo, .hero.hero-photo {
   background: linear-gradient(180deg, rgba(75,15,79,0) 35%, rgba(75,15,79,.55) 70%, rgba(75,15,79,.85) 100%),
               url("../img/home-hero.jpg") 15% 0% / cover no-repeat;
   min-height: 300px; }
@@ -246,3 +246,5 @@ table.data tr.divider th, table.data tr.divider td { border-top: 2px solid var(-
 .session-row.is-current { border: 1.5px solid var(--plum); }
 .embedded-form .card, .embedded-form .card.field { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 14px 0 6px; background: transparent; }
 .field select { width: 100%; }
+.hero.hero-photo { min-height: 300px; display: flex; flex-direction: column; justify-content: flex-end; }
+.hero.hero-photo .eyebrow { text-shadow: 0 1px 2px rgba(42,18,48,.5); }
