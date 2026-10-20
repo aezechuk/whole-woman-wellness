@@ -14,6 +14,11 @@ weeks:
       Take back your time and get a clear handle on your routines. Notice where your energy actually goes, name what matters most in this season, and build rhythms that make daily life easier instead of harder.
     name: The Reset
     week: 1
+    starter_habits:
+      - plan my week for 10 minutes
+      - write my top 3 for tomorrow
+      - put my phone away 30 minutes before bed
+      - block one hour for myself on my calendar
     opens: "2026-10-21 19:00"
     prompt: What feels most unsustainable or overwhelming in your life right now?
     extra_prompts:
@@ -25,6 +30,11 @@ weeks:
       Come home to your body. Learn to notice what it's telling you, like fatigue, tension, hunger, or the need for rest, and find ways to move and recover that feel supportive, not punishing.
     name: Embodiment
     week: 2
+    starter_habits:
+      - take a 10-minute walk
+      - stretch for 5 minutes
+      - take 5 slow breaths
+      - be in bed by 10:30
     opens: "2026-10-28 19:00"
     prompt: What has your body been asking for more of lately?
     extra_prompts:
@@ -36,6 +46,11 @@ weeks:
       Make feeding yourself easier. Build simple, realistic food and hydration routines that fuel your energy, with room for flexibility and enjoyment instead of rules and guilt.
     name: Nourishment
     week: 3
+    starter_habits:
+      - drink a full glass of water
+      - prep tomorrow's lunch
+      - eat breakfast before checking my phone
+      - refill my water bottle
     opens: "2026-11-04 19:00"
     prompt: What would make nourishing yourself easier in your current season of life?
     extra_prompts:
@@ -47,6 +62,11 @@ weeks:
       Reclaim joy that's simply yours. Make room for curiosity, creativity, and delight, and practice enjoying yourself without first having to earn it.
     name: Play & Pleasure
     week: 4
+    starter_habits:
+      - do something just for fun for 15 minutes
+      - put on music and dance
+      - try something new, just to play
+      - spend 20 minutes on a hobby
     opens: "2026-11-11 19:00"
     prompt: What makes you feel most alive, playful, curious, or delighted?
     extra_prompts:
@@ -58,6 +78,11 @@ weeks:
       Give your desires and ambitions the attention they deserve. Get clear on what you want to create or move toward, make space for it in your real life, and take meaningful steps forward.
     name: Care for the Dream
     week: 5
+    starter_habits:
+      - work on my dream for 20 minutes
+      - write down one next step
+      - share my idea with someone I trust
+      - research one resource for my goal
     opens: "2026-11-18 19:00"
     prompt: What is asking to be created, explored, or pursued in your life?
     extra_prompts:
@@ -69,6 +94,11 @@ weeks:
       Bring it all together and own the life you're building. Connect the pieces of your life, let your work and yourself be seen, get clear on your finances, and trust yourself to lead what comes next.
     name: Reclamation
     week: 6
+    starter_habits:
+      - check my account balances
+      - spend 10 minutes organizing one space
+      - post or share one piece of my work
+      - review my week and celebrate one win
     opens: "2026-11-30 19:00"
     prompt: What would taking greater ownership of the life you are building look like for you?
     extra_prompts:

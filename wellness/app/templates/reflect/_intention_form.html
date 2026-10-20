@@ -1,0 +1,40 @@
+{# The set/edit form. `edit` is a View when adjusting an existing intention. #}
+{% set kind = edit.kind if edit else 'when' %}
+{% set f = edit.fields if edit else {} %}
+<form method="post" action="{{ url_for('reflect.intention_save', week_key=week.key) }}" class="stack intent-form" data-intention>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if edit %}<input type="hidden" name="intention_id" value="{{ edit.id }}">{% endif %}
+  <input class="visually-hidden mode" type="radio" name="kind" value="when" id="k-when" {{ 'checked' if kind == 'when' }}>
+  <input class="visually-hidden mode" type="radio" name="kind" value="after" id="k-after" {{ 'checked' if kind == 'after' }}>
+  <div class="seg" role="group" aria-label="Format">
+    <label for="k-when">When &amp; where</label><label for="k-after">After I…</label>
+  </div>
+
+  {% if week.starter_habits %}
+  <div>
+    <p class="lead">Need an idea? Tap one</p>
+    <div class="ex">{% for h in week.starter_habits %}<button type="button" class="starter" data-habit="{{ h }}">{{ h }}</button>{% endfor %}</div>
+  </div>
+  {% endif %}
+
+  <div class="field after-only">
+    <label for="cue">After I…</label>
+    <input type="text" id="cue" name="cue" maxlength="120" value="{{ f.get('cue', '') }}" placeholder="e.g. pour my morning coffee">
+  </div>
+  <div class="field">
+    <label for="behavior">I will…</label>
+    <input type="text" id="behavior" name="behavior" maxlength="120" value="{{ f.get('behavior', '') }}" placeholder="e.g. {{ week.starter_habits[0] if week.starter_habits else 'take a 10-minute walk' }}">
+  </div>
+  <div class="field when-only">
+    <label for="time">When?</label>
+    <input type="text" id="time" name="time" maxlength="120" value="{{ f.get('time', '') }}" placeholder="e.g. on my lunch break, Mon–Fri">
+  </div>
+  <div class="field when-only">
+    <label for="place">Where?</label>
+    <input type="text" id="place" name="place" maxlength="120" value="{{ f.get('place', '') }}" placeholder="e.g. around the block">
+  </div>
+
+  <p class="sentence" data-sentence aria-live="polite" hidden></p>
+  <p class="muted small">Private to you, like your journal. Next week we'll ask how it went.</p>
+  <button class="button" type="submit">{{ 'Save changes' if edit else 'Save my intention' }}</button>
+</form>

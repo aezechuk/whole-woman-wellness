@@ -12,7 +12,7 @@ from flask import (Response, abort, current_app, flash, g, make_response, redire
                    render_template, request, url_for)
 from sqlalchemy import delete, select
 
-from .. import crypto, notify, program
+from .. import crypto, intentions, notify, program
 from ..extensions import db
 from ..models import (FeedbackDone, JournalEntry, Participant, SessionFeedback, SignInCode,
                       Testimonial, utcnow)
@@ -106,14 +106,86 @@ def sessions():
     return render_template("reflect/sessions.html", rows=_session_rows(g.participant))
 
 
+def _focus_keys(p: Participant) -> set[str]:
+    from ..assessment import service as assess
+    pre = assess.get(p, "pre")
+    return set(pre.focus_domains or []) if pre is not None else set()
+
+
 @bp.get("/sessions/<week_key>")
 @login_required
 def session_week(week_key: str):
     p = g.participant
     week = _open_week(week_key)
-    return render_template("reflect/session_week.html", week=week, attendance=ATTENDANCE,
-                           happened=week.is_open(),
-                           feedback_done=any(f.week_key == week_key for f in p.feedback_done))
+    current = program.load().current_week()
+    all_views = intentions.views(p)
+    edit = next((v for v in all_views if v.id == request.args.get("edit")), None)
+    return render_template(
+        "reflect/session_week.html", week=week, attendance=ATTENDANCE, happened=week.is_open(),
+        feedback_done=any(f.week_key == week_key for f in p.feedback_done),
+        is_current=current is not None and current.key == week.key,
+        due=[v for v in all_views if v.due] if current is not None and current.key == week.key else [],
+        mine=[v for v in all_views if v.active and v.area_key == week.key],
+        edit=edit, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS)
+
+
+# ---- intentions --------------------------------------------------------------------
+
+@bp.post("/intentions/<week_key>")
+@login_required
+def intention_save(week_key: str):
+    p = g.participant
+    week = _open_week(week_key)
+    current = program.load().current_week()
+    try:
+        intentions.save(p, area_key=week.key, week_key=(current or week).key, form=request.form,
+                        intention_id=request.form.get("intention_id") or None)
+    except KeyError:
+        abort(404)
+    except intentions.IntentionError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
+    flash("Your intention is saved.", "info")
+    return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
+
+
+@bp.post("/intentions/<intention_id>/checkin")
+@login_required
+def intention_checkin(intention_id: str):
+    p = g.participant
+    current = program.load().current_week()
+    try:
+        it = intentions.checkin(p, intention_id, request.form.get("days"), request.form.get("next", ""))
+    except KeyError:
+        abort(404)
+    except intentions.IntentionError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("reflect.session_week", week_key=current.key if current else "reset") + "#checkin")
+    if request.form.get("next") == "adjust":
+        flash("Checked in. Adjust it below and save.", "info")
+        return redirect(url_for("reflect.session_week", week_key=it.area_key, edit=str(it.id)) + "#intention")
+    flash("Checked in. Thank you.", "info")
+    return redirect(url_for("reflect.session_week", week_key=current.key) + "#checkin")
+
+
+@bp.get("/intentions")
+@login_required
+def intentions_list():
+    p = g.participant
+    return render_template("reflect/intentions.html", views=intentions.views(p),
+                           current=program.load().current_week(), focus=_focus_keys(p),
+                           weeks=program.load().weeks)
+
+
+@bp.post("/intentions/<intention_id>/let-go")
+@login_required
+def intention_let_go(intention_id: str):
+    try:
+        intentions.let_go(g.participant, intention_id)
+    except KeyError:
+        abort(404)
+    flash("Let go. You can always set a new one.", "info")
+    return redirect(url_for("reflect.intentions_list"))
 
 
 # ---- session feedback ------------------------------------------------------------
@@ -286,7 +358,7 @@ def download():
         if a is not None and a.is_complete:
             results.append((tp, a, assess.snapshot(a)))
     body = render_template("reflect/download.txt", p=p, reflections=reflections, results=results,
-                           testimonials=p.testimonials)
+                           testimonials=p.testimonials, intents=intentions.views(p))
     p.downloaded_at = utcnow()
     db.session.commit()
     response = make_response(body)

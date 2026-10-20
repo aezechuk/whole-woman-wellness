@@ -1,0 +1,19 @@
+<section class="card stack" id="checkin">
+  <p class="kicker">CHECK IN · {{ 'YOUR INTENTIONS' if due|length > 1 else "LAST WEEK'S INTENTION" }}</p>
+  {% for v in due %}
+  <form method="post" action="{{ url_for('reflect.intention_checkin', intention_id=v.id) }}" class="stack{{ ' checkin-sep' if not loop.first }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="intent"><p class="h3">{{ v.text }}</p><p class="meta">{{ v.area_name }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }}{% endif %}</p></div>
+    <fieldset class="field">
+      <legend class="lead">How many days did you do it?</legend>
+      <div class="days">{% for d in range(8) %}<label><input class="visually-hidden" type="radio" name="days" value="{{ d }}" required><span>{{ d }}</span></label>{% endfor %}</div>
+    </fieldset>
+    <fieldset class="field">
+      <legend class="lead">What's next for it?</legend>
+      <div class="opts">{% for key, label in next_steps.items() %}<label><input class="visually-hidden" type="radio" name="next" value="{{ key }}" required {{ 'checked' if key == 'keep' }}><span>{{ label }}</span></label>{% endfor %}</div>
+    </fieldset>
+    <button class="button" type="submit">Check in</button>
+  </form>
+  {% endfor %}
+  <p class="muted small">Your answers are counted anonymously for the program report. The wording of your intentions stays private.</p>
+</section>

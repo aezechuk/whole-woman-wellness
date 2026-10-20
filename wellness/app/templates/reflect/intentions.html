@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}My intentions{% endblock %}
+{% block content %}
+<h1 class="display-sm">my intentions</h1>
+<p class="muted">Small, specific habits you're building. Keep what works, adjust what doesn't, and let go of what isn't serving you.</p>
+
+{% set active = views|selectattr('active')|list %}
+{% set done = views|rejectattr('active')|list %}
+
+<section class="card stack">
+  <p class="kicker">GOING NOW</p>
+  {% for v in active %}
+  <div class="intent">
+    <p class="h3">{{ v.text }}</p>
+    <p class="meta">{{ v.area_name }}{{ ' ★' if v.area_key in focus }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }}{% endif %}</p>
+    {% if v.history %}<p class="meta">{% for h in v.history %}{{ h.week_name }}: {{ h.days }}/7{{ ' · ' if not loop.last }}{% endfor %}</p>{% endif %}
+    <div class="intent-actions">
+      <a href="{{ url_for('reflect.session_week', week_key=v.area_key, edit=v.id) }}#intention">Adjust</a>
+      <form method="post" action="{{ url_for('reflect.intention_let_go', intention_id=v.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="link-button" type="submit">Let it go</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p>Nothing yet. Set one from any session page.</p>
+  {% endfor %}
+</section>
+
+<section class="card stack">
+  <p class="kicker">ADD ONE FOR A SESSION</p>
+  {% for w in weeks %}
+  <a class="row-link plain" href="{{ url_for('reflect.session_week', week_key=w.key) }}#intention"><span>{{ w.name }}{{ ' ★' if w.key in focus }}{% if current and w.key == current.key %} <span class="muted small">· this week</span>{% endif %}</span><span aria-hidden="true">›</span></a>
+  {% endfor %}
+  {% if focus %}<p class="muted small">★ = one of your focus areas</p>{% endif %}
+</section>
+
+{% if done %}
+<section class="card stack">
+  <p class="kicker">LET GO</p>
+  {% for v in done %}<div class="intent"><p class="h3 muted">{{ v.text }}</p><p class="meta">{{ v.area_name }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }}{% endif %}</p></div>{% endfor %}
+  <p class="muted small">Letting go is part of the process. These taught you something too.</p>
+</section>
+{% endif %}
+{% endblock %}

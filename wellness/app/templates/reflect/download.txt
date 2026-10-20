@@ -16,6 +16,12 @@ Week {{ w.number }} · {{ w.name }}
 {{ prompt }}
 
 {{ text }}
+{% endfor %}{% endif %}{% if intents %}
+== INTENTIONS ==
+{% for v in intents %}
+{{ v.text }}
+{{ v.area_name }} · {{ 'active' if v.active else 'let go' }}{% for h in v.history %}
+  {{ h.week_name }} check-in: {{ h.days }} of 7 days, {{ {'keep': 'kept it', 'adjust': 'adjusted it', 'let_go': 'let it go'}[h.next] }}{% endfor %}
 {% endfor %}{% endif %}{% if testimonials %}
 == TESTIMONIALS ==
 {% for t in testimonials %}

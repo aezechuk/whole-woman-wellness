@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 from statistics import mean
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from ...scoring import score
 from ..assessment import service as assess
@@ -244,6 +244,37 @@ def funder_report() -> dict:
     tables.append({"title": "Location (State)", "approximate": False,
                    "rows": [(names.get(k, "Unknown or decline to state"), n, pct[k]) for k, n in loc_counts.items()]})
     return {"total": total, "responded": len(responses), "tables": tables}
+
+
+# ---- intentions --------------------------------------------------------------------
+
+def intentions_summary() -> dict:
+    """Group-level habit results. Reads only intention counts and the anonymous check-ins;
+    never the wording of anyone's intentions or her own check-in history."""
+    from ..models import AnonCheckin, Intention
+    people = _participants()
+    setters = set(db.session.scalars(select(Intention.participant_id).distinct()))
+    total_intentions = db.session.scalar(select(func.count()).select_from(Intention)) or 0
+    rows = list(db.session.scalars(select(AnonCheckin)))
+    names = {w.key: w.name for w in program.load().weeks}
+    by_area = []
+    for w in program.load().weeks:
+        rs = [r for r in rows if r.area_key == w.key]
+        by_area.append({"name": w.name, "n": len(rs), "days": r1(mean(r.days for r in rs)) if rs else None})
+    steps = Counter(r.next_step for r in rows)
+    return {
+        "participants": len(people),
+        "set_any": len([p for p in people if p.id in setters]),
+        "set_any_pct": r1(100 * len([p for p in people if p.id in setters]) / len(people)) if people else None,
+        "intentions": total_intentions,
+        "checkins": len(rows),
+        "avg_days": r1(mean(r.days for r in rows)) if rows else None,
+        "five_plus_pct": r1(100 * sum(r.days >= 5 for r in rows) / len(rows)) if rows else None,
+        "keep": steps["keep"], "adjust": steps["adjust"], "let_go": steps["let_go"],
+        "two_weeks_plus": sum(1 for r in rows if r.week_number >= 2),
+        "by_area": by_area,
+        "names": names,
+    }
 
 
 # ---- session feedback --------------------------------------------------------------

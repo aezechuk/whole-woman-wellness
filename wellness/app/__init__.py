@@ -106,13 +106,14 @@ def create_app(env: str | None = None) -> Flask:
     def purge_program_data(confirm: bool):
         """Delete all program data after the deletion date (Feb 28, 2027)."""
         from . import program
-        from .models import (Assessment, AuthSession, DemographicResponse, EmailLog, FeedbackDone,
-                             JournalEntry, Participant, SessionFeedback, SignInCode, Testimonial, utcnow)
+        from .models import (AnonCheckin, Assessment, AuthSession, DemographicResponse, EmailLog, FeedbackDone,
+                             Intention, IntentionCheckin, JournalEntry, Participant, SessionFeedback,
+                             SignInCode, Testimonial, utcnow)
         if utcnow() < program.load().data_deletion:
             raise click.ClickException("The deletion date hasn't arrived yet.")
         if not confirm:
             raise click.ClickException("Re-run with --confirm. Export the funder report first.")
-        for model in (JournalEntry, Testimonial, FeedbackDone, EmailLog, AuthSession, Assessment,
+        for model in (IntentionCheckin, Intention, AnonCheckin, JournalEntry, Testimonial, FeedbackDone, EmailLog, AuthSession, Assessment,
                       SignInCode, Participant, SessionFeedback, DemographicResponse):
             db.session.query(model).delete()
         db.session.commit()

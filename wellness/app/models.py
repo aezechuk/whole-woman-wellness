@@ -64,6 +64,8 @@ class Participant(db.Model):
         back_populates="participant", cascade="all, delete-orphan")
     feedback_done: Mapped[list[FeedbackDone]] = relationship(cascade="all, delete-orphan")
     email_log: Mapped[list[EmailLog]] = relationship(cascade="all, delete-orphan")
+    intentions: Mapped[list[Intention]] = relationship(
+        back_populates="participant", cascade="all, delete-orphan", order_by="Intention.created_at")
 
     @property
     def profile_complete(self) -> bool:
@@ -233,3 +235,52 @@ class DemographicResponse(db.Model):
     household_size: Mapped[str] = mapped_column(String(16))
     income_band: Mapped[str] = mapped_column(String(16))
     state: Mapped[str] = mapped_column(String(16), default="skip", server_default="skip")
+
+
+class Intention(db.Model):
+    """A habit intention ("I will X at Y in Z" / "After I X, I will Y"). The wording is
+    envelope-encrypted and private to the participant; admins never see it."""
+
+    __tablename__ = "intention"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), index=True)
+    area_key: Mapped[str] = mapped_column(String(32))      # the session/domain it belongs to
+    week_key: Mapped[str] = mapped_column(String(32))      # program week it was set in
+    body: Mapped[str] = mapped_column(Text)                # sealed JSON: {"kind", "fields"}
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    participant: Mapped[Participant] = relationship(back_populates="intentions")
+    checkins: Mapped[list[IntentionCheckin]] = relationship(
+        back_populates="intention", cascade="all, delete-orphan", order_by="IntentionCheckin.created_at")
+
+
+class IntentionCheckin(db.Model):
+    """Her private copy of a weekly check-in (encrypted), so she can see her own history."""
+
+    __tablename__ = "intention_checkin"
+    __table_args__ = (UniqueConstraint("intention_id", "week_key"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    intention_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("intention.id"), index=True)
+    week_key: Mapped[str] = mapped_column(String(32))
+    body: Mapped[str] = mapped_column(Text)                # sealed JSON: {"days", "next"}
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    intention: Mapped[Intention] = relationship(back_populates="checkins")
+
+
+class AnonCheckin(db.Model):
+    """The anonymous copy for reporting: no participant or intention id, no timestamp."""
+
+    __tablename__ = "anon_checkin"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    cohort_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cohort.id"), index=True)
+    week_key: Mapped[str] = mapped_column(String(32))
+    area_key: Mapped[str] = mapped_column(String(32))
+    days: Mapped[int] = mapped_column(Integer)
+    next_step: Mapped[str] = mapped_column(String(16))     # keep | adjust | let_go
+    week_number: Mapped[int] = mapped_column(Integer)      # 1st, 2nd, ... check-in on that habit

@@ -56,4 +56,22 @@
 {% else %}
 <p class="muted">No final assessments yet. These open November 18.</p>
 {% endif %}
+
+<h2 class="h2">Intentions and habits</h2>
+<div class="stat-grid">
+  <div class="stat"><span class="stat-num">{{ v(habits.set_any_pct) }}{{ '%' if habits.set_any_pct is not none }}</span><span>set at least one intention ({{ habits.set_any }} of {{ habits.participants }})</span></div>
+  <div class="stat"><span class="stat-num">{{ v(habits.avg_days) }}</span><span>average days per week kept (n={{ habits.checkins }} check-ins)</span></div>
+  <div class="stat"><span class="stat-num">{{ v(habits.five_plus_pct) }}{{ '%' if habits.five_plus_pct is not none }}</span><span>of check-ins at 5+ days</span></div>
+  <div class="stat"><span class="stat-num">{{ habits.two_weeks_plus }}</span><span>check-ins on habits kept 2+ weeks</span></div>
+</div>
+{% if habits.checkins %}
+<p class="small">After checking in: keep {{ habits.keep }} · adjust {{ habits.adjust }} · let go {{ habits.let_go }}</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th scope="col">Area</th><th scope="col">Check-ins</th><th scope="col">Average days kept</th></tr></thead>
+  <tbody>{% for a in habits.by_area %}<tr><th scope="row">{{ a.name }}</th><td>{{ a.n }}</td><td>{{ v(a.days) }}</td></tr>{% endfor %}</tbody>
+</table>
+</div>
+{% endif %}
+<p class="muted small">From anonymous check-ins only. The wording of participants' intentions is private and never shown here.</p>
 {% endblock %}

@@ -1,10 +1,28 @@
 {% extends "base.html" %}
-{% block title %}{{ week.name }}{% endblock %}
+{% block title %}{{ week.name }}<script src="{{ url_for('static', filename='js/intentions.js') }}" defer></script>
+{% endblock %}
 {% block content %}
 <section class="feature">
   <p class="eyebrow">WEEK {{ week.number }} · {{ week.opens_at.strftime('%A, %B')|upper }} {{ week.opens_at.day }}</p>
   <h1 class="display">{{ week.name|lower }}</h1>
   <p>{{ week.overview }}</p>
+</section>
+
+{% if due %}{% include "reflect/_intention_checkin.html" %}{% endif %}
+
+<section class="card stack" id="intention">
+  <p class="kicker">{{ 'ADJUST YOUR INTENTION' if edit else 'SET AN INTENTION' }}</p>
+  <div>
+    {% if is_focus %}<span class="focus-tag">★ One of your focus areas</span>{% endif %}
+    <p class="muted small">Small and specific beats big and vague. Pick one thing you'll do, and decide exactly when.</p>
+  </div>
+  {% if mine and not edit %}
+  <div class="stack">
+    {% for v in mine %}<div class="intent"><p class="h3">{{ v.text }}</p><p class="meta">{% if v.weeks_kept %}kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }} · last check-in {{ v.history[-1].days }} of 7 days · {% endif %}<a href="{{ url_for('reflect.session_week', week_key=week.key, edit=v.id) }}#intention">Adjust</a></p></div>{% endfor %}
+  </div>
+  <p class="lead">Add another for {{ week.name }}</p>
+  {% endif %}
+  {% include "reflect/_intention_form.html" %}
 </section>
 
 <section class="card stack">
@@ -28,4 +46,5 @@
 </section>
 
 <p class="center"><a href="{{ url_for('reflect.sessions') }}">All sessions</a></p>
+<script src="{{ url_for('static', filename='js/intentions.js') }}" defer></script>
 {% endblock %}

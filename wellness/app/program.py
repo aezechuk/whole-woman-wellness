@@ -28,6 +28,7 @@ class Week:
     prompt: str
     extra_prompts: tuple[str, ...]
     overview: str = ""
+    starter_habits: tuple[str, ...] = ()
 
     def is_open(self, now: datetime | None = None) -> bool:
         return (now or utcnow()) >= self.opens_at
@@ -73,7 +74,8 @@ def load() -> Program:
 
     weeks = tuple(
         Week(w["key"], w["name"], w["week"], at(w["opens"]), w["prompt"].strip(),
-             tuple(p.strip() for p in w.get("extra_prompts") or []), (w.get("overview") or "").strip())
+             tuple(p.strip() for p in w.get("extra_prompts") or []), (w.get("overview") or "").strip(),
+             tuple(h.strip() for h in w.get("starter_habits") or []))
         for w in raw["weeks"])
     emails = {k: (at(v["at"]), v["to"]) for k, v in raw["emails"].items()}
     return Program(tz=tz, weeks=weeks, emails=emails, data_deletion=at(raw["data_deletion"]))

@@ -74,11 +74,11 @@ def consent():
 @bp.route("/")
 @login_required
 def home():
-    from .. import program
+    from .. import intentions, program
     from ..assessment import service
     p = g.participant
     pre, post = service.get(p, "pre"), service.get(p, "post")
     hero_photo = (Path(current_app.static_folder) / "img" / "home-hero.jpg").exists()
     return render_template("participant/home.html", participant=p, pre=pre, post=post,
                            final_open=service.final_is_open(), week=program.load().current_week(),
-                           hero_photo=hero_photo)
+                           hero_photo=hero_photo, intents=[v for v in intentions.views(p) if v.active])

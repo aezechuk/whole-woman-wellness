@@ -137,7 +137,7 @@ def dashboard():
     include_late = request.args.get("exclude_late") != "1"
     return render_template("admin/dashboard.html", o=reports.overview(), group=group, groups=reports.GROUPS,
                            include_late=include_late, rows=reports.outcomes(group, include_late),
-                           extras=reports.final_extras(group))
+                           extras=reports.final_extras(group), habits=reports.intentions_summary())
 
 
 @bp.get("/funder")
