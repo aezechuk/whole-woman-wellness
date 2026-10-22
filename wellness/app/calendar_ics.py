@@ -14,7 +14,9 @@ DAYS = [("MO", "M", "Mon"), ("TU", "T", "Tue"), ("WE", "W", "Wed"), ("TH", "T", 
         ("FR", "F", "Fri"), ("SA", "S", "Sat"), ("SU", "S", "Sun")]
 DAY_CODES = [d for d, _, _ in DAYS]
 DURATIONS = [10, 15, 20, 30, 45, 60]
-UNTIL = {"program": "Until the program ends (Nov 30)", "4": "For 4 weeks", "8": "For 8 weeks"}
+UNTIL = {"program": "Until the program ends (Nov 30)", "4": "For 4 weeks", "8": "For 8 weeks",
+         "forever": "Keep repeating (no end date)"}
+TITLE_MAX = 80
 PROGRAM_END = date(2026, 11, 30)
 NEUTRAL_TITLE = "Self-care: my intention"
 _TIME = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
@@ -36,9 +38,13 @@ def parse(form) -> dict | None:
         minutes = int(form.get("rminutes") or 15)
     except ValueError:
         minutes = 15
+    title = form.get("rtitle") if form.get("rtitle") in ("full", "neutral", "custom") else "full"
+    custom = " ".join((form.get("rcustom") or "").split())[:TITLE_MAX]
+    if title == "custom" and not custom:
+        raise ReminderError("Add a title for your calendar event, or pick another option.")
     return {"days": days, "time": time, "minutes": minutes if minutes in DURATIONS else 15,
             "until": form.get("runtil") if form.get("runtil") in UNTIL else "program",
-            "title": "neutral" if form.get("rtitle") == "neutral" else "full"}
+            "title": title, "custom": custom if title == "custom" else ""}
 
 
 def describe(r: dict) -> str:
@@ -46,7 +52,14 @@ def describe(r: dict) -> str:
     days = "Every day" if len(r["days"]) == 7 else ", ".join(names[d] for d in r["days"])
     h, m = map(int, r["time"].split(":"))
     clock = f"{(h % 12) or 12}:{m:02d} {'AM' if h < 12 else 'PM'}"
-    return f"{days} at {clock} · {r['minutes']} min"
+    until = " · no end date" if r.get("until") == "forever" else ""
+    return f"{days} at {clock} · {r['minutes']} min{until}"
+
+
+def title(r: dict, sentence: str) -> str:
+    if r.get("title") == "custom" and r.get("custom"):
+        return r["custom"]
+    return NEUTRAL_TITLE if r.get("title") == "neutral" else sentence
 
 
 def _escape(text: str) -> str:
@@ -74,11 +87,16 @@ def build(uid: str, r: dict, sentence: str, place: str, today: date, now: dateti
                  if DAY_CODES[(today + timedelta(days=k)).weekday()] in r["days"]))
     start = datetime(first.year, first.month, first.day, h, m)
     end = start + timedelta(minutes=r["minutes"])
-    last = PROGRAM_END if r["until"] == "program" else today + timedelta(weeks=int(r["until"]))
+    forever = r["until"] == "forever"
+    last = PROGRAM_END if r["until"] in ("program", "forever") else today + timedelta(weeks=int(r["until"]))
     if last < first:
         last = first
     until = datetime(last.year, last.month, last.day, 23, 59, 59)
     full = r["title"] == "full"
+    summary = title(r, sentence)
+    rule = f"RRULE:FREQ=WEEKLY;BYDAY={','.join(sorted(r['days'], key=weekday.get))}"
+    if not forever:
+        rule += f";UNTIL={until.strftime('%Y%m%dT%H%M%S')}"
     fmt = "%Y%m%dT%H%M%S"
     lines = [
         "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Arthentic Arts//Radical Self-Care Reset//EN",
@@ -88,12 +106,12 @@ def build(uid: str, r: dict, sentence: str, place: str, today: date, now: dateti
         f"DTSTAMP:{now.strftime(fmt)}Z",
         f"DTSTART:{start.strftime(fmt)}",
         f"DTEND:{end.strftime(fmt)}",
-        f"RRULE:FREQ=WEEKLY;BYDAY={','.join(sorted(r['days'], key=weekday.get))};UNTIL={until.strftime(fmt)}",
-        f"SUMMARY:{_escape(sentence if full else NEUTRAL_TITLE)}",
+        rule,
+        f"SUMMARY:{_escape(summary)}",
         f"DESCRIPTION:{_escape((sentence + chr(10) + chr(10) if full else '') + 'From your Radical Self-Care Reset app.')}",
     ]
     if full and place:
         lines.append(f"LOCATION:{_escape(place)}")
-    lines += ["BEGIN:VALARM", "ACTION:DISPLAY", f"DESCRIPTION:{_escape(sentence if full else NEUTRAL_TITLE)}",
+    lines += ["BEGIN:VALARM", "ACTION:DISPLAY", f"DESCRIPTION:{_escape(summary)}",
               "TRIGGER:-PT10M", "END:VALARM", "END:VEVENT", "END:VCALENDAR"]
     return "\r\n".join(_fold(x) for x in lines) + "\r\n"

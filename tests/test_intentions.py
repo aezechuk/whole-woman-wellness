@@ -138,7 +138,8 @@ def test_cannot_touch_someone_elses_intention(app, at):
     assert b.post(f"/intentions/{it.id}/checkin", data={"days": "3", "next": "keep"}).status_code == 404
     assert b.post(f"/intentions/{it.id}/let-go").status_code == 404
     assert b.post("/intentions/reset", data={**WALK, "intention_id": str(it.id)}).status_code == 404
-    assert "walk" not in b.get(f"/sessions/reset?edit={it.id}").data.decode()
+    page = b.get(f"/sessions/reset?edit={it.id}").data.decode()
+    assert str(it.id) not in page and 'value="take a 10-minute walk"' not in page
 
 
 def test_active_limit(maya, at):
@@ -185,7 +186,7 @@ def test_reminder_saved_encrypted_and_calendar_file(maya, at):
     it = only(Intention)
     assert "12:15" not in it.body
     home = maya.get("/").data.decode()
-    assert "Mon, Wed at 12:15 PM · 15 min" in home and "Add to calendar" in home
+    assert "Mon, Wed at 12:15 PM · 15 min" in home and "Add to my calendar" in home
     r = maya.get(f"/intentions/{it.id}/calendar.ics")
     assert r.status_code == 200 and r.headers["Content-Type"].startswith("text/calendar")
     assert r.headers["Cache-Control"] == "no-store"
@@ -233,3 +234,18 @@ def test_editing_keeps_or_removes_reminder(maya, at):
     assert 'value="12:15"' in page and 'value="MO" checked' in page
     maya.post("/intentions/reset", data={**WALK, "intention_id": str(it.id)})   # no days = no reminder
     assert maya.get(f"/intentions/{it.id}/calendar.ics").status_code == 404
+
+
+def test_no_end_date_and_custom_title(maya, at):
+    maya.post("/intentions/reset", data={**REMIND, "runtil": "forever", "rtitle": "custom", "rcustom": "Lunch walk, outside"})
+    it = only(Intention)
+    assert "no end date" in maya.get("/").data.decode()
+    ics = maya.get(f"/intentions/{it.id}/calendar.ics").data.decode().replace("\r\n ", "")
+    assert "RRULE:FREQ=WEEKLY;BYDAY=MO,WE\r\n" in ics and "UNTIL" not in ics
+    assert "SUMMARY:Lunch walk\\, outside" in ics and "LOCATION" not in ics
+
+
+def test_custom_title_required_when_chosen(maya, at):
+    maya.post("/intentions/reset", data={**REMIND, "rtitle": "custom", "rcustom": "  "})
+    assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
+    assert "Add a title for your calendar event" in maya.get("/sessions/reset").data.decode()

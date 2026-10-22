@@ -13,7 +13,7 @@
   <div class="intent">
     <p class="h3">{{ v.text }}</p>
     <p class="meta">{{ v.area_name }}{{ ' ★' if v.area_key in focus }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }}{% endif %}</p>
-    {% if v.reminder %}<p class="meta">🗓️ {{ v.reminder_text }}</p><a class="cal-link" href="{{ url_for('reflect.intention_calendar', intention_id=v.id) }}" target="_blank" rel="noopener">Add to calendar</a>{% endif %}
+    {% if v.reminder %}<p class="meta">🗓️ {{ v.reminder_text }}</p><a class="button cal-button" href="{{ url_for('reflect.intention_calendar', intention_id=v.id) }}" target="_blank" rel="noopener"><span aria-hidden="true">🗓️</span> Add to my calendar</a>{% endif %}
     {% if v.history %}<p class="meta">{% for h in v.history %}{{ h.week_name }}: {{ h.days }}/7{{ ' · ' if not loop.last }}{% endfor %}</p>{% endif %}
     <div class="intent-actions">
       <a href="{{ url_for('reflect.session_week', week_key=v.area_key, edit=v.id) }}#intention">Adjust</a>

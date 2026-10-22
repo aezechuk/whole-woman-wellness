@@ -51,13 +51,18 @@
       </div>
       <div class="field"><label for="runtil">Repeat</label>
         <select id="runtil" name="runtil">{% for key, label in reminder_until.items() %}<option value="{{ key }}" {{ 'selected' if key == r.get('until', 'program') }}>{{ label }}</option>{% endfor %}</select></div>
-      <fieldset class="field">
+      <fieldset class="field title-pick">
         <legend class="lead">Event title</legend>
         <label class="choice"><input type="radio" name="rtitle" value="full" {{ 'checked' if r.get('title', 'full') == 'full' }}> My intention</label>
         <label class="choice"><input type="radio" name="rtitle" value="neutral" {{ 'checked' if r.get('title') == 'neutral' }}> "Self-care: my intention"</label>
-        <p class="hint">Pick the second if your calendar is shared or synced with work.</p>
+        <label class="choice"><input type="radio" name="rtitle" value="custom" {{ 'checked' if r.get('title') == 'custom' }}> My own title</label>
+        <div class="custom-title">
+          <label class="visually-hidden" for="rcustom">Your event title</label>
+          <input type="text" id="rcustom" name="rcustom" maxlength="80" value="{{ r.get('custom', '') }}" placeholder="e.g. Lunch walk 🚶🏾‍♀️">
+        </div>
+        <p class="hint">Use a neutral or custom title if your calendar is shared or synced with work.</p>
       </fieldset>
-      <p class="muted small">After you save, tap <strong>Add to calendar</strong>. Your phone adds a repeating event with an alert 10 minutes before. Nothing about your calendar comes back to this app.</p>
+      <p class="muted small">After you save, tap <strong>Add to my calendar</strong>. Your phone adds a repeating event with an alert 10 minutes before. Nothing about your calendar comes back to this app.</p>
     </div>
   </details>
   <p class="muted small">Private to you, like your journal. Next week we'll ask how it went.</p>
