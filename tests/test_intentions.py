@@ -293,3 +293,16 @@ def test_calendar_button_disappears_once_added(maya, at):
     maya.post("/intentions/reset", data={**REMIND, "rtime": "13:00", "intention_id": str(it.id)})
     home = maya.get("/").data.decode()
     assert "✓ On your calendar" not in home and "Add to my calendar</a>" in home
+
+
+def test_mark_already_on_calendar_without_download(app, at):
+    a, b = app.test_client(), app.test_client()
+    onboard(a, "a@example.com")
+    onboard(b, "b@example.com")
+    a.post("/intentions/reset", data=REMIND)
+    it = only(Intention)
+    assert b.post(f"/intentions/{it.id}/on-calendar").status_code == 404
+    r = a.post(f"/intentions/{it.id}/on-calendar", data={"back": "/intentions"})
+    assert r.headers["Location"].endswith("/intentions")
+    assert "✓ On your calendar" in a.get("/").data.decode()
+    assert a.post(f"/intentions/{it.id}/on-calendar", data={"back": "https://evil.example"}).headers["Location"].endswith("/")

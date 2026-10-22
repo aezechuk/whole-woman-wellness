@@ -207,6 +207,20 @@ def intention_calendar(intention_id: str):
     return resp
 
 
+@bp.post("/intentions/<intention_id>/on-calendar")
+@login_required
+def intention_on_calendar(intention_id: str):
+    """She already added it (before this was tracked, or on another device): stop offering the button."""
+    p = g.participant
+    try:
+        it = intentions.get(p, intention_id)
+    except KeyError:
+        abort(404)
+    intentions.mark_on_calendar(p, it)
+    back = request.form.get("back", "")
+    return redirect(back if back.startswith("/") and not back.startswith("//") else url_for("participant.home"))
+
+
 @bp.post("/intentions/<intention_id>/let-go")
 @login_required
 def intention_let_go(intention_id: str):

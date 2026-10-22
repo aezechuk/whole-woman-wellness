@@ -318,3 +318,5 @@ summary.cal-summary::-webkit-details-marker { display: none; }
 summary.cal-summary .optional { font-weight: 400; opacity: .85; font-size: 13px; }
 details.reminder[open] > summary.cal-summary { background: var(--tint); color: var(--berry); }
 .on-cal { color: var(--berry); font-weight: 600; }
+.already-form { text-align: center; margin-top: 6px; }
+.link-button.already { font-size: 13px; color: var(--muted); text-decoration: underline; }
