@@ -37,7 +37,7 @@
   <p class="sentence" data-sentence aria-live="polite" hidden></p>
 
   {% set r = edit.reminder if edit and edit.reminder else {} %}
-  <details class="reminder" {{ 'open' if r }}>
+  <details class="reminder" id="reminder" {{ 'open' if r or request.args.get('remind') }}>
     <summary class="summary"><span class="lead">Add a reminder to my calendar</span> <span class="muted small">(optional)</span></summary>
     <div class="stack reminder-body">
       <fieldset class="field">

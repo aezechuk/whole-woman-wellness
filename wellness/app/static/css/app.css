@@ -309,3 +309,5 @@ input[type=time] { width: 100%; min-height: 48px; padding: 10px 14px; font: inhe
 .intent .cal-button { width: 100%; }
 .added-card { border: 2px solid var(--berry); }
 details.reminder .cal-button { width: 100%; }
+.button.secondary.cal-add { margin-top: 10px; min-height: 44px; font-size: 14px; gap: 8px; border-color: var(--berry); color: var(--berry); }
+.intent .cal-add { width: 100%; }

@@ -263,3 +263,12 @@ def test_save_and_add_needs_days(maya, at):
     maya.post("/intentions/reset", data={**WALK, "then": "calendar"})
     assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
     assert "Pick at least one day" in maya.get("/sessions/reset").data.decode()
+
+
+def test_intention_without_reminder_offers_to_add_one(maya, at):
+    maya.post("/intentions/reset", data=WALK)
+    it = only(Intention)
+    for page in (maya.get("/").data.decode(), maya.get("/intentions").data.decode()):
+        assert "Add a calendar reminder" in page and f"edit={it.id}" in page
+    form = maya.get(f"/sessions/reset?edit={it.id}&remind=1").data.decode()
+    assert 'id="reminder" open' in form
