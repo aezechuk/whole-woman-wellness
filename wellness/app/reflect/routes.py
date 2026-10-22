@@ -151,7 +151,8 @@ def intention_save(week_key: str):
         flash(str(exc), "error")
         return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
     if wants_calendar:
-        return redirect(url_for("reflect.session_week", week_key=week.key, added=str(it.id)) + "#added")
+        flash("Saved. Your calendar is opening. If it doesn't, tap Add to my calendar under your intention.", "info")
+        return redirect(url_for("reflect.session_week", week_key=week.key, added=str(it.id)) + "#intention")
     flash("Your intention is saved.", "info")
     return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
 

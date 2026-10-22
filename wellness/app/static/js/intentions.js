@@ -1,3 +1,17 @@
+// After "Save & add to my calendar": open the calendar file straight away, so saving
+// and adding happen in one tap. The phone shows its own "Add to Calendar" sheet.
+(function () {
+  "use strict";
+  var el = document.querySelector("[data-open-calendar]");
+  if (!el) return;
+  var url = el.getAttribute("data-open-calendar");
+  if (window.history && window.history.replaceState) {
+    // Drop ?added= so a refresh doesn't reopen it.
+    window.history.replaceState(null, "", window.location.pathname + "#intention");
+  }
+  window.location.href = url;
+})();
+
 // Intentions form: tap-to-fill starter ideas and a live preview of the sentence.
 (function () {
   "use strict";

@@ -311,3 +311,9 @@ input[type=time] { width: 100%; min-height: 48px; padding: 10px 14px; font: inhe
 details.reminder .cal-button { width: 100%; }
 .button.secondary.cal-add { margin-top: 10px; min-height: 44px; font-size: 14px; gap: 8px; border-color: var(--berry); color: var(--berry); }
 .intent .cal-add { width: 100%; }
+/* The reminder toggle is a berry button while closed, a quiet header while open */
+details.reminder { border-top: 0; padding-top: 0; }
+summary.cal-summary { list-style: none; width: 100%; cursor: pointer; gap: 8px; padding: 0 16px; white-space: nowrap; }
+summary.cal-summary::-webkit-details-marker { display: none; }
+summary.cal-summary .optional { font-weight: 400; opacity: .85; font-size: 13px; }
+details.reminder[open] > summary.cal-summary { background: var(--tint); color: var(--berry); }

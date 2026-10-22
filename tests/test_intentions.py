@@ -254,9 +254,10 @@ def test_custom_title_required_when_chosen(maya, at):
 def test_save_and_add_to_calendar_in_one_step(maya, at):
     r = maya.post("/intentions/reset", data={**REMIND, "then": "calendar"})
     it = only(Intention)
-    assert r.headers["Location"].endswith(f"/sessions/reset?added={it.id}#added")
+    assert r.headers["Location"].endswith(f"/sessions/reset?added={it.id}#intention")
     page = maya.get(f"/sessions/reset?added={it.id}").data.decode()
-    assert "SAVED! ONE MORE TAP" in page and f"/intentions/{it.id}/calendar.ics" in page
+    assert f'data-open-calendar="/intentions/{it.id}/calendar.ics"' in page   # opens automatically
+    assert "ONE MORE TAP" not in page and page.count("I will take a 10-minute walk") == 1
 
 
 def test_save_and_add_needs_days(maya, at):

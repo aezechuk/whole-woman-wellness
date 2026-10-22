@@ -38,7 +38,7 @@
 
   {% set r = edit.reminder if edit and edit.reminder else {} %}
   <details class="reminder" id="reminder" {{ 'open' if r or request.args.get('remind') }}>
-    <summary class="summary"><span class="lead">Add a reminder to my calendar</span> <span class="muted small">(optional)</span></summary>
+    <summary class="button cal-button cal-summary"><span aria-hidden="true">🗓️</span><span>Add to my calendar</span><span class="optional">(optional)</span></summary>
     <div class="stack reminder-body">
       <fieldset class="field">
         <legend class="lead">Which days?</legend>
