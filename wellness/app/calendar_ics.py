@@ -18,7 +18,7 @@ UNTIL = {"program": "Until the program ends (Nov 30)", "4": "For 4 weeks", "8": 
          "forever": "Keep repeating (no end date)"}
 TITLE_MAX = 80
 PROGRAM_END = date(2026, 11, 30)
-NEUTRAL_TITLE = "Self-care: my intention"
+NEUTRAL_TITLE = "Self-Care: My Intention"
 _TIME = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
 
 
@@ -38,7 +38,7 @@ def parse(form) -> dict | None:
         minutes = int(form.get("rminutes") or 15)
     except ValueError:
         minutes = 15
-    title = form.get("rtitle") if form.get("rtitle") in ("full", "neutral", "custom") else "full"
+    title = "custom" if form.get("rtitle") == "custom" else "neutral"
     custom = " ".join((form.get("rcustom") or "").split())[:TITLE_MAX]
     if title == "custom" and not custom:
         raise ReminderError("Add a title for your calendar event, or pick another option.")

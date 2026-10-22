@@ -182,7 +182,7 @@ REMIND = {**WALK, "rdays": ["MO", "WE"], "rtime": "12:15", "rminutes": "15", "ru
 
 
 def test_reminder_saved_encrypted_and_calendar_file(maya, at):
-    maya.post("/intentions/reset", data={**REMIND, "place": "around the block, by the park"})
+    maya.post("/intentions/reset", data={**REMIND, "rtitle": "custom", "rcustom": "Walk, by the park; outside"})
     it = only(Intention)
     assert "12:15" not in it.body
     home = maya.get("/").data.decode()
@@ -196,16 +196,15 @@ def test_reminder_saved_encrypted_and_calendar_file(maya, at):
     assert "DTEND:20261026T123000" in ics
     assert "RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20261130T235959" in ics
     assert "TRIGGER:-PT10M" in ics
-    assert "LOCATION:around the block\\, by the park" in ics
     assert all(len(line.encode()) <= 75 for line in ics.split("\r\n"))
     unfolded = ics.replace("\r\n ", "")
-    assert "SUMMARY:I will take a 10-minute walk on my lunch break around the block\\, by the park." in unfolded
+    assert "SUMMARY:Walk\\, by the park\\; outside" in unfolded
 
 
 def test_neutral_title_keeps_wording_out_of_calendar(maya, at):
     maya.post("/intentions/reset", data={**REMIND, "rtitle": "neutral", "runtil": "4"})
     ics = maya.get(f"/intentions/{only(Intention).id}/calendar.ics").data.decode().replace("\r\n ", "")
-    assert "SUMMARY:Self-care: my intention" in ics and "walk" not in ics and "LOCATION" not in ics
+    assert "SUMMARY:Self-Care: My Intention" in ics and "walk" not in ics and "LOCATION" not in ics
     assert "UNTIL=20261119T235959" in ics           # 4 weeks from Oct 22
 
 
@@ -287,10 +286,9 @@ def test_calendar_button_disappears_once_added(maya, at):
     # Re-saving unchanged keeps it on the calendar ...
     maya.post("/intentions/reset", data={**REMIND, "intention_id": str(it.id)})
     assert "✓ On your calendar" in maya.get("/").data.decode()
-    # ... but new wording (when the event is titled with it) brings the button back.
+    # ... and so does new wording (the event title doesn't include it).
     maya.post("/intentions/reset", data={**REMIND, "behavior": "take a 15-minute walk", "intention_id": str(it.id)})
-    assert "Add to my calendar</a>" in maya.get("/").data.decode()
-    maya.get(f"/intentions/{it.id}/calendar.ics")
+    assert "✓ On your calendar" in maya.get("/").data.decode()
     maya.post("/intentions/reset", data={**REMIND, "rtime": "13:00", "intention_id": str(it.id)})
     home = maya.get("/").data.decode()
     assert "✓ On your calendar" not in home and "Add to my calendar</a>" in home
@@ -307,3 +305,11 @@ def test_mark_already_on_calendar_without_download(app, at):
     assert r.headers["Location"].endswith("/intentions")
     assert "✓ On your calendar" in a.get("/").data.decode()
     assert a.post(f"/intentions/{it.id}/on-calendar", data={"back": "https://evil.example"}).headers["Location"].endswith("/")
+
+
+def test_title_choices_are_neutral_or_custom(maya, at):
+    page = maya.get("/sessions/reset").data.decode()
+    assert 'value="neutral" checked' in page and 'value="custom"' in page and 'value="full"' not in page
+    maya.post("/intentions/reset", data={k: v for k, v in REMIND.items() if k != "rtitle"})
+    ics = maya.get(f"/intentions/{only(Intention).id}/calendar.ics").data.decode()
+    assert "SUMMARY:Self-Care: My Intention" in ics

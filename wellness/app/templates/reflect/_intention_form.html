@@ -53,14 +53,13 @@
         <select id="runtil" name="runtil">{% for key, label in reminder_until.items() %}<option value="{{ key }}" {{ 'selected' if key == r.get('until', 'program') }}>{{ label }}</option>{% endfor %}</select></div>
       <fieldset class="field title-pick">
         <legend class="lead">Event title</legend>
-        <label class="choice"><input type="radio" name="rtitle" value="full" {{ 'checked' if r.get('title', 'full') == 'full' }}> My intention</label>
-        <label class="choice"><input type="radio" name="rtitle" value="neutral" {{ 'checked' if r.get('title') == 'neutral' }}> "Self-care: my intention"</label>
+        <label class="choice"><input type="radio" name="rtitle" value="neutral" {{ 'checked' if r.get('title') != 'custom' }}> Self-Care: My Intention</label>
         <label class="choice"><input type="radio" name="rtitle" value="custom" {{ 'checked' if r.get('title') == 'custom' }}> My own title</label>
         <div class="custom-title">
           <label class="visually-hidden" for="rcustom">Your event title</label>
           <input type="text" id="rcustom" name="rcustom" maxlength="80" value="{{ r.get('custom', '') }}" placeholder="e.g. Lunch walk 🚶🏾‍♀️">
         </div>
-        <p class="hint">Use a neutral or custom title if your calendar is shared or synced with work.</p>
+        <p class="hint">Your calendar shows this title, so pick something you're comfortable with if it's shared or synced with work.</p>
       </fieldset>
       <button class="button cal-button" type="submit" name="then" value="calendar"><span aria-hidden="true">🗓️</span> Save &amp; add to my calendar</button>
       <p class="muted small">Your phone adds a repeating event with an alert 10 minutes before. Nothing about your calendar comes back to this app.</p>
