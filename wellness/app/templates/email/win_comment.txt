@@ -1,0 +1,8 @@
+Hi {{ name or 'there' }},
+
+Someone commented on a win you shared on the Radical Self-Care Reset wins wall.
+
+See it here: {{ post_link }}
+
+Don't want these emails? Turn them off in Settings: {{ settings_link }}
+{% include "email/footer.txt" %}

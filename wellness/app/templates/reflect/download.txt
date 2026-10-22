@@ -22,6 +22,14 @@ Week {{ w.number }} · {{ w.name }}
 {{ v.text }}
 {{ v.area_name }} · {{ 'active' if v.active else 'let go' }}{% for h in v.history %}
   {{ h.week_name }} check-in: {{ h.days }} of 7 days, {{ {'keep': 'kept it', 'adjust': 'adjusted it', 'let_go': 'let it go'}[h.next] }}{% endfor %}
+{% endfor %}{% endif %}{% if my_wins or my_comments %}
+== WINS WALL ==
+{% for w in my_wins %}
+{{ w.created_at.strftime('%B %d, %Y') }}{{ ' (anonymous)' if w.anonymous }}
+{{ w.body }}
+{% endfor %}{% for c in my_comments %}
+Comment, {{ c.created_at.strftime('%B %d, %Y') }}{{ ' (anonymous)' if c.anonymous }}
+{{ c.body }}
 {% endfor %}{% endif %}{% if testimonials %}
 == TESTIMONIALS ==
 {% for t in testimonials %}

@@ -1,0 +1,7 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>Hi {{ name or 'there' }},</p>
+<p>Someone commented on a win you shared. 💜</p>
+{% with href=post_link, label="See the comment" %}{% include "email/_button.html" %}{% endwith %}
+{% endblock %}
+{% block footer_extra %}<br><br>Don't want these emails? <a href="{{ settings_link }}" style="color:#8A2A66">Turn them off in Settings</a>.{% endblock %}

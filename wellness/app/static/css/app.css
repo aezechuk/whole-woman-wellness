@@ -320,3 +320,28 @@ details.reminder[open] > summary.cal-summary { background: var(--tint); color: v
 .on-cal { color: var(--berry); font-weight: 600; }
 .already-form { text-align: center; margin-top: 6px; }
 .link-button.already { font-size: 13px; color: var(--muted); text-decoration: underline; }
+
+/* Wins wall */
+.win { padding: 16px 18px; }
+.win-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.win-name { font-weight: 700; color: var(--plum); }
+.win-body { white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0 0; line-height: 1.5; }
+.win-actions { display: flex; align-items: center; gap: 16px; margin-top: 12px; }
+.cheer { font: inherit; font-size: 14px; font-weight: 600; min-height: 36px; padding: 0 14px; border-radius: 999px;
+  border: 1.5px solid var(--control); background: #fff; color: var(--plum); cursor: pointer; }
+.cheer.on { background: var(--tint); border-color: var(--berry); }
+.win-comments { font-size: 13.5px; color: var(--berry); }
+.win-filter { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.win-filter a { flex: none; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--control);
+  color: var(--plum); text-decoration: none; background: #fff; }
+.win-filter a.on { background: var(--plum); color: #fff; border-color: var(--plum); }
+.comment { border-top: 1px solid var(--line); padding-top: 12px; }
+.comment-actions { display: flex; gap: 16px; margin-top: 4px; font-size: 13px; }
+.comment-actions .link-button, .report-post summary { font-size: 13px; color: var(--muted); }
+.report-form { margin-top: 8px; text-align: left; }
+.inline-choice { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.inline-choice legend { width: 100%; }
+.reported { border-color: var(--rose) !important; border-width: 2px; }
+.admin-actions { display: flex; gap: 20px; }
+.inline-form { display: inline; }
+.danger-link { color: #8E1F3D !important; }

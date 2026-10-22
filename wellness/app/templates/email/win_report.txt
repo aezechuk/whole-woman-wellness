@@ -1,0 +1,5 @@
+A {{ what }} on the wins wall was reported by a participant.
+
+Review it in the admin area: {{ review_link }}
+
+You can delete it or dismiss the report there.

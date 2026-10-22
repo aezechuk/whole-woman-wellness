@@ -12,8 +12,8 @@ from flask import (Response, abort, current_app, flash, g, make_response, redire
                    render_template, request, url_for)
 from sqlalchemy import delete, select
 
-from .. import calendar_ics, crypto, intentions, notify, program
-from ..extensions import db
+from .. import calendar_ics, crypto, intentions, notify, program, wins
+from ..extensions import db, limiter
 from ..models import (FeedbackDone, JournalEntry, Participant, SessionFeedback, SignInCode,
                       Testimonial, utcnow)
 from ..participant.routes import login_required
@@ -131,7 +131,8 @@ def session_week(week_key: str):
         is_current=current is not None and current.key == week.key,
         due=[v for v in all_views if v.due] if current is not None and current.key == week.key else [],
         mine=[v for v in all_views if v.active and v.area_key == week.key],
-        edit=edit, added=added, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
+        edit=edit, added=added, nudge_win=request.args.get("win") == "1",
+        week_wins=len(wins.feed(week.key)), is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
         reminder_days=calendar_ics.DAYS, reminder_durations=calendar_ics.DURATIONS, reminder_until=calendar_ics.UNTIL)
 
 
@@ -176,6 +177,8 @@ def intention_checkin(intention_id: str):
     if request.form.get("next") == "adjust":
         flash("Checked in. Adjust it below and save.", "info")
         return redirect(url_for("reflect.session_week", week_key=it.area_key, edit=str(it.id)) + "#intention")
+    if request.form.get("days", "").isdigit() and int(request.form["days"]) >= 5:
+        return redirect(url_for("reflect.session_week", week_key=current.key, win=1) + "#checkin")
     flash("Checked in. Thank you.", "info")
     return redirect(url_for("reflect.session_week", week_key=current.key) + "#checkin")
 
@@ -234,6 +237,104 @@ def intention_let_go(intention_id: str):
         abort(404)
     flash("Let go. You can always set a new one.", "info")
     return redirect(url_for("reflect.intentions_list"))
+
+
+# ---- wins wall ---------------------------------------------------------------------
+
+@bp.get("/wins")
+@login_required
+def wins_wall():
+    week = request.args.get("week") or None
+    names = {w.key: w.name for w in program.load().weeks}
+    current = program.load().current_week()
+    return render_template("reflect/wins.html", posts=wins.feed(week if week in names else None), week=week,
+                           names=names, weeks=program.load().weeks, current=current,
+                           prefill=request.args.get("share") == "1", limit=wins.POST_MAX)
+
+
+@bp.post("/wins")
+@login_required
+@limiter.limit("20 per hour")
+def win_create():
+    p = g.participant
+    try:
+        post = wins.create_post(p, request.form.get("body"), request.form.get("anonymous") == "1",
+                                request.form.get("week_key"))
+    except wins.WinError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("reflect.wins_wall"))
+    flash("Your win is shared. 💜", "info")
+    return redirect(url_for("reflect.win_post", post_id=str(post.id)))
+
+
+def _post_or_404(post_id):
+    try:
+        return wins.get_post(post_id)
+    except KeyError:
+        abort(404)
+
+
+@bp.get("/wins/<post_id>")
+@login_required
+def win_post(post_id: str):
+    post = _post_or_404(post_id)
+    return render_template("reflect/win_post.html", post=post, names={w.key: w.name for w in program.load().weeks},
+                           limit=wins.COMMENT_MAX)
+
+
+@bp.post("/wins/<post_id>/comment")
+@login_required
+@limiter.limit("60 per hour")
+def win_comment(post_id: str):
+    post = _post_or_404(post_id)
+    try:
+        wins.add_comment(g.participant, post, request.form.get("body"), request.form.get("anonymous") == "1")
+    except wins.WinError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("reflect.win_post", post_id=post_id) + "#comments")
+
+
+@bp.post("/wins/<post_id>/cheer")
+@login_required
+def win_cheer(post_id: str):
+    wins.toggle_cheer(g.participant, _post_or_404(post_id))
+    back = request.form.get("back", "")
+    return redirect(back if back.startswith("/") and not back.startswith("//") else url_for("reflect.wins_wall"))
+
+
+@bp.post("/wins/<post_id>/delete")
+@login_required
+def win_delete(post_id: str):
+    try:
+        wins.delete_post(g.participant, _post_or_404(post_id))
+    except KeyError:
+        abort(404)
+    flash("Your post is deleted.", "info")
+    return redirect(url_for("reflect.wins_wall"))
+
+
+@bp.post("/wins/comments/<comment_id>/delete")
+@login_required
+def win_comment_delete(comment_id: str):
+    try:
+        post = wins.delete_comment(g.participant, comment_id)
+    except KeyError:
+        abort(404)
+    flash("Your comment is deleted.", "info")
+    return redirect(url_for("reflect.win_post", post_id=str(post.id)) + "#comments")
+
+
+@bp.post("/wins/<post_id>/report")
+@login_required
+@limiter.limit("20 per hour")
+def win_report(post_id: str):
+    post = _post_or_404(post_id)
+    try:
+        wins.report(g.participant, request.form.get("reason"), post=post, comment_id=request.form.get("comment_id"))
+    except KeyError:
+        abort(404)
+    flash("Thank you. The program team has been notified and will review it.", "info")
+    return redirect(url_for("reflect.win_post", post_id=post_id))
 
 
 # ---- session feedback ------------------------------------------------------------
@@ -381,6 +482,7 @@ def settings():
     p = g.participant
     if request.method == "POST":
         p.weekly_emails = request.form.get("weekly_emails") == "on"
+        p.comment_emails = request.form.get("comment_emails") == "on"
         db.session.commit()
         flash("Your email settings are saved.", "info")
         return redirect(url_for("reflect.settings"))
@@ -406,7 +508,8 @@ def download():
         if a is not None and a.is_complete:
             results.append((tp, a, assess.snapshot(a)))
     body = render_template("reflect/download.txt", p=p, reflections=reflections, results=results,
-                           testimonials=p.testimonials, intents=intentions.views(p))
+                           testimonials=p.testimonials, intents=intentions.views(p),
+                           my_wins=p.win_posts, my_comments=p.win_comments)
     p.downloaded_at = utcnow()
     db.session.commit()
     response = make_response(body)

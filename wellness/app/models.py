@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .extensions import db
@@ -50,6 +50,7 @@ class Participant(db.Model):
     consented_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     count_me_in_done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     weekly_emails: Mapped[bool] = mapped_column(Boolean, default=True)
+    comment_emails: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     downloaded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -64,6 +65,10 @@ class Participant(db.Model):
         back_populates="participant", cascade="all, delete-orphan")
     feedback_done: Mapped[list[FeedbackDone]] = relationship(cascade="all, delete-orphan")
     email_log: Mapped[list[EmailLog]] = relationship(cascade="all, delete-orphan")
+    win_posts: Mapped[list[WinPost]] = relationship(back_populates="author", cascade="all, delete-orphan")
+    win_comments: Mapped[list[WinComment]] = relationship(back_populates="author", cascade="all, delete-orphan")
+    win_cheers: Mapped[list[WinCheer]] = relationship(cascade="all, delete-orphan")
+    win_reports: Mapped[list[WinReport]] = relationship(cascade="all, delete-orphan")
     intentions: Mapped[list[Intention]] = relationship(
         back_populates="participant", cascade="all, delete-orphan", order_by="Intention.created_at")
 
@@ -284,3 +289,69 @@ class AnonCheckin(db.Model):
     days: Mapped[int] = mapped_column(Integer)
     next_step: Mapped[str] = mapped_column(String(16))     # keep | adjust | let_go
     week_number: Mapped[int] = mapped_column(Integer)      # 1st, 2nd, ... check-in on that habit
+
+
+# ---- Wins wall --------------------------------------------------------------------
+# Shared with everyone in the program by design, so not encrypted like the journal.
+# Each post or comment can show her first name or "A sister in the program".
+
+class WinPost(db.Model):
+    __tablename__ = "win_post"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    cohort_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cohort.id"), index=True)
+    participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), index=True)
+    week_key: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    body: Mapped[str] = mapped_column(Text)
+    anonymous: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    author: Mapped[Participant] = relationship(back_populates="win_posts")
+    comments: Mapped[list[WinComment]] = relationship(
+        back_populates="post", cascade="all, delete-orphan", order_by="WinComment.created_at")
+    cheers: Mapped[list[WinCheer]] = relationship(back_populates="post", cascade="all, delete-orphan")
+    reports: Mapped[list[WinReport]] = relationship(back_populates="post", cascade="all, delete-orphan")
+
+
+class WinComment(db.Model):
+    __tablename__ = "win_comment"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("win_post.id"), index=True)
+    participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), index=True)
+    body: Mapped[str] = mapped_column(Text)
+    anonymous: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    post: Mapped[WinPost] = relationship(back_populates="comments")
+    author: Mapped[Participant] = relationship(back_populates="win_comments")
+    reports: Mapped[list[WinReport]] = relationship(back_populates="comment", cascade="all, delete-orphan")
+
+
+class WinCheer(db.Model):
+    __tablename__ = "win_cheer"
+    __table_args__ = (UniqueConstraint("post_id", "participant_id"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("win_post.id"), index=True)
+    participant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), index=True)
+
+    post: Mapped[WinPost] = relationship(back_populates="cheers")
+
+
+class WinReport(db.Model):
+    """Someone flagged a post or comment for the admins to review."""
+
+    __tablename__ = "win_report"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("win_post.id"), nullable=True, index=True)
+    comment_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("win_comment.id"), nullable=True, index=True)
+    reporter_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("participant.id"), index=True)
+    reason: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    post: Mapped[WinPost | None] = relationship(back_populates="reports")
+    comment: Mapped[WinComment | None] = relationship(back_populates="reports")

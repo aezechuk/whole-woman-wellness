@@ -140,6 +140,51 @@ def dashboard():
                            extras=reports.final_extras(group), habits=reports.intentions_summary())
 
 
+@bp.get("/wins")
+def wins():
+    from .. import wins as w
+    from ..models import WinPost
+    open_reports = w.open_reports()
+    reported_posts = {r.post_id for r in open_reports if r.post_id}
+    reported_comments = {r.comment_id for r in open_reports if r.comment_id}
+    return render_template("admin/wins.html", posts=w.feed(), reports=open_reports,
+                           reported_posts=reported_posts, reported_comments=reported_comments,
+                           names={k.key: k.name for k in reports.program.load().weeks}, s=w.summary())
+
+
+@bp.post("/wins/posts/<post_id>/delete")
+def wins_delete_post(post_id: str):
+    from .. import wins as w
+    try:
+        w.admin_delete_post(post_id)
+    except KeyError:
+        abort(404)
+    flash("Post deleted.", "info")
+    return redirect(url_for("admin.wins"))
+
+
+@bp.post("/wins/comments/<comment_id>/delete")
+def wins_delete_comment(comment_id: str):
+    from .. import wins as w
+    try:
+        w.admin_delete_comment(comment_id)
+    except KeyError:
+        abort(404)
+    flash("Comment deleted.", "info")
+    return redirect(url_for("admin.wins"))
+
+
+@bp.post("/wins/reports/<report_id>/dismiss")
+def wins_dismiss_report(report_id: str):
+    from .. import wins as w
+    try:
+        w.dismiss_report(report_id)
+    except KeyError:
+        abort(404)
+    flash("Report dismissed.", "info")
+    return redirect(url_for("admin.wins"))
+
+
 @bp.get("/funder")
 def funder():
     return render_template("admin/funder.html", f=reports.funder_report(),

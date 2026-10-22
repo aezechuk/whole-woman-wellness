@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}A win{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('reflect.wins_wall') }}">‹ All wins</a></p>
+{% include "reflect/_win_card.html" %}
+
+{% if post.participant_id == g.participant.id %}
+<form method="post" action="{{ url_for('reflect.win_delete', post_id=post.id) }}" class="center">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="link-button" type="submit">Delete my post</button>
+</form>
+{% endif %}
+
+<section class="card stack" id="comments">
+  <h2 class="h2">Comments</h2>
+  {% for c in post.comments %}
+  <div class="comment">
+    <p class="win-name small">{{ 'A sister in the program' if c.anonymous else (c.author.first_name or 'A participant') }} <span class="meta">· {{ (c.created_at|local).strftime('%b') }} {{ (c.created_at|local).day }}</span></p>
+    <p class="win-body">{{ c.body }}</p>
+    <div class="comment-actions">
+      {% if c.participant_id == g.participant.id %}
+      <form method="post" action="{{ url_for('reflect.win_comment_delete', comment_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button" type="submit">Delete</button></form>
+      {% else %}
+      <details><summary class="link-button">Report</summary>
+        <form method="post" action="{{ url_for('reflect.win_report', post_id=post.id) }}" class="stack report-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="comment_id" value="{{ c.id }}">
+          <label class="visually-hidden" for="reason-{{ c.id }}">Why? (optional)</label>
+          <input type="text" id="reason-{{ c.id }}" name="reason" maxlength="300" placeholder="Why? (optional)">
+          <button class="button secondary compact" type="submit">Report to program team</button>
+        </form>
+      </details>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}<p class="muted">No comments yet. Say something encouraging!</p>{% endfor %}
+
+  <form method="post" action="{{ url_for('reflect.win_comment', post_id=post.id) }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label for="cbody">Add a comment</label>
+      <textarea id="cbody" name="body" rows="3" maxlength="{{ limit }}" required></textarea></div>
+    <fieldset class="field inline-choice"><legend class="lead">Comment as</legend>
+      <label class="choice"><input type="radio" name="anonymous" value="0" checked> {{ g.participant.first_name or 'My first name' }}</label>
+      <label class="choice"><input type="radio" name="anonymous" value="1"> Anonymous</label>
+    </fieldset>
+    <button class="button" type="submit">Comment</button>
+  </form>
+</section>
+
+{% if post.participant_id != g.participant.id %}
+<details class="center report-post"><summary class="link-button">Report this post</summary>
+  <form method="post" action="{{ url_for('reflect.win_report', post_id=post.id) }}" class="stack report-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="visually-hidden" for="reason">Why? (optional)</label>
+    <input type="text" id="reason" name="reason" maxlength="300" placeholder="Why? (optional)">
+    <button class="button secondary compact" type="submit">Report to program team</button>
+  </form>
+</details>
+{% endif %}
+{% endblock %}

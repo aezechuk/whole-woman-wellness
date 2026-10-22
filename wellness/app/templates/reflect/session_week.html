@@ -9,6 +9,13 @@
   <p>{{ week.overview }}</p>
 </section>
 
+{% if nudge_win %}
+<section class="card stack added-card">
+  <p class="kicker">THAT'S A WIN 💜</p>
+  <p>5 or more days is worth celebrating. Want to share it with the group?</p>
+  <a class="button cal-button" href="{{ url_for('reflect.wins_wall', share=1) }}#share">Share my win</a>
+</section>
+{% endif %}
 {% if due %}{% include "reflect/_intention_checkin.html" %}{% endif %}
 
 <section class="card stack" id="intention">
@@ -45,6 +52,8 @@
     {% include "reflect/_feedback_form.html" %}
   {% endif %}
 </section>
+
+<a class="row-link" href="{{ url_for('reflect.wins_wall', week=week.key) }}"><span><strong>Wins from {{ week.name }}</strong><span class="muted small block">{{ week_wins }} shared · cheer each other on</span></span><span aria-hidden="true">›</span></a>
 
 <p class="center"><a href="{{ url_for('reflect.sessions') }}">All sessions</a></p>
 {% if added %}<span hidden data-open-calendar="{{ url_for('reflect.intention_calendar', intention_id=added.id) }}"></span>{% endif %}

@@ -1,0 +1,6 @@
+{% extends "email/base.html" %}
+{% block body %}
+<p>A <strong>{{ what }}</strong> on the wins wall was reported by a participant.</p>
+{% with href=review_link, label="Review in admin" %}{% include "email/_button.html" %}{% endwith %}
+<p style="font-size:13px;color:#6B5670">You can delete it or dismiss the report there.</p>
+{% endblock %}

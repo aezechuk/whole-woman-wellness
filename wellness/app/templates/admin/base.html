@@ -16,6 +16,7 @@
       <a href="{{ url_for('admin.funder') }}">Funder report</a>
       <a href="{{ url_for('admin.feedback') }}">Session feedback</a>
       <a href="{{ url_for('admin.testimonials') }}">Testimonials</a>
+      <a href="{{ url_for('admin.wins') }}">Wins wall</a>
       <a href="{{ url_for('admin.program_settings') }}">Program</a>
       <form method="post" action="{{ url_for('admin.signout') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

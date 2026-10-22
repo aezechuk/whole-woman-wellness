@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block title %}Wins wall{% endblock %}
+{% macro name(item) %}{{ 'Anonymous' if item.anonymous else (item.author.first_name or 'A participant') }}{% endmacro %}
+{% macro del_post(post) %}<form method="post" action="{{ url_for('admin.wins_delete_post', post_id=post.id) }}" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button danger-link" type="submit">Delete post</button></form>{% endmacro %}
+{% macro del_comment(c) %}<form method="post" action="{{ url_for('admin.wins_delete_comment', comment_id=c.id) }}" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button danger-link" type="submit">Delete comment</button></form>{% endmacro %}
+{% block content %}
+<h1 class="title">Wins wall</h1>
+<div class="stat-grid">
+  <div class="stat"><span class="stat-num">{{ s.posts }}</span><span>wins shared</span></div>
+  <div class="stat"><span class="stat-num">{{ s.posters }}</span><span>people posted</span></div>
+  <div class="stat"><span class="stat-num">{{ s.comments }}</span><span>comments</span></div>
+  <div class="stat"><span class="stat-num">{{ s.cheers }}</span><span>cheers</span></div>
+</div>
+
+<h2 class="h2">Reported ({{ reports|length }})</h2>
+{% for r in reports %}
+<div class="card stack reported">
+  {% if r.comment %}
+    <p class="small muted">Comment by {{ name(r.comment) }} on a post by {{ name(r.comment.post) }}</p>
+    <p class="win-body">{{ r.comment.body }}</p>
+  {% else %}
+    <p class="small muted">Post by {{ name(r.post) }}</p>
+    <p class="win-body">{{ r.post.body }}</p>
+  {% endif %}
+  {% if r.reason %}<p class="small"><strong>Reason given:</strong> {{ r.reason }}</p>{% endif %}
+  <div class="admin-actions">
+    {% if r.comment %}{{ del_comment(r.comment) }}{% else %}{{ del_post(r.post) }}{% endif %}
+    <form method="post" action="{{ url_for('admin.wins_dismiss_report', report_id=r.id) }}" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button" type="submit">Dismiss report</button></form>
+  </div>
+</div>
+{% else %}<p class="muted">Nothing reported.</p>{% endfor %}
+
+<h2 class="h2">All posts</h2>
+{% for post in posts %}
+<div class="card stack{{ ' reported' if post.id in reported_posts }}">
+  <p class="small muted">{{ name(post) }} · {{ (post.created_at|local).strftime('%b %d, %I:%M %p') }}{% if post.week_key %} · {{ names.get(post.week_key) }}{% endif %} · 💜 {{ post.cheers|length }}</p>
+  <p class="win-body">{{ post.body }}</p>
+  {{ del_post(post) }}
+  {% for c in post.comments %}
+  <div class="comment{{ ' reported' if c.id in reported_comments }}">
+    <p class="small muted">{{ name(c) }} · {{ (c.created_at|local).strftime('%b %d, %I:%M %p') }}</p>
+    <p class="win-body">{{ c.body }}</p>
+    {{ del_comment(c) }}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="muted">No posts yet.</p>{% endfor %}
+<p class="muted small">Deleting is permanent. Anonymous posts show as "Anonymous" here too.</p>
+{% endblock %}

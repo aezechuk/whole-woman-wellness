@@ -7,6 +7,7 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <h2 class="h2">Emails</h2>
   <label class="choice"><input type="checkbox" name="weekly_emails" {% if participant.weekly_emails %}checked{% endif %}> Email me each week's reflection prompt after the session</label>
+  <label class="choice"><input type="checkbox" name="comment_emails" {% if participant.comment_emails %}checked{% endif %}> Email me when someone comments on my wins</label>
   <p class="muted small">Sign-in codes and important program notices are always sent.</p>
   <button class="button secondary" type="submit">Save</button>
 </form>

@@ -56,6 +56,7 @@
 
 <nav class="menu" aria-label="More">
   <a href="{{ url_for('reflect.sessions') }}"><strong>Sessions</strong><span>Overview &amp; feedback</span></a>
+  <a href="{{ url_for('reflect.wins_wall') }}"><strong>Wins 💜</strong><span>Share &amp; cheer</span></a>
   <a href="{{ url_for('reflect.journal') }}"><strong>Journal</strong><span>Private reflections</span></a>
   <a href="{{ url_for('reflect.testimonials') }}"><strong>Share your experience</strong><span>Testimonials</span></a>
   {% if not participant.count_me_in_done_at %}

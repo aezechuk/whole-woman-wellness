@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Wins{% endblock %}
+{% block content %}
+<section class="feature">
+  <p class="eyebrow">CELEBRATE EACH OTHER</p>
+  <h1 class="display">wins</h1>
+  <p>Big or small, every step counts. Share what's working and cheer each other on.</p>
+</section>
+
+<form method="post" action="{{ url_for('reflect.win_create') }}" class="card stack" id="share">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="body" class="h3">Share a win</label>
+    <textarea id="body" name="body" rows="4" maxlength="{{ limit }}" placeholder="This week I finally…" required>{{ '' }}</textarea>
+  </div>
+  <div class="two-col">
+    <div class="field"><label for="week_key">Session</label>
+      <select id="week_key" name="week_key"><option value="">None</option>{% for w in weeks %}<option value="{{ w.key }}" {{ 'selected' if current and w.key == current.key }}>{{ w.name }}</option>{% endfor %}</select></div>
+    <fieldset class="field"><legend class="lead">Post as</legend>
+      <label class="choice"><input type="radio" name="anonymous" value="0" checked> {{ g.participant.first_name or 'My first name' }}</label>
+      <label class="choice"><input type="radio" name="anonymous" value="1"> Anonymous</label>
+    </fieldset>
+  </div>
+  <p class="muted small">Visible to everyone in the program. Please keep it kind; posts can be reported and removed.</p>
+  <button class="button" type="submit">Share my win</button>
+</form>
+
+<div class="win-filter">
+  <a href="{{ url_for('reflect.wins_wall') }}" class="{{ 'on' if not week }}">All</a>
+  {% for w in weeks %}<a href="{{ url_for('reflect.wins_wall', week=w.key) }}" class="{{ 'on' if week == w.key }}">{{ w.name }}</a>{% endfor %}
+</div>
+
+<section class="stack">
+  {% for post in posts %}<div id="win-{{ post.id }}">{% include "reflect/_win_card.html" %}</div>
+  {% else %}<div class="card"><p>No wins here yet. Be the first to share one!</p></div>{% endfor %}
+</section>
+{% endblock %}
