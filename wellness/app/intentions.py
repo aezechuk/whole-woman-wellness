@@ -68,6 +68,12 @@ def save(p: Participant, area_key: str, week_key: str, form, intention_id: str |
         raise IntentionError(str(exc)) from None
     if intention_id:
         it = get(p, intention_id)
+        old = json.loads(crypto.open_(it.body, _ctx(p, it.id, "intention")))
+        before = old.get("reminder")
+        wording_same = sentence(old["kind"], old["fields"]) == sentence(kind, fields)
+        if (reminder and before and before.get("added") and _same_event(before, reminder)
+                and (wording_same or reminder.get("title") != "full")):
+            reminder["added"] = True     # unchanged reminder: it's still on her calendar
         it.body, it.updated_at, it.active = _seal(p, it.id, kind, fields, reminder), utcnow(), True
     else:
         if sum(1 for i in p.intentions if i.active) >= MAX_ACTIVE:
@@ -78,6 +84,20 @@ def save(p: Participant, area_key: str, week_key: str, form, intention_id: str |
         db.session.add(it)
     db.session.commit()
     return it
+
+
+def _same_event(a: dict, b: dict) -> bool:
+    keys = ("days", "time", "minutes", "until", "title", "custom")
+    return all(a.get(k) == b.get(k) for k in keys)
+
+
+def mark_on_calendar(p: Participant, it: Intention) -> None:
+    """She downloaded the calendar file: stop offering the button for this reminder."""
+    data = json.loads(crypto.open_(it.body, _ctx(p, it.id, "intention")))
+    if data.get("reminder") and not data["reminder"].get("added"):
+        data["reminder"]["added"] = True
+        it.body = _seal(p, it.id, data["kind"], data["fields"], data["reminder"])
+        db.session.commit()
 
 
 def get(p: Participant, intention_id) -> Intention:
@@ -105,6 +125,10 @@ class View:
     history: list[dict]          # [{"week_key", "week_name", "days", "next"}]
     due: bool
     reminder: dict | None = None
+
+    @property
+    def on_calendar(self) -> bool:
+        return bool(self.reminder and self.reminder.get("added"))
 
     @property
     def reminder_text(self) -> str:

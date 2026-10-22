@@ -317,3 +317,4 @@ summary.cal-summary { list-style: none; width: 100%; cursor: pointer; gap: 8px; 
 summary.cal-summary::-webkit-details-marker { display: none; }
 summary.cal-summary .optional { font-weight: 400; opacity: .85; font-size: 13px; }
 details.reminder[open] > summary.cal-summary { background: var(--tint); color: var(--berry); }
+.on-cal { color: var(--berry); font-weight: 600; }

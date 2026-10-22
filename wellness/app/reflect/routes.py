@@ -191,11 +191,13 @@ def intention_calendar(intention_id: str):
     """A calendar file for her reminder, made on request and never stored."""
     p = g.participant
     try:
-        v = intentions.view(p, intentions.get(p, intention_id), None)
+        it = intentions.get(p, intention_id)
     except KeyError:
         abort(404)
+    v = intentions.view(p, it, None)
     if not v.reminder or not v.active:
         abort(404)
+    intentions.mark_on_calendar(p, it)
     now = utcnow()
     today = now.astimezone(program.load().tz).date()
     body = calendar_ics.build(v.id, v.reminder, v.text, v.fields.get("place", ""), today, now.replace(tzinfo=None))

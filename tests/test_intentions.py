@@ -273,3 +273,23 @@ def test_intention_without_reminder_offers_to_add_one(maya, at):
         assert "Add a calendar reminder" in page and f"edit={it.id}" in page
     form = maya.get(f"/sessions/reset?edit={it.id}&remind=1").data.decode()
     assert 'id="reminder" open' in form
+
+
+def test_calendar_button_disappears_once_added(maya, at):
+    maya.post("/intentions/reset", data=REMIND)
+    it = only(Intention)
+    assert "Add to my calendar</a>" in maya.get("/").data.decode()
+    maya.get(f"/intentions/{it.id}/calendar.ics")
+    home = maya.get("/").data.decode()
+    assert "✓ On your calendar" in home and "Add to my calendar</a>" not in home
+    assert "Add to my calendar</a>" not in maya.get("/intentions").data.decode()
+    # Re-saving unchanged keeps it on the calendar ...
+    maya.post("/intentions/reset", data={**REMIND, "intention_id": str(it.id)})
+    assert "✓ On your calendar" in maya.get("/").data.decode()
+    # ... but new wording (when the event is titled with it) brings the button back.
+    maya.post("/intentions/reset", data={**REMIND, "behavior": "take a 15-minute walk", "intention_id": str(it.id)})
+    assert "Add to my calendar</a>" in maya.get("/").data.decode()
+    maya.get(f"/intentions/{it.id}/calendar.ics")
+    maya.post("/intentions/reset", data={**REMIND, "rtime": "13:00", "intention_id": str(it.id)})
+    home = maya.get("/").data.decode()
+    assert "✓ On your calendar" not in home and "Add to my calendar</a>" in home
