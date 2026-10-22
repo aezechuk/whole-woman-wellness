@@ -121,6 +121,10 @@ def session_week(week_key: str):
     all_views = intentions.views(p)
     edit = next((v for v in all_views if v.id == request.args.get("edit")), None)
     added = next((v for v in all_views if v.id == request.args.get("added") and v.reminder and v.active), None)
+    if added is not None and not added.on_calendar:
+        # "Save & add": the page opens the calendar file as soon as it loads, so show it as added.
+        intentions.mark_on_calendar(p, intentions.get(p, added.id))
+        all_views = intentions.views(p)
     return render_template(
         "reflect/session_week.html", week=week, attendance=ATTENDANCE, happened=week.is_open(),
         feedback_done=any(f.week_key == week_key for f in p.feedback_done),

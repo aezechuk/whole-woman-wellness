@@ -68,4 +68,5 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button class="link-button center" type="submit">Sign out</button>
 </form>
+<script src="{{ url_for('static', filename='js/calendar-buttons.js') }}" defer></script>
 {% endblock %}

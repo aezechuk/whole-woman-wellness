@@ -49,4 +49,5 @@
 <p class="center"><a href="{{ url_for('reflect.sessions') }}">All sessions</a></p>
 {% if added %}<span hidden data-open-calendar="{{ url_for('reflect.intention_calendar', intention_id=added.id) }}"></span>{% endif %}
 <script src="{{ url_for('static', filename='js/intentions.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/calendar-buttons.js') }}" defer></script>
 {% endblock %}

@@ -258,6 +258,7 @@ def test_save_and_add_to_calendar_in_one_step(maya, at):
     page = maya.get(f"/sessions/reset?added={it.id}").data.decode()
     assert f'data-open-calendar="/intentions/{it.id}/calendar.ics"' in page   # opens automatically
     assert "ONE MORE TAP" not in page and page.count("I will take a 10-minute walk") == 1
+    assert "✓ On your calendar" in page and "Add to my calendar</a>" not in page
 
 
 def test_save_and_add_needs_days(maya, at):
