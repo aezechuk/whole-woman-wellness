@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Edit my win{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('reflect.win_post', post_id=post.id) }}">‹ Back to my win</a></p>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="body" class="h3">Edit my win</label>
+    <textarea id="body" name="body" rows="5" maxlength="{{ limit }}" required>{{ post.body }}</textarea>
+  </div>
+  <div class="two-col">
+    <div class="field"><label for="week_key">Session</label>
+      <select id="week_key" name="week_key"><option value="">None</option>{% for w in weeks %}<option value="{{ w.key }}" {{ 'selected' if w.key == post.week_key }}>{{ w.name }}</option>{% endfor %}</select></div>
+    <fieldset class="field"><legend class="lead">Post as</legend>
+      <label class="choice"><input type="radio" name="anonymous" value="0" {{ 'checked' if not post.anonymous }}> {{ g.participant.first_name or 'My first name' }}</label>
+      <label class="choice"><input type="radio" name="anonymous" value="1" {{ 'checked' if post.anonymous }}> Anonymous</label>
+    </fieldset>
+  </div>
+  <p class="muted small">Edited posts show "edited" so others know it changed.</p>
+  <button class="button" type="submit">Save changes</button>
+</form>
+{% endblock %}

@@ -49,6 +49,17 @@ def create_post(p: Participant, body: str | None, anonymous: bool, week_key: str
     return post
 
 
+def edit_post(p: Participant, post: WinPost, body: str | None, anonymous: bool, week_key: str | None) -> None:
+    if post.participant_id != p.id:
+        raise KeyError(post.id)
+    keys = {w.key for w in program.load().weeks}
+    text = _clean(body, POST_MAX, "win")
+    week = week_key if week_key in keys else None
+    if (text, bool(anonymous), week) != (post.body, post.anonymous, post.week_key):
+        post.body, post.anonymous, post.week_key, post.edited_at = text, bool(anonymous), week, utcnow()
+        db.session.commit()
+
+
 def get_post(post_id) -> WinPost:
     post = db.session.get(WinPost, _uuid(post_id))
     if post is None:

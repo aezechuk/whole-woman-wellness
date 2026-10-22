@@ -4,7 +4,7 @@
 <article class="card win">
   <header class="win-head">
     <span class="win-name">{{ 'A sister in the program' if post.anonymous else (post.author.first_name or 'A participant') }}</span>
-    <span class="meta">{{ (post.created_at|local).strftime('%b') }} {{ (post.created_at|local).day }}{% if post.week_key %} · {{ names.get(post.week_key, '') }}{% endif %}</span>
+    <span class="meta">{{ (post.created_at|local).strftime('%b') }} {{ (post.created_at|local).day }}{% if post.week_key %} · {{ names.get(post.week_key, '') }}{% endif %}{% if post.edited_at %} · edited{% endif %}</span>
   </header>
   <p class="win-body">{{ post.body }}</p>
   <div class="win-actions">
@@ -13,6 +13,7 @@
       <input type="hidden" name="back" value="{{ request.full_path.rstrip('?') }}#win-{{ post.id }}">
       <button class="cheer{{ ' on' if cheered }}" type="submit" aria-pressed="{{ 'true' if cheered else 'false' }}">💜 {{ post.cheers|length or '' }}<span class="visually-hidden"> cheers{{ ', you cheered' if cheered }}</span></button>
     </form>
+    {% if post.participant_id == me.id and request.endpoint != 'reflect.win_post' %}<a class="win-comments" href="{{ url_for('reflect.win_edit', post_id=post.id) }}">Edit</a>{% endif %}
     <a class="win-comments" href="{{ url_for('reflect.win_post', post_id=post.id) }}#comments">{{ post.comments|length }} comment{{ 's' if post.comments|length != 1 }}</a>
   </div>
 </article>

@@ -33,7 +33,7 @@
 <h2 class="h2">All posts</h2>
 {% for post in posts %}
 <div class="card stack{{ ' reported' if post.id in reported_posts }}">
-  <p class="small muted">{{ name(post) }} · {{ (post.created_at|local).strftime('%b %d, %I:%M %p') }}{% if post.week_key %} · {{ names.get(post.week_key) }}{% endif %} · 💜 {{ post.cheers|length }}</p>
+  <p class="small muted">{{ name(post) }} · {{ (post.created_at|local).strftime('%b %d, %I:%M %p') }}{% if post.week_key %} · {{ names.get(post.week_key) }}{% endif %}{% if post.edited_at %} · edited{% endif %} · 💜 {{ post.cheers|length }}</p>
   <p class="win-body">{{ post.body }}</p>
   {{ del_post(post) }}
   {% for c in post.comments %}

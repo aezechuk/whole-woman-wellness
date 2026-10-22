@@ -5,10 +5,13 @@
 {% include "reflect/_win_card.html" %}
 
 {% if post.participant_id == g.participant.id %}
-<form method="post" action="{{ url_for('reflect.win_delete', post_id=post.id) }}" class="center">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button class="link-button" type="submit">Delete my post</button>
-</form>
+<div class="owner-actions">
+  <a class="button secondary compact" href="{{ url_for('reflect.win_edit', post_id=post.id) }}">Edit my win</a>
+  <form method="post" action="{{ url_for('reflect.win_delete', post_id=post.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="link-button" type="submit">Delete</button>
+  </form>
+</div>
 {% endif %}
 
 <section class="card stack" id="comments">

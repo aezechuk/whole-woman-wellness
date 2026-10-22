@@ -302,6 +302,24 @@ def win_cheer(post_id: str):
     return redirect(back if back.startswith("/") and not back.startswith("//") else url_for("reflect.wins_wall"))
 
 
+@bp.route("/wins/<post_id>/edit", methods=["GET", "POST"])
+@login_required
+def win_edit(post_id: str):
+    post = _post_or_404(post_id)
+    if post.participant_id != g.participant.id:
+        abort(404)
+    if request.method == "POST":
+        try:
+            wins.edit_post(g.participant, post, request.form.get("body"), request.form.get("anonymous") == "1",
+                           request.form.get("week_key"))
+        except wins.WinError as exc:
+            flash(str(exc), "error")
+            return redirect(url_for("reflect.win_edit", post_id=post_id))
+        flash("Your win is updated.", "info")
+        return redirect(url_for("reflect.win_post", post_id=post_id))
+    return render_template("reflect/win_edit.html", post=post, weeks=program.load().weeks, limit=wins.POST_MAX)
+
+
 @bp.post("/wins/<post_id>/delete")
 @login_required
 def win_delete(post_id: str):

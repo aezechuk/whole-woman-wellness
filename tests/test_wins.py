@@ -164,3 +164,21 @@ def test_download_includes_her_wins(two):
     a.post("/wins", data={"body": "Downloaded win", "anonymous": "1"})
     body = a.get("/settings/download").data.decode()
     assert "WINS WALL" in body and "Downloaded win" in body and "(anonymous)" in body
+
+
+def test_edit_own_win(two):
+    a, b = two
+    a.post("/wins", data={"body": "Walked twice", "anonymous": "0", "week_key": "reset"})
+    post = only(WinPost)
+    assert b.get(f"/wins/{post.id}/edit").status_code == 404
+    assert b.post(f"/wins/{post.id}/edit", data={"body": "hijacked"}).status_code == 404
+    assert 'Walked twice</textarea>' in a.get(f"/wins/{post.id}/edit").data.decode()
+    r = a.post(f"/wins/{post.id}/edit", data={"body": "Walked FOUR times!", "anonymous": "1", "week_key": "embodiment"})
+    assert r.headers["Location"].endswith(f"/wins/{post.id}")
+    db.session.refresh(post)
+    assert (post.body, post.anonymous, post.week_key) == ("Walked FOUR times!", True, "embodiment")
+    page = b.get("/wins").data.decode()
+    assert "Walked FOUR times!" in page and "· edited" in page and "A sister in the program" in page
+    a.post(f"/wins/{post.id}/edit", data={"body": "  "})                      # empty is rejected
+    db.session.refresh(post)
+    assert post.body == "Walked FOUR times!"

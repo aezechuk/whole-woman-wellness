@@ -306,6 +306,7 @@ class WinPost(db.Model):
     anonymous: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
     notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     author: Mapped[Participant] = relationship(back_populates="win_posts")
     comments: Mapped[list[WinComment]] = relationship(

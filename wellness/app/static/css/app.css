@@ -355,3 +355,4 @@ details.reminder[open] > summary.cal-summary { background: var(--tint); color: v
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .preview-line + .preview-line { margin-top: 6px; }
 .preview-cta { margin-top: 10px; color: var(--berry); font-weight: 600; font-size: 14px; }
+.owner-actions { display: flex; align-items: center; justify-content: center; gap: 20px; }
