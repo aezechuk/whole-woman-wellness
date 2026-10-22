@@ -19,11 +19,16 @@
   <p class="kicker">MY INTENTIONS</p>
   {% set due = intents|selectattr('due')|list %}
   {% if intents %}
-    <div>
-    {% for v in intents %}<div class="intent"><p class="h3">{{ v.text }}</p><p class="meta">{{ v.area_name }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }} · last check-in {{ v.history[-1].days }} of 7 days{% elif v.due %} · ready for a check-in{% else %} · new this week{% endif %}</p>{% if v.reminder %}<p class="meta">🗓️ {{ v.reminder_text }}</p>{% if v.on_calendar %}<p class="meta on-cal">✓ On your calendar</p>{% else %}<a class="button cal-button" href="{{ url_for('reflect.intention_calendar', intention_id=v.id) }}" target="_blank" rel="noopener"><span aria-hidden="true">🗓️</span> Add to my calendar</a><form method="post" action="{{ url_for('reflect.intention_on_calendar', intention_id=v.id) }}" class="already-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="back" value="{{ request.path }}"><button class="link-button already" type="submit">Already on my calendar</button></form>{% endif %}{% else %}{% if v.active %}<a class="button secondary cal-add" href="{{ url_for('reflect.session_week', week_key=v.area_key, edit=v.id, remind=1) }}#reminder"><span aria-hidden="true">🗓️</span> Add a calendar reminder</a>{% endif %}{% endif %}</div>{% endfor %}
-    </div>
+    {# A short preview: ones waiting for a check-in first, then the newest. The full list lives on My intentions. #}
+    {% set rest = intents|rejectattr('due')|list|reverse|list %}
+    {% set preview = (due + rest)[:2] %}
+    <a class="intent-preview" href="{{ url_for('reflect.intentions_list') }}">
+      <span class="preview-count"><strong>{{ intents|length }}</strong> going{% if due %} · <span class="due-dot">{{ due|length }} ready to check in</span>{% endif %}</span>
+      {% for v in preview %}<span class="preview-line">{{ v.text }}</span>{% endfor %}
+      {% if intents|length > 2 %}<span class="meta">+ {{ intents|length - 2 }} more</span>{% endif %}
+      <span class="preview-cta">See all my intentions ›</span>
+    </a>
     {% if due and week %}<a class="button" href="{{ url_for('reflect.session_week', week_key=week.key) }}#checkin">Check in on {{ due|length }} intention{{ 's' if due|length != 1 }}</a>{% endif %}
-    <a class="row-link plain" href="{{ url_for('reflect.intentions_list') }}"><span>Add or change an intention</span><span aria-hidden="true">›</span></a>
   {% else %}
     <p>Turn what you learn into small, specific habits. Pick one thing you'll do, and when.</p>
     <a class="button secondary" href="{{ url_for('reflect.session_week', week_key=week.key if week else 'reset') }}#intention">Set my first intention</a>

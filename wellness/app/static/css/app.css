@@ -345,3 +345,13 @@ details.reminder[open] > summary.cal-summary { background: var(--tint); color: v
 .admin-actions { display: flex; gap: 20px; }
 .inline-form { display: inline; }
 .danger-link { color: #8E1F3D !important; }
+/* Home: compact intentions preview */
+.intent-preview { display: block; text-decoration: none; color: inherit; border-left: 3px solid var(--rose); padding: 2px 0 2px 12px; }
+.intent-preview > span { display: block; }
+.preview-count { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.preview-count strong { color: var(--plum); }
+.due-dot { display: inline; color: var(--berry); font-weight: 600; }
+.intent-preview > .preview-line { font-weight: 600; font-size: 15px; color: var(--ink); line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preview-line + .preview-line { margin-top: 6px; }
+.preview-cta { margin-top: 10px; color: var(--berry); font-weight: 600; font-size: 14px; }

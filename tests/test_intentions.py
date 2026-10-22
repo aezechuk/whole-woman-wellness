@@ -92,8 +92,8 @@ def test_checkin_only_the_following_week(maya, at):
     assert (anon.days, anon.next_step, anon.area_key, anon.week_number) == (3, "keep", "reset", 1)
     cols = {c["name"] for c in inspect(db.engine).get_columns("anon_checkin")}
     assert not cols & {"participant_id", "intention_id", "created_at"}
-    home = maya.get("/").data.decode()
-    assert "kept 1 week" in home and "3 of 7 days" in home
+    home = maya.get("/intentions").data.decode()
+    assert "kept 1 week" in home and "3/7" in home
     # Only once per week.
     maya.post(f"/intentions/{it.id}/checkin", data={"days": "7", "next": "keep"})
     assert db.session.scalar(select(func.count()).select_from(AnonCheckin)) == 1
@@ -185,7 +185,7 @@ def test_reminder_saved_encrypted_and_calendar_file(maya, at):
     maya.post("/intentions/reset", data={**REMIND, "rtitle": "custom", "rcustom": "Walk, by the park; outside"})
     it = only(Intention)
     assert "12:15" not in it.body
-    home = maya.get("/").data.decode()
+    home = maya.get("/intentions").data.decode()
     assert "Mon, Wed at 12:15 PM · 15 min" in home and "Add to my calendar" in home
     r = maya.get(f"/intentions/{it.id}/calendar.ics")
     assert r.status_code == 200 and r.headers["Content-Type"].startswith("text/calendar")
@@ -238,7 +238,7 @@ def test_editing_keeps_or_removes_reminder(maya, at):
 def test_no_end_date_and_custom_title(maya, at):
     maya.post("/intentions/reset", data={**REMIND, "runtil": "forever", "rtitle": "custom", "rcustom": "Lunch walk, outside"})
     it = only(Intention)
-    assert "no end date" in maya.get("/").data.decode()
+    assert "no end date" in maya.get("/intentions").data.decode()
     ics = maya.get(f"/intentions/{it.id}/calendar.ics").data.decode().replace("\r\n ", "")
     assert "RRULE:FREQ=WEEKLY;BYDAY=MO,WE\r\n" in ics and "UNTIL" not in ics
     assert "SUMMARY:Lunch walk\\, outside" in ics and "LOCATION" not in ics
@@ -269,7 +269,7 @@ def test_save_and_add_needs_days(maya, at):
 def test_intention_without_reminder_offers_to_add_one(maya, at):
     maya.post("/intentions/reset", data=WALK)
     it = only(Intention)
-    for page in (maya.get("/").data.decode(), maya.get("/intentions").data.decode()):
+    for page in (maya.get("/sessions/reset").data.decode(), maya.get("/intentions").data.decode()):
         assert "Add a calendar reminder" in page and f"edit={it.id}" in page
     form = maya.get(f"/sessions/reset?edit={it.id}&remind=1").data.decode()
     assert 'id="reminder" open' in form
@@ -278,19 +278,19 @@ def test_intention_without_reminder_offers_to_add_one(maya, at):
 def test_calendar_button_disappears_once_added(maya, at):
     maya.post("/intentions/reset", data=REMIND)
     it = only(Intention)
-    assert "Add to my calendar</a>" in maya.get("/").data.decode()
+    assert "Add to my calendar</a>" in maya.get("/intentions").data.decode()
     maya.get(f"/intentions/{it.id}/calendar.ics")
-    home = maya.get("/").data.decode()
+    home = maya.get("/intentions").data.decode()
     assert "✓ On your calendar" in home and "Add to my calendar</a>" not in home
     assert "Add to my calendar</a>" not in maya.get("/intentions").data.decode()
     # Re-saving unchanged keeps it on the calendar ...
     maya.post("/intentions/reset", data={**REMIND, "intention_id": str(it.id)})
-    assert "✓ On your calendar" in maya.get("/").data.decode()
+    assert "✓ On your calendar" in maya.get("/intentions").data.decode()
     # ... and so does new wording (the event title doesn't include it).
     maya.post("/intentions/reset", data={**REMIND, "behavior": "take a 15-minute walk", "intention_id": str(it.id)})
-    assert "✓ On your calendar" in maya.get("/").data.decode()
+    assert "✓ On your calendar" in maya.get("/intentions").data.decode()
     maya.post("/intentions/reset", data={**REMIND, "rtime": "13:00", "intention_id": str(it.id)})
-    home = maya.get("/").data.decode()
+    home = maya.get("/intentions").data.decode()
     assert "✓ On your calendar" not in home and "Add to my calendar</a>" in home
 
 
@@ -303,7 +303,7 @@ def test_mark_already_on_calendar_without_download(app, at):
     assert b.post(f"/intentions/{it.id}/on-calendar").status_code == 404
     r = a.post(f"/intentions/{it.id}/on-calendar", data={"back": "/intentions"})
     assert r.headers["Location"].endswith("/intentions")
-    assert "✓ On your calendar" in a.get("/").data.decode()
+    assert "✓ On your calendar" in a.get("/intentions").data.decode()
     assert a.post(f"/intentions/{it.id}/on-calendar", data={"back": "https://evil.example"}).headers["Location"].endswith("/")
 
 
@@ -313,3 +313,12 @@ def test_title_choices_are_neutral_or_custom(maya, at):
     maya.post("/intentions/reset", data={k: v for k, v in REMIND.items() if k != "rtitle"})
     ics = maya.get(f"/intentions/{only(Intention).id}/calendar.ics").data.decode()
     assert "SUMMARY:Self-Care: My Intention" in ics
+
+
+def test_home_shows_a_short_preview(maya, at):
+    for i in range(5):
+        maya.post("/intentions/reset", data={**WALK, "behavior": f"habit number {i}"})
+    home = maya.get("/").data.decode()
+    assert "<strong>5</strong> going" in home and "+ 3 more" in home and "See all my intentions" in home
+    assert "habit number 4" in home and "habit number 3" in home and "habit number 0" not in home   # newest first
+    assert "Add to my calendar" not in home and "Add a calendar reminder" not in home
