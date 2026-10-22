@@ -287,3 +287,19 @@ details.card .field + .field { margin-top: 24px; }
 .checkin-sep { border-top: 1px solid var(--line); padding-top: 18px; }
 .intent-actions { display: flex; gap: 18px; align-items: center; margin-top: 6px; font-size: 13.5px; }
 .intent-actions .link-button { font-size: 13.5px; }
+/* Calendar reminder */
+details.reminder { border-top: 1px solid var(--line); padding-top: 8px; }
+.reminder-body { margin-top: 8px; }
+.daypick { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.daypick label { position: relative; }
+.daypick span[aria-hidden] { height: 40px; border-radius: 999px; border: 1.5px solid var(--control); display: flex;
+  align-items: center; justify-content: center; font-weight: 600; color: var(--plum); background: #fff; cursor: pointer; }
+.daypick input:checked + span { background: var(--plum); border-color: var(--plum); color: #fff; }
+.daypick input:focus-visible + span { outline: 3px solid var(--rose); outline-offset: 2px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.two-col .field + .field { margin-top: 0; }
+input[type=time] { width: 100%; min-height: 48px; padding: 10px 14px; font: inherit; border: 1.5px solid var(--control);
+  border-radius: 12px; background: #fff; color: var(--ink); }
+.field select { min-height: 48px; }
+.cal-link { display: inline-flex; align-items: center; min-height: 36px; margin-top: 8px; padding: 0 14px; border-radius: 999px;
+  border: 1.5px solid var(--plum); color: var(--plum); font-weight: 600; font-size: 13px; text-decoration: none; }

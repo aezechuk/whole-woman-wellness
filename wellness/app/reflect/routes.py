@@ -12,7 +12,7 @@ from flask import (Response, abort, current_app, flash, g, make_response, redire
                    render_template, request, url_for)
 from sqlalchemy import delete, select
 
-from .. import crypto, intentions, notify, program
+from .. import calendar_ics, crypto, intentions, notify, program
 from ..extensions import db
 from ..models import (FeedbackDone, JournalEntry, Participant, SessionFeedback, SignInCode,
                       Testimonial, utcnow)
@@ -126,7 +126,8 @@ def session_week(week_key: str):
         is_current=current is not None and current.key == week.key,
         due=[v for v in all_views if v.due] if current is not None and current.key == week.key else [],
         mine=[v for v in all_views if v.active and v.area_key == week.key],
-        edit=edit, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS)
+        edit=edit, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
+        reminder_days=calendar_ics.DAYS, reminder_durations=calendar_ics.DURATIONS, reminder_until=calendar_ics.UNTIL)
 
 
 # ---- intentions --------------------------------------------------------------------
@@ -175,6 +176,26 @@ def intentions_list():
     return render_template("reflect/intentions.html", views=intentions.views(p),
                            current=program.load().current_week(), focus=_focus_keys(p),
                            weeks=program.load().weeks)
+
+
+@bp.get("/intentions/<intention_id>/calendar.ics")
+@login_required
+def intention_calendar(intention_id: str):
+    """A calendar file for her reminder, made on request and never stored."""
+    p = g.participant
+    try:
+        v = intentions.view(p, intentions.get(p, intention_id), None)
+    except KeyError:
+        abort(404)
+    if not v.reminder or not v.active:
+        abort(404)
+    now = utcnow()
+    today = now.astimezone(program.load().tz).date()
+    body = calendar_ics.build(v.id, v.reminder, v.text, v.fields.get("place", ""), today, now.replace(tzinfo=None))
+    resp = make_response(body)
+    resp.headers["Content-Type"] = "text/calendar; charset=utf-8"
+    resp.headers["Content-Disposition"] = 'inline; filename="my-intention.ics"'
+    return resp
 
 
 @bp.post("/intentions/<intention_id>/let-go")

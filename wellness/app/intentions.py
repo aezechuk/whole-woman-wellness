@@ -13,7 +13,7 @@ import json
 import uuid
 from dataclasses import dataclass
 
-from . import crypto, program
+from . import calendar_ics, crypto, program
 from .extensions import db
 from .models import AnonCheckin, Intention, IntentionCheckin, Participant, utcnow
 
@@ -55,21 +55,26 @@ def parse(form) -> tuple[str, dict]:
     return kind, fields
 
 
-def _seal(p: Participant, intention_id, kind: str, fields: dict) -> str:
-    return crypto.seal(json.dumps({"kind": kind, "fields": fields}), _ctx(p, intention_id, "intention"))
+def _seal(p: Participant, intention_id, kind: str, fields: dict, reminder: dict | None = None) -> str:
+    return crypto.seal(json.dumps({"kind": kind, "fields": fields, "reminder": reminder}),
+                       _ctx(p, intention_id, "intention"))
 
 
 def save(p: Participant, area_key: str, week_key: str, form, intention_id: str | None = None) -> Intention:
     kind, fields = parse(form)
+    try:
+        reminder = calendar_ics.parse(form)
+    except calendar_ics.ReminderError as exc:
+        raise IntentionError(str(exc)) from None
     if intention_id:
         it = get(p, intention_id)
-        it.body, it.updated_at, it.active = _seal(p, it.id, kind, fields), utcnow(), True
+        it.body, it.updated_at, it.active = _seal(p, it.id, kind, fields, reminder), utcnow(), True
     else:
         if sum(1 for i in p.intentions if i.active) >= MAX_ACTIVE:
             raise IntentionError(f"You have {MAX_ACTIVE} intentions going. Let one go before adding another.")
         program.load().week(area_key)  # KeyError for an unknown area
         it = Intention(id=uuid.uuid4(), participant_id=p.id, area_key=area_key, week_key=week_key, body="")
-        it.body = _seal(p, it.id, kind, fields)
+        it.body = _seal(p, it.id, kind, fields, reminder)
         db.session.add(it)
     db.session.commit()
     return it
@@ -99,6 +104,11 @@ class View:
     set_in: str
     history: list[dict]          # [{"week_key", "week_name", "days", "next"}]
     due: bool
+    reminder: dict | None = None
+
+    @property
+    def reminder_text(self) -> str:
+        return calendar_ics.describe(self.reminder) if self.reminder else ""
 
     @property
     def weeks_kept(self) -> int:
@@ -120,7 +130,8 @@ def view(p: Participant, it: Intention, current: program.Week | None) -> View:
                and _week_index(current.key) > _week_index(it.week_key)
                and all(c.week_key != current.key for c in it.checkins))
     return View(str(it.id), it.area_key, names.get(it.area_key, it.area_key), data["kind"], data["fields"],
-                sentence(data["kind"], data["fields"]), it.active, it.week_key, history, due)
+                sentence(data["kind"], data["fields"]), it.active, it.week_key, history, due,
+                data.get("reminder"))
 
 
 def views(p: Participant) -> list[View]:

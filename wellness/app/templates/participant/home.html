@@ -20,7 +20,7 @@
   {% set due = intents|selectattr('due')|list %}
   {% if intents %}
     <div>
-    {% for v in intents %}<div class="intent"><p class="h3">{{ v.text }}</p><p class="meta">{{ v.area_name }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }} · last check-in {{ v.history[-1].days }} of 7 days{% elif v.due %} · ready for a check-in{% else %} · new this week{% endif %}</p></div>{% endfor %}
+    {% for v in intents %}<div class="intent"><p class="h3">{{ v.text }}</p><p class="meta">{{ v.area_name }}{% if v.weeks_kept %} · kept {{ v.weeks_kept }} week{{ 's' if v.weeks_kept != 1 }} · last check-in {{ v.history[-1].days }} of 7 days{% elif v.due %} · ready for a check-in{% else %} · new this week{% endif %}</p>{% if v.reminder %}<p class="meta">🗓️ {{ v.reminder_text }}</p><a class="cal-link" href="{{ url_for('reflect.intention_calendar', intention_id=v.id) }}" target="_blank" rel="noopener">Add to calendar</a>{% endif %}</div>{% endfor %}
     </div>
     {% if due and week %}<a class="button" href="{{ url_for('reflect.session_week', week_key=week.key) }}#checkin">Check in on {{ due|length }} intention{{ 's' if due|length != 1 }}</a>{% endif %}
     <a class="row-link plain" href="{{ url_for('reflect.intentions_list') }}"><span>Add or change an intention</span><span aria-hidden="true">›</span></a>

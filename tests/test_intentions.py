@@ -173,3 +173,63 @@ def test_download_and_delete(maya, at):
     assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
     assert db.session.scalar(select(func.count()).select_from(IntentionCheckin)) == 0
     assert db.session.scalar(select(func.count()).select_from(AnonCheckin)) == 1   # anonymous, stays for the report
+
+
+# --- calendar reminders -------------------------------------------------------------
+
+REMIND = {**WALK, "rdays": ["MO", "WE"], "rtime": "12:15", "rminutes": "15", "runtil": "program", "rtitle": "full"}
+
+
+def test_reminder_saved_encrypted_and_calendar_file(maya, at):
+    maya.post("/intentions/reset", data={**REMIND, "place": "around the block, by the park"})
+    it = only(Intention)
+    assert "12:15" not in it.body
+    home = maya.get("/").data.decode()
+    assert "Mon, Wed at 12:15 PM · 15 min" in home and "Add to calendar" in home
+    r = maya.get(f"/intentions/{it.id}/calendar.ics")
+    assert r.status_code == 200 and r.headers["Content-Type"].startswith("text/calendar")
+    assert r.headers["Cache-Control"] == "no-store"
+    ics = r.data.decode()
+    assert ics.startswith("BEGIN:VCALENDAR\r\n") and ics.endswith("END:VCALENDAR\r\n")
+    assert "DTSTART:20261026T121500" in ics          # first Monday on/after Thu Oct 22
+    assert "DTEND:20261026T123000" in ics
+    assert "RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20261130T235959" in ics
+    assert "TRIGGER:-PT10M" in ics
+    assert "LOCATION:around the block\\, by the park" in ics
+    assert all(len(line.encode()) <= 75 for line in ics.split("\r\n"))
+    unfolded = ics.replace("\r\n ", "")
+    assert "SUMMARY:I will take a 10-minute walk on my lunch break around the block\\, by the park." in unfolded
+
+
+def test_neutral_title_keeps_wording_out_of_calendar(maya, at):
+    maya.post("/intentions/reset", data={**REMIND, "rtitle": "neutral", "runtil": "4"})
+    ics = maya.get(f"/intentions/{only(Intention).id}/calendar.ics").data.decode().replace("\r\n ", "")
+    assert "SUMMARY:Self-care: my intention" in ics and "walk" not in ics and "LOCATION" not in ics
+    assert "UNTIL=20261119T235959" in ics           # 4 weeks from Oct 22
+
+
+def test_reminder_needs_a_time(maya, at):
+    maya.post("/intentions/reset", data={**REMIND, "rtime": ""})
+    assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
+    assert "Pick a time" in maya.get("/sessions/reset").data.decode()
+
+
+def test_no_reminder_no_calendar_and_owner_only(app, at):
+    a, b = app.test_client(), app.test_client()
+    onboard(a, "a@example.com")
+    onboard(b, "b@example.com")
+    a.post("/intentions/reset", data=WALK)
+    plain = only(Intention)
+    assert a.get(f"/intentions/{plain.id}/calendar.ics").status_code == 404
+    a.post("/intentions/reset", data={**REMIND, "intention_id": str(plain.id)})
+    assert a.get(f"/intentions/{plain.id}/calendar.ics").status_code == 200
+    assert b.get(f"/intentions/{plain.id}/calendar.ics").status_code == 404
+
+
+def test_editing_keeps_or_removes_reminder(maya, at):
+    maya.post("/intentions/reset", data=REMIND)
+    it = only(Intention)
+    page = maya.get(f"/sessions/reset?edit={it.id}").data.decode()
+    assert 'value="12:15"' in page and 'value="MO" checked' in page
+    maya.post("/intentions/reset", data={**WALK, "intention_id": str(it.id)})   # no days = no reminder
+    assert maya.get(f"/intentions/{it.id}/calendar.ics").status_code == 404

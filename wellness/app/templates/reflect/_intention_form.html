@@ -35,6 +35,31 @@
   </div>
 
   <p class="sentence" data-sentence aria-live="polite" hidden></p>
+
+  {% set r = edit.reminder if edit and edit.reminder else {} %}
+  <details class="reminder" {{ 'open' if r }}>
+    <summary class="summary"><span class="lead">Add a reminder to my calendar</span> <span class="muted small">(optional)</span></summary>
+    <div class="stack reminder-body">
+      <fieldset class="field">
+        <legend class="lead">Which days?</legend>
+        <div class="daypick">{% for code, letter, name in reminder_days %}<label><input class="visually-hidden" type="checkbox" name="rdays" value="{{ code }}" {{ 'checked' if code in r.get('days', []) }}><span aria-hidden="true">{{ letter }}</span><span class="visually-hidden">{{ name }}</span></label>{% endfor %}</div>
+      </fieldset>
+      <div class="two-col">
+        <div class="field"><label for="rtime">Time</label><input type="time" id="rtime" name="rtime" value="{{ r.get('time', '') }}"></div>
+        <div class="field"><label for="rminutes">How long</label>
+          <select id="rminutes" name="rminutes">{% for mins in reminder_durations %}<option value="{{ mins }}" {{ 'selected' if mins == r.get('minutes', 15) }}>{{ mins }} min</option>{% endfor %}</select></div>
+      </div>
+      <div class="field"><label for="runtil">Repeat</label>
+        <select id="runtil" name="runtil">{% for key, label in reminder_until.items() %}<option value="{{ key }}" {{ 'selected' if key == r.get('until', 'program') }}>{{ label }}</option>{% endfor %}</select></div>
+      <fieldset class="field">
+        <legend class="lead">Event title</legend>
+        <label class="choice"><input type="radio" name="rtitle" value="full" {{ 'checked' if r.get('title', 'full') == 'full' }}> My intention</label>
+        <label class="choice"><input type="radio" name="rtitle" value="neutral" {{ 'checked' if r.get('title') == 'neutral' }}> "Self-care: my intention"</label>
+        <p class="hint">Pick the second if your calendar is shared or synced with work.</p>
+      </fieldset>
+      <p class="muted small">After you save, tap <strong>Add to calendar</strong>. Your phone adds a repeating event with an alert 10 minutes before. Nothing about your calendar comes back to this app.</p>
+    </div>
+  </details>
   <p class="muted small">Private to you, like your journal. Next week we'll ask how it went.</p>
   <button class="button" type="submit">{{ 'Save changes' if edit else 'Save my intention' }}</button>
 </form>
