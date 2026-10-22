@@ -211,3 +211,8 @@ def test_typo_suggested_then_original_can_be_confirmed(client):
 def test_admin_signin_rejects_incomplete_email(client):
     r = client.post("/admin/signin", data={"email": "elle@example"})
     assert r.status_code == 400 and mail.OUTBOX == []
+
+
+def test_static_urls_are_versioned(client):
+    html = client.get("/start").data.decode()
+    assert "/static/css/app.css?v=" in html and "/static/img/arthentic-logo.png?v=" in html

@@ -249,3 +249,17 @@ def test_custom_title_required_when_chosen(maya, at):
     maya.post("/intentions/reset", data={**REMIND, "rtitle": "custom", "rcustom": "  "})
     assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
     assert "Add a title for your calendar event" in maya.get("/sessions/reset").data.decode()
+
+
+def test_save_and_add_to_calendar_in_one_step(maya, at):
+    r = maya.post("/intentions/reset", data={**REMIND, "then": "calendar"})
+    it = only(Intention)
+    assert r.headers["Location"].endswith(f"/sessions/reset?added={it.id}#added")
+    page = maya.get(f"/sessions/reset?added={it.id}").data.decode()
+    assert "SAVED! ONE MORE TAP" in page and f"/intentions/{it.id}/calendar.ics" in page
+
+
+def test_save_and_add_needs_days(maya, at):
+    maya.post("/intentions/reset", data={**WALK, "then": "calendar"})
+    assert db.session.scalar(select(func.count()).select_from(Intention)) == 0
+    assert "Pick at least one day" in maya.get("/sessions/reset").data.decode()

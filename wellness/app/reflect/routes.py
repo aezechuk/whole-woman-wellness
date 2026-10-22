@@ -120,13 +120,14 @@ def session_week(week_key: str):
     current = program.load().current_week()
     all_views = intentions.views(p)
     edit = next((v for v in all_views if v.id == request.args.get("edit")), None)
+    added = next((v for v in all_views if v.id == request.args.get("added") and v.reminder and v.active), None)
     return render_template(
         "reflect/session_week.html", week=week, attendance=ATTENDANCE, happened=week.is_open(),
         feedback_done=any(f.week_key == week_key for f in p.feedback_done),
         is_current=current is not None and current.key == week.key,
         due=[v for v in all_views if v.due] if current is not None and current.key == week.key else [],
         mine=[v for v in all_views if v.active and v.area_key == week.key],
-        edit=edit, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
+        edit=edit, added=added, is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
         reminder_days=calendar_ics.DAYS, reminder_durations=calendar_ics.DURATIONS, reminder_until=calendar_ics.UNTIL)
 
 
@@ -138,14 +139,19 @@ def intention_save(week_key: str):
     p = g.participant
     week = _open_week(week_key)
     current = program.load().current_week()
+    wants_calendar = request.form.get("then") == "calendar"
     try:
-        intentions.save(p, area_key=week.key, week_key=(current or week).key, form=request.form,
-                        intention_id=request.form.get("intention_id") or None)
+        if wants_calendar and not request.form.getlist("rdays"):
+            raise intentions.IntentionError("Pick at least one day for your calendar reminder.")
+        it = intentions.save(p, area_key=week.key, week_key=(current or week).key, form=request.form,
+                             intention_id=request.form.get("intention_id") or None)
     except KeyError:
         abort(404)
     except intentions.IntentionError as exc:
         flash(str(exc), "error")
         return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
+    if wants_calendar:
+        return redirect(url_for("reflect.session_week", week_key=week.key, added=str(it.id)) + "#added")
     flash("Your intention is saved.", "info")
     return redirect(url_for("reflect.session_week", week_key=week.key) + "#intention")
 

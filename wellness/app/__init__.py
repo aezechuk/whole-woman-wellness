@@ -54,6 +54,26 @@ def create_app(env: str | None = None) -> Flask:
     app.register_blueprint(reflect_bp)
     app.register_blueprint(admin_bp)
 
+    # Cache-busting: every static URL carries a short hash of the file, so phones
+    # fetch fresh CSS/JS/images after each deploy instead of reusing a stale copy.
+    import hashlib
+    from functools import lru_cache
+
+    @lru_cache(maxsize=256)
+    def _static_version(filename: str) -> str:
+        try:
+            with app.open_resource(f"static/{filename}") as f:
+                return hashlib.sha256(f.read()).hexdigest()[:10]
+        except (FileNotFoundError, OSError):
+            return ""
+
+    @app.url_defaults
+    def _bust_static(endpoint, values):
+        if endpoint == "static" and "filename" in values and "v" not in values:
+            v = _static_version(values["filename"])
+            if v:
+                values["v"] = v
+
     @app.get("/healthz")
     @limiter.exempt
     def healthz():

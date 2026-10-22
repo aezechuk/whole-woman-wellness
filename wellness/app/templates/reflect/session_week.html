@@ -10,6 +10,15 @@
 
 {% if due %}{% include "reflect/_intention_checkin.html" %}{% endif %}
 
+{% if added %}
+<section class="card stack added-card" id="added">
+  <p class="kicker">SAVED! ONE MORE TAP</p>
+  <div class="intent"><p class="h3">{{ added.text }}</p><p class="meta">🗓️ {{ added.reminder_text }}</p></div>
+  <a class="button cal-button" href="{{ url_for('reflect.intention_calendar', intention_id=added.id) }}" target="_blank" rel="noopener"><span aria-hidden="true">🗓️</span> Add to my calendar</a>
+  <p class="muted small">Your phone will ask to add the repeating event. You can come back to this button anytime from Home.</p>
+</section>
+{% endif %}
+
 <section class="card stack" id="intention">
   <p class="kicker">{{ 'ADJUST YOUR INTENTION' if edit else 'SET AN INTENTION' }}</p>
   <div>
