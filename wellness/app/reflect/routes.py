@@ -205,7 +205,7 @@ def intention_calendar(intention_id: str):
     if not v.reminder or not v.active:
         abort(404)
     intentions.mark_on_calendar(p, it)
-    now = utcnow()
+    now = program.utcnow()
     today = now.astimezone(program.load().tz).date()
     body = calendar_ics.build(v.id, v.reminder, v.text, v.fields.get("place", ""), today, now.replace(tzinfo=None))
     resp = make_response(body)

@@ -216,3 +216,22 @@ def test_admin_signin_rejects_incomplete_email(client):
 def test_static_urls_are_versioned(client):
     html = client.get("/start").data.decode()
     assert "/static/css/app.css?v=" in html and "/static/img/arthentic-logo.png?v=" in html
+
+
+def test_sign_in_lasts_14_days_of_inactivity_and_slides_with_use(client, app, monkeypatch):
+    from datetime import timedelta
+    from wellness.app.auth import service
+    onboard(client)
+    sess = db.session.scalar(select(AuthSession))
+    start = utcnow()
+    assert timedelta(days=13, hours=23) < service._aware(sess.expires_at) - start <= timedelta(days=14)
+    # Used again 10 days later: the deadline moves to 14 days from then, and the cookie is refreshed.
+    later = start + timedelta(days=10)
+    monkeypatch.setattr(service, "utcnow", lambda: later)
+    r = client.get("/")
+    assert r.status_code == 200 and "Max-Age=1209600" in r.headers.get("Set-Cookie", "")
+    db.session.refresh(sess)
+    assert service._aware(sess.expires_at) - later > timedelta(days=13, hours=23)
+    # Then 15 days of no use: signed out.
+    monkeypatch.setattr(service, "utcnow", lambda: later + timedelta(days=15))
+    assert client.get("/").headers["Location"].endswith("/start")

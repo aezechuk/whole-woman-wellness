@@ -16,7 +16,9 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "Lax"
     AUTH_COOKIE_NAME = "wwsid"
-    AUTH_SESSION_LIFETIME = timedelta(days=60)
+    # Sliding: a participant stays signed in while she keeps using the app; after this
+    # long with no activity she has to sign in again with an email code.
+    AUTH_SESSION_LIFETIME = timedelta(days=14)
 
     # Sign-in codes
     SIGNIN_CODE_TTL = timedelta(minutes=10)

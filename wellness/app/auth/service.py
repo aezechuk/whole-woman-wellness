@@ -13,7 +13,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from flask import current_app
+from flask import current_app, g
 from sqlalchemy import func, select
 
 from ..extensions import db
@@ -160,12 +160,25 @@ def start_session(participant: Participant) -> str:
     return token
 
 
-def participant_for_token(token: str | None) -> Participant | None:
+# Extend at most once an hour, so normal browsing doesn't write to the database on every click.
+_EXTEND_EVERY = timedelta(hours=1)
+
+
+def participant_for_token(token: str | None, extend: bool = False) -> Participant | None:
+    """The signed-in participant, or None. With extend=True, activity pushes the
+    inactivity deadline out again (14 days from now)."""
     if not token:
         return None
     sess = db.session.scalar(select(AuthSession).where(AuthSession.token_hash == _token_hash(token)))
-    if sess is None or sess.revoked_at is not None or _aware(sess.expires_at) < utcnow():
+    now = utcnow()
+    if sess is None or sess.revoked_at is not None or _aware(sess.expires_at) < now:
         return None
+    if extend:
+        new_expiry = now + current_app.config["AUTH_SESSION_LIFETIME"]
+        if new_expiry - _aware(sess.expires_at) >= _EXTEND_EVERY:
+            sess.expires_at = new_expiry
+            db.session.commit()
+            g.auth_extended = True
     return sess.participant
 
 

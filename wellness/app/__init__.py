@@ -99,7 +99,8 @@ def create_app(env: str | None = None) -> Flask:
 
     @app.before_request
     def load_participant():
-        g.participant = participant_for_token(request.cookies.get(app.config["AUTH_COOKIE_NAME"]))
+        g.participant = participant_for_token(request.cookies.get(app.config["AUTH_COOKIE_NAME"]),
+                                              extend=not request.path.startswith("/static/"))
 
     @app.after_request
     def security_headers(response):
@@ -112,6 +113,12 @@ def create_app(env: str | None = None) -> Flask:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         if g.get("participant") is not None:
             response.headers["Cache-Control"] = "no-store"  # personal pages never cached
+        if g.get("auth_extended") and request.cookies.get(app.config["AUTH_COOKIE_NAME"]) \
+                and not response.headers.getlist("Set-Cookie"):
+            # Keep the browser cookie in step with the server-side 14-day inactivity window.
+            response.set_cookie(app.config["AUTH_COOKIE_NAME"], request.cookies[app.config["AUTH_COOKIE_NAME"]],
+                                max_age=int(app.config["AUTH_SESSION_LIFETIME"].total_seconds()), httponly=True,
+                                secure=app.config["SESSION_COOKIE_SECURE"], samesite="Lax", path="/")
         return response
 
     @app.cli.command("create-cohort")
