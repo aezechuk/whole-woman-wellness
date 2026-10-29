@@ -2,7 +2,18 @@
 {% block title %}Reflection journal{% endblock %}
 {% block content %}
 <h1 class="display-sm">reflection journal</h1>
-<div class="card lock-note"><p class="small">Your reflections are encrypted and aren't visible to program staff.</p></div>
+<div class="card lock-note stack">
+  <p class="small">Your reflections are encrypted and aren't visible to program staff.</p>
+  {% if g.participant.pin_hash %}
+    <form method="post" action="{{ url_for('reflect.pin_lock') }}" class="pin-row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <span class="small">🔒 PIN is on</span>
+      <button class="link-button" type="submit">Lock now</button>
+    </form>
+  {% else %}
+    <p class="small"><a href="{{ url_for('reflect.pin_setup') }}">Add a PIN (optional)</a> so no one holding your phone can open your reflections or results.</p>
+  {% endif %}
+</div>
 
 {% if current %}
 <section class="feature">

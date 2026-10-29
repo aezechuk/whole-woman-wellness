@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Change' if changing else 'Add' }} your PIN{% endblock %}
+{% block content %}
+<h1 class="title">{{ 'Change your PIN' if changing else 'Add a PIN' }}</h1>
+{% if not changing %}
+<div class="card stack">
+  <p>A PIN is an extra lock on your <strong>reflections</strong> and <strong>assessment results</strong>, in case someone else picks up your phone.</p>
+  <ul class="small tight">
+    <li>You'll enter it after 15 minutes away, or whenever you tap <em>Lock now</em>.</li>
+    <li>Forget it? We'll email you a code to set a new one.</li>
+    <li>It's optional. You can turn it off any time in Settings.</li>
+  </ul>
+</div>
+{% endif %}
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field">
+    <label for="pin">{{ 'New PIN' if changing else 'Choose a PIN' }} <span class="muted small">(4 to 6 numbers)</span></label>
+    <input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6"
+           autocomplete="off" required class="code-input">
+  </div>
+  <div class="field">
+    <label for="confirm">Type it again</label>
+    <input id="confirm" name="confirm" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6"
+           autocomplete="off" required class="code-input">
+  </div>
+  <button class="button" type="submit">{{ 'Save new PIN' if changing else 'Turn on my PIN' }}</button>
+</form>
+<p class="center"><a href="{{ url_for('reflect.settings') }}">Not now</a></p>
+{% endblock %}

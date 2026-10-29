@@ -12,7 +12,8 @@ from flask import (Response, abort, current_app, flash, g, make_response, redire
                    render_template, request, url_for)
 from sqlalchemy import delete, select
 
-from .. import calendar_ics, crypto, intentions, notify, program, wins
+from .. import calendar_ics, crypto, intentions, mail, notify, pin, program, wins
+from ..auth import service as auth_service
 from ..extensions import db, limiter
 from ..models import (FeedbackDone, JournalEntry, Participant, SessionFeedback, SignInCode,
                       Testimonial, utcnow)
@@ -51,6 +52,7 @@ def journal():
 
 @bp.route("/journal/<week_key>", methods=["GET", "POST"])
 @login_required
+@pin.pin_required
 def journal_week(week_key: str):
     p = g.participant
     week = _open_week(week_key)
@@ -509,6 +511,7 @@ def settings():
 
 @bp.get("/settings/download")
 @login_required
+@pin.pin_required
 def download():
     from ..assessment import service as assess
     p = g.participant
@@ -553,6 +556,114 @@ def delete_account():
         response.delete_cookie(current_app.config["AUTH_COOKIE_NAME"], path="/")
         return response
     return render_template("reflect/delete.html")
+
+
+# ---- journal PIN (optional) -------------------------------------------------------
+
+def _pin_next() -> str:
+    return pin.safe_next(request.values.get("next"), url_for("reflect.journal"))
+
+
+@bp.route("/pin", methods=["GET", "POST"])
+@login_required
+@limiter.limit("30 per hour", methods=["POST"])
+def pin_unlock():
+    p = g.participant
+    nxt = _pin_next()
+    if not p.pin_hash or pin.unlocked():
+        return redirect(nxt)
+    if request.method == "POST" and not pin.locked_out(p):
+        if pin.check(p, request.form.get("pin")):
+            if nxt == url_for("reflect.settings"):
+                flash("Unlocked. Tap Download my data again.", "info")
+            return redirect(nxt)
+        if not pin.locked_out(p):
+            left = pin.tries_left(p)
+            flash(f"That PIN didn't match. {left} tr{'y' if left == 1 else 'ies'} left.", "error")
+    return render_template("reflect/pin.html", next=nxt, locked_out=pin.locked_out(p)), \
+        (400 if request.method == "POST" else 200)
+
+
+@bp.post("/pin/lock")
+@login_required
+def pin_lock():
+    pin.lock()
+    nxt = pin.safe_next(request.form.get("next"), url_for("reflect.journal"))
+    if request.form.get("idle") == "1":
+        return redirect(url_for("reflect.pin_unlock", next=nxt))
+    flash("Locked. Your PIN is needed to open your reflections and results.", "info")
+    return redirect(url_for("reflect.journal"))
+
+
+@bp.route("/pin/setup", methods=["GET", "POST"])
+@login_required
+def pin_setup():
+    p = g.participant
+    if p.pin_hash and not pin.unlocked():          # changing it needs the current PIN first
+        return redirect(url_for("reflect.pin_unlock", next=url_for("reflect.pin_setup")))
+    if request.method == "POST":
+        try:
+            new = pin.validate(request.form.get("pin"), request.form.get("confirm"))
+        except pin.PinError as exc:
+            flash(str(exc), "error")
+            return render_template("reflect/pin_setup.html", changing=bool(p.pin_hash)), 400
+        changing = bool(p.pin_hash)
+        pin.set_pin(p, new)
+        flash("Your PIN is changed." if changing else
+              "Your PIN is set. You'll be asked for it after 15 minutes away.", "info")
+        return redirect(url_for("reflect.settings"))
+    return render_template("reflect/pin_setup.html", changing=bool(p.pin_hash))
+
+
+@bp.post("/pin/remove")
+@login_required
+@pin.pin_required
+def pin_remove():
+    pin.remove_pin(g.participant)
+    flash("Your PIN is turned off.", "info")
+    return redirect(url_for("reflect.settings"))
+
+
+@bp.post("/pin/forgot")
+@login_required
+@limiter.limit("10 per hour")
+def pin_forgot():
+    p = g.participant
+    if not p.pin_hash:
+        return redirect(url_for("reflect.settings"))
+    try:
+        code = auth_service.issue_pin_code(p.email)
+    except auth_service.SignInError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("reflect.pin_unlock"))
+    try:
+        mail.send(p.email, f"Your code to reset your PIN: {code}", "pin_code", code=code)
+    except Exception:
+        current_app.logger.exception("PIN reset email failed to send")
+        auth_service.withdraw_unsent_code(p.email, "pin")
+        flash("We couldn't send the code just now. Please try again in a few minutes.", "error")
+        return redirect(url_for("reflect.pin_unlock"))
+    return redirect(url_for("reflect.pin_reset"))
+
+
+@bp.route("/pin/reset", methods=["GET", "POST"])
+@login_required
+@limiter.limit("30 per hour", methods=["POST"])
+def pin_reset():
+    p = g.participant
+    if not p.pin_hash:
+        return redirect(url_for("reflect.settings"))
+    if request.method == "POST":
+        try:
+            new = pin.validate(request.form.get("pin"), request.form.get("confirm"))
+            auth_service.check_code(p.email, request.form.get("code", ""), "pin")
+        except (pin.PinError, auth_service.SignInError) as exc:
+            flash(str(exc), "error")
+            return render_template("reflect/pin_reset.html", email=p.email), 400
+        pin.set_pin(p, new)
+        flash("Your new PIN is set.", "info")
+        return redirect(url_for("reflect.journal"))
+    return render_template("reflect/pin_reset.html", email=p.email)
 
 
 @bp.route("/unsubscribe/<token>", methods=["GET", "POST"])

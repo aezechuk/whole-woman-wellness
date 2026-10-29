@@ -1,0 +1,8 @@
+Your code to reset your journal PIN is:
+
+{{ code }}
+
+Enter it in the app to continue. It expires in 10 minutes.
+
+If you didn't ask for this, you can ignore this email. Your PIN hasn't changed.
+{% include "email/footer.txt" %}

@@ -21,6 +21,7 @@
     }).then(function (r) {
       say(r.status === 204 ? "Draft saved · private to you"
         : r.status === 413 ? "That's longer than we can save. Please trim it a little."
+        : r.status === 423 ? "Your journal locked. Copy your text, then reopen the page and enter your PIN."
         : "Couldn't save just now. Your text is still here; tap Save reflection.");
     }).catch(function () {
       say("You're offline. Your text is still here; tap Save reflection when you're back.");

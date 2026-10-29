@@ -12,6 +12,25 @@
   <button class="button secondary" type="submit">Save</button>
 </form>
 
+<section class="card stack" id="pin">
+  <h2 class="h2">Journal PIN <span class="muted small">(optional)</span></h2>
+  {% if participant.pin_hash %}
+    <p class="small">🔒 On. Your reflections and results need your PIN after 15 minutes away.</p>
+    <a class="button secondary" href="{{ url_for('reflect.pin_setup') }}">Change my PIN</a>
+    <form method="post" action="{{ url_for('reflect.pin_lock') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="button secondary" type="submit">Lock now</button>
+    </form>
+    <form method="post" action="{{ url_for('reflect.pin_remove') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="link-button" type="submit">Turn off my PIN</button>
+    </form>
+  {% else %}
+    <p class="small">Add a PIN so anyone holding your phone can't open your reflections or assessment results.</p>
+    <a class="button secondary" href="{{ url_for('reflect.pin_setup') }}">Add a PIN</a>
+  {% endif %}
+</section>
+
 <section class="card stack">
   <h2 class="h2">Your data</h2>
   <p class="small">Download your results, reflections, and testimonials as a text file. Everything is deleted on February 28, 2027.</p>

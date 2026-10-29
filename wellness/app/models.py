@@ -51,6 +51,9 @@ class Participant(db.Model):
     count_me_in_done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     weekly_emails: Mapped[bool] = mapped_column(Boolean, default=True)
     comment_emails: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    # Optional journal PIN (see pin.py): only a slow, keyed hash is stored.
+    pin_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    pin_failures: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     downloaded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -109,6 +112,8 @@ class AuthSession(db.Model):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Journal PIN: private pages are open on this device until this time (sliding).
+    pin_unlocked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     participant: Mapped[Participant] = relationship(back_populates="auth_sessions")
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from flask import abort, flash, g, redirect, render_template, request, url_for
 
 from .. import countmein
+from ..pin import pin_required
 from ..extensions import db
 from ..models import DemographicResponse, utcnow
 from ..participant.routes import login_required
@@ -90,6 +91,7 @@ def extras():
 
 @bp.get("/results")
 @login_required
+@pin_required
 def results():
     a = service.get(g.participant, "pre")
     if a is None or not a.is_complete:
@@ -99,6 +101,7 @@ def results():
 
 @bp.post("/results/focus")
 @login_required
+@pin_required
 def save_focus():
     a = service.get(g.participant, "pre")
     if a is None or not a.is_complete:
@@ -112,6 +115,7 @@ def save_focus():
 
 @bp.get("/results/final")
 @login_required
+@pin_required
 def final_results():
     post = service.get(g.participant, "post")
     if post is None or not post.is_complete:

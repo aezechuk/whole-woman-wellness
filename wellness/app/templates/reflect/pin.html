@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Enter your PIN{% endblock %}
+{% block content %}
+<section class="pin-screen stack">
+  <p class="pin-icon" aria-hidden="true">🔒</p>
+  <h1 class="title center">Your journal is locked</h1>
+  {% if locked_out %}
+    <p class="center">Too many tries. To keep your reflections safe, we'll email you a code to set a new PIN.</p>
+  {% else %}
+    <p class="center muted">Enter your PIN to open your reflections and results.</p>
+    <form method="post" class="card stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="field">
+        <label for="pin">PIN</label>
+        <input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6"
+               autocomplete="off" required autofocus class="code-input">
+      </div>
+      <button class="button" type="submit">Unlock</button>
+    </form>
+  {% endif %}
+  <form method="post" action="{{ url_for('reflect.pin_forgot') }}" class="center">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="{{ 'button' if locked_out else 'link-button center' }}" type="submit">{{ 'Email me a code' if locked_out else 'Forgot your PIN?' }}</button>
+  </form>
+</section>
+<p class="center"><a href="{{ url_for('participant.home') }}">Back to home</a></p>
+{% endblock %}

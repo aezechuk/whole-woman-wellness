@@ -101,6 +101,9 @@ def create_app(env: str | None = None) -> Flask:
     def load_participant():
         g.participant = participant_for_token(request.cookies.get(app.config["AUTH_COOKIE_NAME"]),
                                               extend=not request.path.startswith("/static/"))
+        if g.participant is not None and not request.path.startswith("/static/"):
+            from . import pin
+            pin.touch()
 
     @app.after_request
     def security_headers(response):

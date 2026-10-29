@@ -100,6 +100,17 @@ def issue_code(email: str, purpose: str, cohort_id=None) -> str:
     return code
 
 
+def issue_pin_code(email: str) -> str:
+    """A code to reset a forgotten journal PIN; same limits as sign-in codes."""
+    hour_ago = utcnow() - timedelta(hours=1)
+    recent = db.session.scalar(
+        select(func.count()).select_from(SignInCode)
+        .where(SignInCode.email == email, SignInCode.purpose == "pin", SignInCode.created_at >= hour_ago))
+    if recent >= current_app.config["SIGNIN_CODES_PER_EMAIL_PER_HOUR"]:
+        raise SignInError("Too many codes requested. Please wait a little while and try again.")
+    return issue_code(email, "pin")
+
+
 def withdraw_unsent_code(email: str, purpose: str) -> None:
     """The email with the newest code failed to send: delete it so it can't be used
     and doesn't count against the hourly limit."""
@@ -179,6 +190,7 @@ def participant_for_token(token: str | None, extend: bool = False) -> Participan
             sess.expires_at = new_expiry
             db.session.commit()
             g.auth_extended = True
+    g.auth_session = sess
     return sess.participant
 
 
