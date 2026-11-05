@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, true
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .extensions import db
@@ -361,3 +361,22 @@ class WinReport(db.Model):
 
     post: Mapped[WinPost | None] = relationship(back_populates="reports")
     comment: Mapped[WinComment | None] = relationship(back_populates="reports")
+
+
+class SessionResource(db.Model):
+    """A session replay, handout, or link (see media.py). Program content, not personal data."""
+
+    __tablename__ = "session_resource"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    week_key: Mapped[str] = mapped_column(String(32), index=True)
+    kind: Mapped[str] = mapped_column(String(8))                     # video | file | link
+    title: Mapped[str] = mapped_column(String(120))
+    s3_key: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    filename: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    content_type: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    size: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    ready: Mapped[bool] = mapped_column(Boolean, default=False)       # upload confirmed
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

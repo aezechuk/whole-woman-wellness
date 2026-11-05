@@ -115,3 +115,19 @@ sudo bash /opt/wellness/app/deploy/scripts/create-cohort.sh WIARTS26
 2. On the server: `sudo docker compose --env-file /opt/wellness/.env exec -T app flask purge-program-data --confirm`
 3. Wait 14 days for backups to expire (or empty the backup bucket), then `terraform destroy`.
 4. Schedule deletion of the KMS key happens as part of destroy (30-day window) — after that, any stray copies of reflections are unreadable.
+
+## Session replays and handouts (media storage)
+
+Created with CloudFormation, not Terraform (the Terraform state lived in CloudShell).
+One-time setup, in us-east-2 (Ohio):
+
+1. Console → **CloudFormation** → **Create stack** → *With new resources* → **Upload a template file** → `deploy/cloudformation/media.yaml`.
+2. Stack name `wellness-media`. Leave the parameters as they are. Tick the IAM acknowledgement box, then **Submit**. Wait for `CREATE_COMPLETE`.
+3. Deploy as usual (Session Manager: backup, then `deploy.sh`). The app picks up `/wellness/MEDIA_BUCKET` and turns on **Admin → Replays & handouts**.
+
+What it creates: a private, encrypted, HTTPS-only S3 bucket; uploads accepted only from the app's domain;
+everything in it deleted Feb 28, 2027; and permission for the `wellness-app` role to read, write, and delete under `media/`.
+Participants only ever get short-lived signed links (videos: 4 hours, watch-only; handouts: 5 minutes, download).
+
+Videos must be .mp4 (Zoom recordings are). Smaller files load faster on phones: HandBrake's "Fast 720p30" preset
+usually turns a 90-minute recording into about 400–700 MB.

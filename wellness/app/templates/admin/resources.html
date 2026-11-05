@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% block title %}Replays & handouts{% endblock %}
+{% block content %}
+<h1 class="title">Replays &amp; handouts</h1>
+{% if not ready %}
+<div class="card"><p>Video storage isn't set up yet. Create the media stack in AWS CloudFormation, then deploy.</p></div>
+{% else %}
+<p class="muted small">Only signed-in participants can see these. Videos play in the app with no download button; handouts can be downloaded. Everything is deleted Feb 28, 2027.</p>
+
+<form class="card stack narrow" data-upload-form>
+  <h2 class="h2">Upload</h2>
+  <div class="field"><label for="u-week">Session</label>
+    <select id="u-week" name="week_key" required>
+      {% for row in weeks %}<option value="{{ row.week.key }}">Week {{ row.week.number }} · {{ row.week.name }}</option>{% endfor %}
+    </select></div>
+  <div class="field"><label for="u-kind">Type</label>
+    <select id="u-kind" name="kind">
+      <option value="video">Session replay (video, .mp4, up to {{ video_max }})</option>
+      <option value="file">Handout (PDF, Word, PowerPoint, Excel, image, up to {{ file_max }})</option>
+    </select></div>
+  <div class="field"><label for="u-title">Title <span class="muted small">(optional)</span></label>
+    <input id="u-title" name="title" type="text" maxlength="120" placeholder="e.g. Session replay, Breathing practice handout"></div>
+  <div class="field"><label for="u-file">File</label>
+    <input id="u-file" name="file" type="file" required accept=".mp4,.pdf,.docx,.pptx,.xlsx,.png,.jpg,.jpeg"></div>
+  <progress max="100" value="0" hidden data-upload-progress></progress>
+  <p class="small" data-upload-status role="status"></p>
+  <button class="button" type="submit">Upload</button>
+  <p class="muted small">Keep this page open until it says it's done. A 1 GB video takes a few minutes on good Wi-Fi.</p>
+</form>
+
+<form method="post" action="{{ url_for('admin.resources_link') }}" class="card stack narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2 class="h2">Add a link</h2>
+  <div class="field"><label for="l-week">Session</label>
+    <select id="l-week" name="week_key">
+      {% for row in weeks %}<option value="{{ row.week.key }}">Week {{ row.week.number }} · {{ row.week.name }}</option>{% endfor %}
+    </select></div>
+  <div class="field"><label for="l-title">Title</label><input id="l-title" name="title" type="text" maxlength="120" required></div>
+  <div class="field"><label for="l-url">Link</label><input id="l-url" name="url" type="url" placeholder="https://" required></div>
+  <button class="button secondary" type="submit">Add link</button>
+</form>
+{% endif %}
+
+{% for row in weeks %}
+<section class="card stack">
+  <h2 class="h2">Week {{ row.week.number }} · {{ row.week.name }}</h2>
+  {% for r in row.resources %}
+    <div class="resource-admin">
+      <span>{{ '▶' if r.kind == 'video' else '🔗' if r.kind == 'link' else '📄' }} <strong>{{ r.title }}</strong>
+        <span class="muted small">{% if r.kind == 'link' %}{{ r.url }}{% else %}{{ r.filename }} · {{ nice_size(r.size) }}{% endif %}{% if not r.ready %} · <em>upload didn't finish</em>{% endif %}</span></span>
+      <form method="post" action="{{ url_for('admin.resources_delete', resource_id=r.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="link-button" type="submit">Remove</button>
+      </form>
+    </div>
+  {% else %}
+    <p class="muted small">Nothing yet.</p>
+  {% endfor %}
+</section>
+{% endfor %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="{{ url_for('static', filename='js/admin-upload.js') }}" defer></script>
+{% endblock %}

@@ -18,6 +18,19 @@ CSP = (
 )
 
 
+def _csp(app: Flask) -> str:
+    """Allow the private media bucket (signed links only) for video playback and admin uploads."""
+    if app.config.get("MEDIA_BACKEND") == "memory":
+        origin = "https://media.test"
+    elif app.config.get("MEDIA_BUCKET"):
+        region = os.environ.get("AWS_DEFAULT_REGION", "us-east-2")
+        origin = f"https://{app.config['MEDIA_BUCKET']}.s3.{region}.amazonaws.com"
+    else:
+        return CSP
+    return (CSP.replace("connect-src 'self'", f"connect-src 'self' {origin}")
+            + f"; media-src 'self' {origin}")
+
+
 def create_app(env: str | None = None) -> Flask:
     env = env or os.environ.get("APP_ENV", "dev")
     app = Flask(__name__)
@@ -97,6 +110,8 @@ def create_app(env: str | None = None) -> Flask:
         return {"contact_name": app.config["CONTACT_NAME"], "contact_email": app.config["CONTACT_EMAIL"],
                 "funder_name": app.config["FUNDER_NAME"]}
 
+    app_csp = _csp(app)
+
     @app.before_request
     def load_participant():
         g.participant = participant_for_token(request.cookies.get(app.config["AUTH_COOKIE_NAME"]),
@@ -107,7 +122,7 @@ def create_app(env: str | None = None) -> Flask:
 
     @app.after_request
     def security_headers(response):
-        response.headers["Content-Security-Policy"] = CSP
+        response.headers["Content-Security-Policy"] = app_csp
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["X-Frame-Options"] = "DENY"
@@ -149,13 +164,13 @@ def create_app(env: str | None = None) -> Flask:
         from . import program
         from .models import (WinCheer, WinComment, WinPost, WinReport, AnonCheckin, Assessment, AuthSession, DemographicResponse, EmailLog, FeedbackDone,
                              Intention, IntentionCheckin, JournalEntry, Participant, SessionFeedback,
-                             SignInCode, Testimonial, utcnow)
+                             SessionResource, SignInCode, Testimonial, utcnow)
         if utcnow() < program.load().data_deletion:
             raise click.ClickException("The deletion date hasn't arrived yet.")
         if not confirm:
             raise click.ClickException("Re-run with --confirm. Export the funder report first.")
         for model in (WinReport, WinCheer, WinComment, WinPost, IntentionCheckin, Intention, AnonCheckin, JournalEntry, Testimonial, FeedbackDone, EmailLog, AuthSession, Assessment,
-                      SignInCode, Participant, SessionFeedback, DemographicResponse):
+                      SignInCode, Participant, SessionFeedback, DemographicResponse, SessionResource):
             db.session.query(model).delete()
         db.session.commit()
         click.echo("All program data deleted.")

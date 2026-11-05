@@ -223,6 +223,64 @@ def program_settings():
     return render_template("admin/program.html", cohort=cohort, o=reports.overview())
 
 
+# ---- session replays & handouts ------------------------------------------------------
+
+@bp.get("/resources")
+def resources():
+    from .. import media, program as prog
+    weeks = [{"week": w, "resources": media.for_week(w.key, include_pending=True)} for w in prog.load().weeks]
+    return render_template("admin/resources.html", weeks=weeks, ready=media.storage() is not None,
+                           nice_size=media.nice_size, video_max="5 GB", file_max="100 MB")
+
+
+@bp.post("/resources/upload-url")
+def resources_upload_url():
+    from .. import media
+    f = request.form
+    try:
+        res, url = media.start_upload(f.get("week_key", ""), f.get("kind", ""), f.get("title"),
+                                      f.get("filename"), f.get("size"))
+    except media.MediaError as exc:
+        return {"error": str(exc)}, 400
+    return {"id": str(res.id), "url": url, "content_type": res.content_type}
+
+
+@bp.post("/resources/<resource_id>/done")
+def resources_done(resource_id: str):
+    from .. import media
+    try:
+        res = media.get(resource_id)
+    except KeyError:
+        abort(404)
+    if not media.finish_upload(res):
+        return {"error": "The upload didn't reach storage. Please try again."}, 409
+    flash(f"“{res.title}” is up. Participants can see it on the session page now.", "info")
+    return {"ok": True}
+
+
+@bp.post("/resources/link")
+def resources_link():
+    from .. import media
+    try:
+        media.add_link(request.form.get("week_key", ""), request.form.get("title"), request.form.get("url"))
+        flash("Link added.", "info")
+    except media.MediaError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.resources"))
+
+
+@bp.post("/resources/<resource_id>/delete")
+def resources_delete(resource_id: str):
+    from .. import media
+    try:
+        res = media.get(resource_id)
+    except KeyError:
+        abort(404)
+    media.delete(res)
+    flash(f"Removed “{res.title}”.", "info")
+    return redirect(url_for("admin.resources"))
+
+
 # ---- exports -----------------------------------------------------------------------
 
 def _cell(value) -> str:

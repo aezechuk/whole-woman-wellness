@@ -57,6 +57,10 @@ class Config:
     JOURNAL_KEY_BACKEND = os.environ.get("JOURNAL_KEY_BACKEND", "local")
     JOURNAL_KMS_KEY_ID = os.environ.get("JOURNAL_KMS_KEY_ID")
     JOURNAL_LOCAL_KEY = os.environ.get("JOURNAL_LOCAL_KEY")
+    # Session replays and handouts (media.py). Hidden until MEDIA_BUCKET is set.
+    MEDIA_BACKEND = os.environ.get("MEDIA_BACKEND", "s3")
+    MEDIA_BUCKET = os.environ.get("MEDIA_BUCKET")
+
     REFLECTION_MAX_CHARS = 10_000
     TESTIMONIAL_MAX_CHARS = 2_000
     FEEDBACK_MAX_CHARS = 2_000
@@ -77,6 +81,7 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     RATELIMIT_ENABLED = False
     MAIL_BACKEND = "memory"
+    MEDIA_BACKEND = "memory"
     JOURNAL_LOCAL_KEY = "dGVzdC1vbmx5LWtleS10aGlydHktdHdvLWJ5dGVzISE="
     PUBLIC_URL = "https://wellness.test"
     ADMIN_EMAILS = ["elle@example.org", "staff@example.org"]

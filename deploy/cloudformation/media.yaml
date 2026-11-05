@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Whole Woman Wellness - private storage for session replays and handouts.
+  Private S3 bucket (no public access, encrypted, HTTPS only), browser uploads from the
+  app's domain only, everything deleted Feb 28 2027, and permission for the existing
+  app server role to use it. Separate from the Terraform stack on purpose.
+
+Parameters:
+  AppHost:
+    Type: String
+    Default: wellness.arthenticarts.org
+    Description: The app's web address (uploads are only accepted from here)
+  AppRoleName:
+    Type: String
+    Default: wellness-app
+    Description: The existing IAM role the app server uses (created by Terraform)
+  DeleteOn:
+    Type: String
+    Default: "2027-02-28T00:00:00Z"
+    Description: Everything in the bucket is deleted on this date (midnight UTC)
+
+Resources:
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: [!Sub "https://${AppHost}"]
+            AllowedMethods: [PUT, GET, HEAD]
+            AllowedHeaders: ["*"]
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: delete-at-program-end
+            Status: Enabled
+            ExpirationDate: !Ref DeleteOn
+          - Id: clean-up-unfinished-uploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+      Tags:
+        - Key: Project
+          Value: whole-woman-wellness
+
+  MediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt MediaBucket.Arn
+              - !Sub "${MediaBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  AppMediaAccess:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: wellness-media
+      Roles: [!Ref AppRoleName]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ManageSessionMediaOnly
+            Effect: Allow
+            Action: [s3:PutObject, s3:GetObject, s3:DeleteObject]
+            Resource: !Sub "${MediaBucket.Arn}/media/*"
+
+  MediaBucketSetting:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /wellness/MEDIA_BUCKET
+      Type: String
+      Value: !Ref MediaBucket
+      Description: Private bucket for session replays and handouts (read by deploy.sh)
+
+Outputs:
+  MediaBucket:
+    Value: !Ref MediaBucket

@@ -9,6 +9,35 @@
   <p>{{ week.overview }}</p>
 </section>
 
+{% if resources %}
+{% set videos = resources|selectattr('r.kind', 'equalto', 'video')|list %}
+{% set extras = resources|rejectattr('r.kind', 'equalto', 'video')|list %}
+<section class="card stack" id="replay">
+  <p class="kicker">{{ 'SESSION REPLAY' if videos else 'RESOURCES' }}</p>
+  {% for v in videos %}
+    {% if videos|length > 1 or v.r.title != 'Session replay' %}<p class="h3">{{ v.r.title }}</p>{% endif %}
+    <video class="replay" controls playsinline preload="metadata" controlslist="nodownload" data-replay>
+      <source src="{{ v.src }}" type="video/mp4">
+      Your browser can't play this video. Try updating it, or open the app in Safari or Chrome.
+    </video>
+  {% endfor %}
+  {% if videos %}<p class="muted small">For our group only. Please don't record or share it.</p>{% endif %}
+  {% if extras %}
+    {% if videos %}<p class="kicker">HANDOUTS &amp; LINKS</p>{% endif %}
+    <div class="resource-list">
+    {% for x in extras %}
+      {% if x.r.kind == 'file' %}
+        <a class="row-link" href="{{ url_for('reflect.resource_download', resource_id=x.r.id) }}"><span><strong>📄 {{ x.r.title }}</strong><span class="muted small block">{{ x.r.filename.rsplit('.', 1)[-1]|upper }} · {{ x.size }} · download</span></span><span aria-hidden="true">↓</span></a>
+      {% else %}
+        <a class="row-link" href="{{ x.r.url }}" target="_blank" rel="noopener noreferrer"><span><strong>🔗 {{ x.r.title }}</strong><span class="muted small block">Opens in a new tab</span></span><span aria-hidden="true">›</span></a>
+      {% endif %}
+    {% endfor %}
+    </div>
+  {% endif %}
+</section>
+<script src="{{ url_for('static', filename='js/replay.js') }}" defer></script>
+{% endif %}
+
 {% if nudge_win %}
 <section class="card stack added-card">
   <p class="kicker">THAT'S A WIN 💜</p>

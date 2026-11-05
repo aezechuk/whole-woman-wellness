@@ -12,7 +12,7 @@ from flask import (Response, abort, current_app, flash, g, make_response, redire
                    render_template, request, url_for)
 from sqlalchemy import delete, select
 
-from .. import calendar_ics, crypto, intentions, mail, notify, pin, program, wins
+from .. import calendar_ics, crypto, intentions, mail, media, notify, pin, program, wins
 from ..auth import service as auth_service
 from ..extensions import db, limiter
 from ..models import (FeedbackDone, JournalEntry, Participant, SessionFeedback, SignInCode,
@@ -105,7 +105,32 @@ def _session_rows(p: Participant) -> list[dict]:
 @bp.get("/sessions")
 @login_required
 def sessions():
-    return render_template("reflect/sessions.html", rows=_session_rows(g.participant))
+    replays = media.weeks_with_video() if media.storage() is not None else set()
+    return render_template("reflect/sessions.html", rows=_session_rows(g.participant), replays=replays)
+
+
+def _week_resources(week_key: str) -> list[dict]:
+    if media.storage() is None:
+        return []
+    out = []
+    for r in media.for_week(week_key):
+        item = {"r": r, "size": media.nice_size(r.size)}
+        if r.kind == "video":
+            item["src"] = media.play_url(r)
+        out.append(item)
+    return out
+
+
+@bp.get("/resources/<resource_id>/download")
+@login_required
+def resource_download(resource_id: str):
+    try:
+        res = media.get(resource_id)
+    except KeyError:
+        abort(404)
+    if res.kind != "file" or not res.ready or media.storage() is None:
+        abort(404)                    # videos are watch-only
+    return redirect(media.download_url(res))
 
 
 def _focus_keys(p: Participant) -> set[str]:
@@ -133,7 +158,7 @@ def session_week(week_key: str):
         is_current=current is not None and current.key == week.key,
         due=[v for v in all_views if v.due] if current is not None and current.key == week.key else [],
         mine=[v for v in all_views if v.active and v.area_key == week.key],
-        edit=edit, added=added, nudge_win=request.args.get("win") == "1",
+        edit=edit, added=added, nudge_win=request.args.get("win") == "1", resources=_week_resources(week.key),
         week_wins=len(wins.feed(week.key)), is_focus=week.key in _focus_keys(p), next_steps=intentions.NEXT_STEPS,
         reminder_days=calendar_ics.DAYS, reminder_durations=calendar_ics.DURATIONS, reminder_until=calendar_ics.UNTIL)
 
